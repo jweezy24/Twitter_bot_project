@@ -23,6 +23,8 @@ To install all dependencies run the command below. We also require python3.
 pip install -r ./requirements.txt
 ```
 
+You will also need a token within a environment variable `APIKEY` and `APISECRET` to properly run the python twitter bot code.  
+
 
 ## Authors
 
