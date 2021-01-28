@@ -30,11 +30,11 @@ def get_favorites(user):
     return favs
 
 
-''' Returns a list of followers
+''' 
+    Returns a list of followers
     Data Structure used: List
     Input: A string of the user's screen name
     Output: A list of strings with each followers' screen_name
-
 '''
 
 def get_followers(user):
