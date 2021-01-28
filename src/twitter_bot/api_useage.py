@@ -38,11 +38,11 @@ def get_favorites(user):
 '''
 
 def get_followers(user):
-    users = api.GetFollowerIDs(screen_name=user)
+    users = api2.friends(user)
     names = []
     for i in users:
-        user = api2.get_user(i)._json
-        names.append(user["screen_name"])
+        print(i)
+        #names.append(user["screen_name"])
     
 
     return names

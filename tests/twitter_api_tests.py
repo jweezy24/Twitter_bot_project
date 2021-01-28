@@ -12,11 +12,11 @@ class TestAPICalls(unittest.TestCase):
     ''' Verifies proper output of API calls '''
 
     def test_get_favorites(self):
-        favs = get_favorites('jack_west24')
+        favs = get_favorites('alittl3ton13')
         self.assertFalse(favs == None)
     
     def test_get_followers(self):
-        users = get_followers('jack_west24')
+        users = get_followers('alittl3ton13')
         print(users)
 
 
