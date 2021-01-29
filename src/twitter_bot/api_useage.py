@@ -6,7 +6,6 @@ import time
 
 api_key = os.environ['APIKEY']
 api_secret = os.environ['APISECRET'] 
-bearer_token = os.environ['BEARER']
 username = os.environ['TWITTERUSER']
 password = os.environ['TWITTERPASS']
 
@@ -38,11 +37,12 @@ def get_favorites(user):
 '''
 
 def get_followers(user):
-    users = api2.friends(user)
     names = []
-    for i in users:
-        print(i)
-        #names.append(user["screen_name"])
+    for page in tweepy.Cursor(api2.followers, screen_name=user).pages():
+        for entry in page:
+            names.append(entry._json['screen_name'])
+        
+        time.sleep(10)
     
-
     return names
+

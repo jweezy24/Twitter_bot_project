@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+vars_setup.sh
+
 # Distribution / packaging
 .Python
 build/
