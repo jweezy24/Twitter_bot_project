@@ -20,6 +20,8 @@ class TestAPICalls(unittest.TestCase):
         users = get_followers('jack_west24')
         self.assertTrue(len(users) == 61)
 
+    def test_create_word_dictionary(self):
+        users = create_word_dictionary('jack_west24')
 
 
 
@@ -28,5 +30,6 @@ if __name__ == "__main__":
     ''' DUE TO API LIMITATIONS RESERVE TESTING TO ONE METHOD AT A TIME '''
     #suite.addTest(TestAPICalls('test_get_favorites'))
     #suite.addTest(TestAPICalls('test_get_followers'))
+    suite.addTest(TestAPICalls('test_create_word_dictionary'))
 
     unittest.TextTestRunner().run(suite)
