@@ -21,8 +21,18 @@ class TestAPICalls(unittest.TestCase):
         self.assertTrue(len(users) == 61)
 
     def test_create_word_dictionary(self):
-        users = create_word_dictionary('jack_west24')
-
+        words = create_word_dictionary('jack_west24')
+        
+        self.assertTrue(words == type({}))
+        self.assertTrue(len(words) != 0)
+    
+    def test_retrieve_all_statuses(self):
+        res = []
+        tweets = retrieve_all_statuses('jack_west24',res)
+        
+        self.assertTrue(len(tweets) < 200)
+        # self.assertTrue(words == type({}))
+        # self.assertTrue(len(words) != 0)
 
 
 if __name__ == "__main__":
@@ -30,6 +40,7 @@ if __name__ == "__main__":
     ''' DUE TO API LIMITATIONS RESERVE TESTING TO ONE METHOD AT A TIME '''
     #suite.addTest(TestAPICalls('test_get_favorites'))
     #suite.addTest(TestAPICalls('test_get_followers'))
-    suite.addTest(TestAPICalls('test_create_word_dictionary'))
+    #suite.addTest(TestAPICalls('test_create_word_dictionary'))
+    suite.addTest(TestAPICalls('test_retrieve_all_statuses'))
 
     unittest.TextTestRunner().run(suite)

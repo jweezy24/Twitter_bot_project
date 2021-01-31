@@ -47,6 +47,36 @@ def get_followers(user):
     return names
 
 
+'''
+The idea for this method came from here.
+https://gist.github.com/yanofsky/5436496
+Input: Username of user that we are going to examine
+Output: a list of tweets of that user.
+'''
+
+def retrieve_all_statuses(user,results,max_id=-1):
+    
+    if max_id == -1:
+        tweets = api2.user_timeline(screen_name = user,count=200)
+    else:
+        tweets = api2.user_timeline(screen_name = user,count=200,max_id=max_id)
+    
+    local_max = 0
+    
+    if len(tweets) == 0:
+        return results
+
+    for tweet in tweets:
+        if tweet._json['id'] > max_id:
+            results.append(tweet)
+            if tweet._json['id'] > local_max:
+                local_max = tweet._json['id']
+    
+    return retrieve_all_statuses(user,results,max_id=local_max) 
+
+
+
+
 ''' 
     Returns a dictionary word list of all the user's most commonly assciated words.
     Data Structure used: List
@@ -61,6 +91,7 @@ def create_word_dictionary(user):
 
     for status in statuses:
         tweet = status._json['text']
+
 
         for word in tweet.split():
             if word.lower() not in words:
