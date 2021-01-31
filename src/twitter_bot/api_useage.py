@@ -2,6 +2,7 @@ import os
 import twitter
 import tweepy
 import time
+from word_examination import *
 
 
 api_key = os.environ['APIKEY']
@@ -61,18 +62,17 @@ def retrieve_all_statuses(user,results,max_id=-1):
     else:
         tweets = api2.user_timeline(screen_name = user,count=200,max_id=max_id)
     
-    local_max = 0
+    local_min = -1
     
     if len(tweets) == 0:
         return results
 
     for tweet in tweets:
-        if tweet._json['id'] > max_id:
-            results.append(tweet)
-            if tweet._json['id'] > local_max:
-                local_max = tweet._json['id']
+        results.append(tweet._json['text'])
+        if local_min == -1 or tweet._json['id'] < local_min:
+            local_min = tweet._json['id']-1
     
-    return retrieve_all_statuses(user,results,max_id=local_max) 
+    return retrieve_all_statuses(user,results,max_id=local_min) 
 
 
 
@@ -86,14 +86,14 @@ def retrieve_all_statuses(user,results,max_id=-1):
 
 def create_word_dictionary(user):
     words = {}
-    statuses = api2.user_timeline(user,count=200)
+    results = []
+    statuses = retrieve_all_statuses(user,results)
     favorites = get_favorites(user)
 
     for status in statuses:
-        tweet = status._json['text']
+        tweet = filter_out_words(status)
 
-
-        for word in tweet.split():
+        for word in tweet:
             if word.lower() not in words:
                 words[word.lower()] = 1
             else:
@@ -102,11 +102,12 @@ def create_word_dictionary(user):
     
     for favorite in favorites:
         tweet = favorite['text']
+        tweet = filter_out_words(tweet)
 
-        for word in tweet.split():
+        for word in tweet:
             if word.lower() not in words:
                 words[word.lower()] = 1
             else:
-                words.update({word: words[word.lower()]+1})
+                words.update({word.lower(): words[word.lower()]+1})
 
     return words

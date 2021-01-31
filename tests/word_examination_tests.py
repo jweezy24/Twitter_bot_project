@@ -9,7 +9,6 @@ class TestLanguageFunctions(unittest.TestCase):
         text = "Being more Pythonic is good for the health."
         words = filter_out_words(text)
         correct_words = ['Being', 'more', 'Pythonic', 'good', 'health']
-        print(words)
         self.assertTrue(correct_words == words)
 
 

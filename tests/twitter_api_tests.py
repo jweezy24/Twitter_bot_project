@@ -21,16 +21,32 @@ class TestAPICalls(unittest.TestCase):
         self.assertTrue(len(users) == 61)
 
     def test_create_word_dictionary(self):
-        words = create_word_dictionary('jack_west24')
+        words = create_word_dictionary('alittl3ton13')
+        most_used = []
+        for i in range(0,50):
+            local_max = 0
+            word = ''
+            for j in words.items():
+                if j[1] > local_max and j not in most_used:
+                    local_max = j[1]
+                    word = j
+            most_used.append(word)
         
-        self.assertTrue(words == type({}))
+        count=1
+        for i in most_used:
+            word,num = i
+            print(f"{count}: {word}\t {num}")
+            count+=1
+        print(most_used)
+        self.assertTrue(type(words) == type({}))
         self.assertTrue(len(words) != 0)
     
     def test_retrieve_all_statuses(self):
         res = []
-        tweets = retrieve_all_statuses('jack_west24',res)
+        tweets = retrieve_all_statuses('alittl3ton13',res)
+        print(res)
         
-        self.assertTrue(len(tweets) < 200)
+        self.assertTrue(len(tweets) > 200)
         # self.assertTrue(words == type({}))
         # self.assertTrue(len(words) != 0)
 
@@ -40,7 +56,7 @@ if __name__ == "__main__":
     ''' DUE TO API LIMITATIONS RESERVE TESTING TO ONE METHOD AT A TIME '''
     #suite.addTest(TestAPICalls('test_get_favorites'))
     #suite.addTest(TestAPICalls('test_get_followers'))
-    #suite.addTest(TestAPICalls('test_create_word_dictionary'))
-    suite.addTest(TestAPICalls('test_retrieve_all_statuses'))
+    suite.addTest(TestAPICalls('test_create_word_dictionary'))
+    #suite.addTest(TestAPICalls('test_retrieve_all_statuses'))
 
     unittest.TextTestRunner().run(suite)
