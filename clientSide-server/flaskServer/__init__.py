@@ -11,3 +11,5 @@ app.config['MONGODB_SETTINGS'] = {
 }
 
 db = MongoEngine(app)
+
+from flaskServer import routes
