@@ -3,6 +3,7 @@ import twitter
 import tweepy
 import time
 from word_examination import *
+from REST_api_calls import *
 
 
 api_key = os.environ['APIKEY']
@@ -67,9 +68,22 @@ def retrieve_all_statuses(user,results,max_id=-1):
     if len(tweets) == 0:
         return results
 
+    ids = []
+    count = 0
     for tweet in tweets:
-        print(tweet)
-        exit()
+        #get_tweet_context(tweet._json["id"])
+        #print(tweet)
+        if count < 100:
+            ids.append(tweet._json["id"])
+            count+=1
+        else:
+            get_tweet_context(ids)
+            ids =[]
+            count = 1
+            ids.append(tweet._json["id"])
+
+        if "context_annotations" in tweet._json:
+            print(tweet._json["context_annotations"])
         results.append(tweet._json['text'])
         if local_min == -1 or tweet._json['id'] < local_min:
             local_min = tweet._json['id']-1
