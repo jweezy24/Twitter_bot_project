@@ -68,6 +68,8 @@ def retrieve_all_statuses(user,results,max_id=-1):
         return results
 
     for tweet in tweets:
+        print(tweet)
+        exit()
         results.append(tweet._json['text'])
         if local_min == -1 or tweet._json['id'] < local_min:
             local_min = tweet._json['id']-1

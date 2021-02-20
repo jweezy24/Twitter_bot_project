@@ -55,3 +55,9 @@ WRB	wh-adverb    where, when
 
 This list is how NLTK categorizes words.
 We can determine which word is imporant and could lead to defining who a person is.
+
+## What Tweepy and Twitter.py are missing.
+
+Both well known APIs do not support the context annotations requests.
+These are important as they are the categorizations that we wanted to fully focus on.
+So, one of the things that we had to do was build out those API requests.

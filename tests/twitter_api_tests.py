@@ -2,6 +2,7 @@ import unittest
 import sys
 sys.path.append("../src/twitter_bot")
 from api_useage import *
+from REST_api_calls import *
 
 ''' THESE TESTS WILL REQUIRE PROPER ENVIRONMENT VARIABLES TO PROPERLY RUN.
     FOR QUESTIONS EMAIL JACK (jwest1@luc.edu) '''
@@ -50,13 +51,17 @@ class TestAPICalls(unittest.TestCase):
         # self.assertTrue(words == type({}))
         # self.assertTrue(len(words) != 0)
 
+    def test_get_context(self):
+        tweet_id = 1361392458383384578
+        print(get_tweet_context(tweet_id))
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     ''' DUE TO API LIMITATIONS RESERVE TESTING TO ONE METHOD AT A TIME '''
     #suite.addTest(TestAPICalls('test_get_favorites'))
     #suite.addTest(TestAPICalls('test_get_followers'))
-    suite.addTest(TestAPICalls('test_create_word_dictionary'))
+    #suite.addTest(TestAPICalls('test_create_word_dictionary'))
     #suite.addTest(TestAPICalls('test_retrieve_all_statuses'))
-
+    suite.addTest(TestAPICalls('test_get_context'))
+    
     unittest.TextTestRunner().run(suite)
