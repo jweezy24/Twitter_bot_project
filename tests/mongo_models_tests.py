@@ -1,5 +1,7 @@
 import unittest
 from mongoengine import connect, disconnect
+import sys
+sys.path.append('./src')
 from server.models import *
 
 
@@ -23,5 +25,6 @@ class TestModels(unittest.TestCase):
         user.save()
 
         actual = Account.objects().first()
-        assert actual.twitter_handle == "John21"
-        assert actual.name == "John Doe"
+        #assert actual.twitter_handle == "John21"
+        #assert actual.name == "John Doe"
+        self.assertEqual(actual.twitter_handle, "John21")

@@ -12,5 +12,7 @@ app.config['MONGODB_SETTINGS'] = {
 }
 
 db = MongoEngine(app)
+import sys
 
+sys.path.append('./')
 from server import routes

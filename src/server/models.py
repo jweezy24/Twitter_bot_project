@@ -5,7 +5,7 @@ from mongoengine.queryset.base import CASCADE
 
 
 
-from server import db
+#from server import db
 import mongoengine as me
 db:MongoEngine
 

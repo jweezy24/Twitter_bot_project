@@ -1,11 +1,16 @@
 import unittest
 from mongoengine import connect, disconnect
-import server.db_controller as controller
+import sys
+#sys.path.append('.')
+sys.path.append('./src')
+#sys.path.insert(1, '../src/server/')
 
+import server.db_controller as controller
+import server.models as models
 
 ''' Verifies proper usage of db controller '''
 
-class TestModels(unittest.TestCase):
+class TestController(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -18,8 +23,8 @@ class TestModels(unittest.TestCase):
     
     
     def test_insert_account(self):
-        controller.insert_account()
+        controller.insert_account({"twitter_handle":"John21", "name" :"John Doe"})
 
-        actual = Account.objects().first()
+        actual = models.Account.objects().first()
         assert actual.twitter_handle == "John21"
         assert actual.name == "John Doe"
