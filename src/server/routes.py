@@ -2,7 +2,7 @@
 from flask import Flask, render_template, url_for, flash, redirect
 
 from server import app, db
-from server.models import Account, Grouping
+from server.models import Account, Group
 from server.db_controller import *
 
 
