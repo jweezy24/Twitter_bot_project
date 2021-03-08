@@ -35,7 +35,6 @@ def get_favorites(user,total=100):
         for entry in page:
             if not search_value(entry._json["id"]):
                 save_value(entry._json,userid=user,table="favorite_tbl")
-                exit()
             else:
                 continue
     

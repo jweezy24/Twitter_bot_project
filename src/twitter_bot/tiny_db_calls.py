@@ -30,7 +30,7 @@ def save_value(entry,userid="NA",table=""):
         print(e)
         return None
     
-    if search_value(id,teble=table):
+    if search_value(id,table=table):
         return False
     else:
         
