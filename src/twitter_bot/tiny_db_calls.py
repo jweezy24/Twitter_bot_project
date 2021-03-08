@@ -17,24 +17,29 @@ output:
     a true or false value of saving the tweet was completed.
 '''
 
-def save_value(entry,userid="NA"):
+def save_value(entry,userid="NA",table=""):
     #This should be replaced in the future. Currently is a cop out for a type check
     db_path = os.environ["TINYDB_PATH"]
     db = f"{userid}.json"
     db_path += db
-    
+
+
     try:
         id = entry["id"]
     except Exception as e:
         print(e)
         return None
     
-    if search_value(id):
+    if search_value(id,teble=table):
         return False
     else:
         
         with tinydb.TinyDB(db_path) as tweets:
-            tweets.insert(entry)
+            if table == "":
+                tweets.insert(entry)
+            else:
+                tbl = tweets.table(table)
+                tbl.insert(entry)
         
         return True
 
@@ -48,7 +53,7 @@ output:
     a true or false value of saving the tweet was completed.
 '''
 
-def search_value(id,userid="NA"):
+def search_value(id,userid="NA", table=""):
     Entry = tinydb.Query()
     db_path = os.environ["TINYDB_PATH"]
     db = f"{userid}.json"
@@ -56,8 +61,12 @@ def search_value(id,userid="NA"):
     
     
     with tinydb.TinyDB(db_path) as tweets:
-        f = tweets.search(Entry.id == id)
-    
+        if table == "":
+            f = tweets.search(Entry.id == id)
+        else:
+            tbl = tweets.table(table)
+            f = tbl.search(Entry.id == id)
+
     f = len(f) > 0
 
     if f:

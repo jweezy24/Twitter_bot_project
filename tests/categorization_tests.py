@@ -1,7 +1,8 @@
 import unittest
 import sys
 sys.path.append("../src/twitter_bot")
-from word_examination import *
+from categorization_algorithm import *
+
 
 class TestLanguageFunctions(unittest.TestCase):
     

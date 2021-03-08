@@ -2,7 +2,7 @@ import os
 import twitter
 import tweepy
 import time
-from word_examination import *
+from categorization_algorithm import *
 from REST_api_calls import *
 from tiny_db_calls import *
 
@@ -30,10 +30,12 @@ api2 = tweepy.API(auth,wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 def get_favorites(user,total=100):
     favs = []
     count = 0
+
     for page in tweepy.Cursor(api2.favorites, screen_name=user).pages():
         for entry in page:
             if not search_value(entry._json["id"]):
-                save_value(entry._json,userid=user)
+                save_value(entry._json,userid=user,table="favorite_tbl")
+                exit()
             else:
                 continue
     
@@ -53,10 +55,13 @@ def get_favorites(user,total=100):
 def get_favorites_with_context(user,total=100):
     favs = []
     count = 0
+    table_cache = {"favorite_with_context_tbl" : None}
+
     for page in tweepy.Cursor(api2.favorites, screen_name=user).pages():
         for entry in page:
             if not search_value(entry._json["id"]):
                 res = get_tweet_context(entry._json["id"])
+                table_cache["favorite_with_context_tbl"] = res
                 save_value(res,userid=user)
             else:
                 continue
