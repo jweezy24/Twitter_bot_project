@@ -2,17 +2,16 @@ import unittest
 import sys
 sys.path.append("../src/twitter_bot")
 from categorization_algorithm import *
+from tiny_db_calls import *
 
 
 class TestLanguageFunctions(unittest.TestCase):
     
     def test_word_filter(self):
-        text = "Being more Pythonic is good for the health."
-        words = filter_out_words(text)
-        correct_words = ['Being', 'more', 'Pythonic', 'good', 'health']
-        self.assertTrue(correct_words == words)
-
-
+        favorites = get_all_favorites('alittl3ton13',table="favorite_tbl")
+        output = filter_out_words(favorites)
+        self.assertTrue(type(output) == type({}))
+        self.assertTrue(len(output.keys()) != 0)
 
 if __name__ == "__main__":
     unittest.main()
