@@ -74,3 +74,26 @@ def search_value(id,userid="NA", table=""):
     else:
         return False
 
+
+''' 
+This method will return all of the saved favorites of a user.
+input:
+    user = The screen name of the user
+    table = The type of data one would like to retrieve from the table. 
+output:
+    A list of all the saved favorites
+'''
+
+def get_all_favorites(user,table=""):
+    db_path = os.environ["TINYDB_PATH"]
+    db = f"{user}.json"
+    db_path += db
+    
+    with tinydb.TinyDB(db_path) as tweets:
+        q = tinydb.Query()
+
+        if table == "":
+            return tweets.search(q.screen_name == user)
+        else:
+            tbl = tweets.table(table)
+            return tbl.all()

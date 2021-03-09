@@ -19,8 +19,14 @@ class TestTinyDBCalls(unittest.TestCase):
         res = search_value(temp_tweet["id"])
         self.assertTrue(res)
 
-    def test_data_clear(self):
-        data_clear()
+    def test_get_all_favorites(self):
+        res = get_all_favorites('alittl3ton13')
+        self.assertTrue(res == [])
+        res = get_all_favorites('alittl3ton13',table="favorite_tbl")
+        self.assertTrue(res != [])
+        self.assertTrue(type(res) == type([]))
+        self.assertTrue(len(res) > 0)
+        print(res)    
 
 
 if __name__ == "__main__":

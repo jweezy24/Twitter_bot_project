@@ -10,8 +10,7 @@ def filter_out_words(text):
     wlist = []
     for sentence in pos_sentences:
         for word,w_type in sentence:
-            if w_type in types_of_words_to_filter:
-                wlist.append(word)
-            else:
-                continue
+            print(f"WORD = {word}\t w_type={w_type}")
     return wlist
+
+

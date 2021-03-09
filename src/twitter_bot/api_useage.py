@@ -59,9 +59,7 @@ def get_favorites_with_context(user,total=100):
     for page in tweepy.Cursor(api2.favorites, screen_name=user).pages():
         for entry in page:
             if not search_value(entry._json["id"]):
-                res = get_tweet_context(entry._json["id"])
-                table_cache["favorite_with_context_tbl"] = res
-                save_value(res,userid=user)
+                save_value(entry._json,userid=user,table="favorite_tbl")
             else:
                 continue
             if res:
