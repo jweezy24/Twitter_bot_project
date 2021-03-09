@@ -14,7 +14,7 @@ class TestAPICalls(unittest.TestCase):
     ''' Verifies proper output of API calls '''
 
     def test_get_favorites(self):
-        favs = get_favorites('alittl3ton13')
+        favs = get_favorites('jack_west24')
         self.assertFalse(favs == None)
         print(favs)
     
