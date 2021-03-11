@@ -76,8 +76,8 @@ class TestAPICalls(unittest.TestCase):
 if __name__ == "__main__":
     suite = unittest.TestSuite()
     ''' DUE TO API LIMITATIONS RESERVE TESTING TO ONE METHOD AT A TIME '''
-    suite.addTest(TestAPICalls('test_get_favorites'))
-    #suite.addTest(TestAPICalls('test_get_favorites_context'))
+    #suite.addTest(TestAPICalls('test_get_favorites'))
+    suite.addTest(TestAPICalls('test_get_favorites_context'))
     #suite.addTest(TestAPICalls('test_get_followers'))
     #suite.addTest(TestAPICalls('test_create_word_dictionary'))
     #suite.addTest(TestAPICalls('test_retrieve_all_tweets'))
