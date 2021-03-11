@@ -2,6 +2,7 @@ import nltk.tokenize as nt
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 import nltk
+from tiny_db_calls import *
 
 
 types_of_words_to_filter = ['NNS', 'NN', 'NNP', 'NNPS']
@@ -130,4 +131,99 @@ def pretty_print(lst, is_neg=False):
         for i in lst:
             print(f"{count}. {i[0]}\t {i[1]}\t {i[2]}")
             count+=1
+
+'''
+This method will combine favorites without context with favorites with context.
+input:
+    user = Twitter username to combine favorites with context.
+output:
+    list of favorites where the id with context is prioritized.
+'''
+def combine_favorites_with_context(user):
+    #This method will be another sorting algorithm
+
+    #intialization of two lists that we would like to merge.
+    favs = get_all_favorites(user, table="favorite_tbl")
+    favs_context = get_all_favorites(user, table="favorites_context")
+
+    ''' MERGING ALGORITHM DESCRIPTION '''
+    #We want to merge by tweet id.
+    #Both lists in the initalization will be different sizes.
+    #So, we will have to approach the problem by copying all of the ids by themselves into two lists
+    #We then search for numbers that match.
+    #If the numbers do not match we take the entry from favs.
+    #If there exists a match we use the entry from favs_context
+    
+
+    #Create the id arrays
+    favs_ids = []
+    favs_context_ids = []
+    
+    for tweet in favs:
+        favs_ids.append(tweet["id"])
+    
+    for tweet in favs_context:
+        #The API we built has ids as strings rather than integers
+        favs_context_ids.append(int(tweet["id"]))
+
+    #Sort the lists we gathered
+    favs_ids.sort()
+    favs_context_ids.sort()
+
+    #inits
+    h1 = None
+    h2 = None
+    ele = None
+    ids = []
+    
+    # Merge the lists
+    # In the algorithm below we will treat the lists above as queues
+    # Algorithm pseudocode https://en.wikipedia.org/wiki/Merge_algorithm
+    while len(favs_ids) != 0 or len(favs_context_ids) != 0:
+        
+        if not h1 and len(favs_ids) > 0:
+            h1 = favs_ids.pop(0)
+        
+        if not h2 and len(favs_context_ids) > 0:
+            h2 = favs_context_ids.pop(0)
+        
+        if h1 < h2 and h1 != None:
+            ele = (h1, 0)
+            h1 = None
+            
+        elif h1 == h2:
+            ele = (h2, 1)
+            h1 = None
+            h2 = None
+            
+        else:
+            ele = (h2, 1)
+            h2 = None
+            
+
+        ids.append(ele)
+
+
+    #print(ids)
+
+    #init of returned list
+    final = []
+
+    #We search through the list and dependign on the idicator flag given in the merge algorithm
+    #This may seem slower than quereying the databse but it is actually much faster for some reason.
+    #This may be a weakness of tinydb.
+    #We should migrate this over to a real database once that is ready.
+    for id,lst in ids:
+        if lst == 0:
+            for tweet in favs:
+                if tweet["id"] == id:
+                    final.append(tweet)
+                    break
+
+        elif lst == 1:
+            for tweet in favs_context:
+                if tweet["id"] == str(id):
+                    final.append(tweet)
+                    break
+    return final
 

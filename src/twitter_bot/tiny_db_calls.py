@@ -75,6 +75,40 @@ def search_value(id,userid="NA", table=""):
         return False
 
 
+
+''' 
+This method will check to see if a value already exists in the database and returns the value.
+input:
+    id = a string of the id the user wants to find within the local storage
+    userid = A string of the user's screen name. This is to store tweets by user in multiple json files. 
+output:
+    a true or false value of saving the tweet was completed.
+'''
+
+def get_value(id,userid="NA", table=""):
+    Entry = tinydb.Query()
+    db_path = os.environ["TINYDB_PATH"]
+    db = f"{userid}.json"
+    db_path += db
+    
+    
+    with tinydb.TinyDB(db_path) as tweets:
+        if table == "":
+            f = tweets.search(Entry.id == id)
+        else:
+            tbl = tweets.table(table)
+            f = tbl.search(Entry.id == id)
+
+    f = len(f) > 0
+    print(f)
+
+    if f:
+        return f
+    else:
+        return None
+
+
+
 ''' 
 This method will return all of the saved favorites of a user.
 input:

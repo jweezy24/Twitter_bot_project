@@ -26,7 +26,7 @@ class TestTinyDBCalls(unittest.TestCase):
         self.assertTrue(res != [])
         self.assertTrue(type(res) == type([]))
         self.assertTrue(len(res) > 0)
-        print(res)    
+
 
 
 if __name__ == "__main__":

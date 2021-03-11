@@ -19,7 +19,7 @@ class TestAPICalls(unittest.TestCase):
         print(favs)
     
     def test_get_favorites_context(self):
-        favs = get_favorites_with_context('alittl3ton13')
+        favs = get_favorites_with_context('jack_west24')
         self.assertFalse(favs == None)
         print(favs)
         
