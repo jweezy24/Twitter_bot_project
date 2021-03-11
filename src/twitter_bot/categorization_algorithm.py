@@ -7,7 +7,7 @@ from tiny_db_calls import *
 
 types_of_words_to_filter = ['NNS', 'NN', 'NNP', 'NNPS']
 ignored_words = stopwords.words('english')
-bad = "/home/jweezy/Drive2/Drive2/Code/Twitter_bot_project/src/data/badwords.txt"
+bad = "/home/jweezy/Documents/Twitter_bot_project/src/data/badwords.txt"
 with open(bad,"r") as f:
     for word in f:
         ignored_words.append(word.strip())
@@ -21,12 +21,27 @@ output:
 '''
 def filter_out_words(data):
     out = {}
+    context = {}
     for row in data:
         text = row["text"]
         polarity = "pos" if determine_sentiment_of_text(text) else "neg"
         ss=nt.sent_tokenize(text)
         tokenized_sent=[nt.word_tokenize(sent) for sent in ss]
         pos_sentences=[nltk.pos_tag(sent) for sent in tokenized_sent]
+        if "context_annotations" in row.keys():
+            for item in row["context_annotations"]:
+                if 'entity' in item.keys():
+                    print(item)
+                    if 'description' in item['entity'].keys():
+                        if item['entity']['description'] in context:
+                            context[item['entity']['description']] += 1
+                        else:
+                            context[item['entity']['description']] = 1
+                    if 'name' in item['entity'].keys():
+                        if item['entity']['name'] in context:
+                            context[item['entity']['name']] += 1
+                        else:
+                            context[item['entity']['name']] = 1
         for sentence in pos_sentences:
             for word,w_type in sentence:
                 if w_type in types_of_words_to_filter and len(word) > 1 and word not in ignored_words:
@@ -41,7 +56,8 @@ def filter_out_words(data):
                             out[ele] = -1
                         if polarity == "pos":
                             out[ele] = 1
-    return out
+
+    return out,context
 
 '''
 This method will rank each word found in a given dictionary.
@@ -107,6 +123,29 @@ def rank_words_dictionary(data, total=100):
     return lst_pos
 
 '''
+This method will rank the contexts the user is most asscociated with.
+input:
+    data = dictionary of contexts where the indexs are the context and the value at the index is the occurance of that context.
+    total = the amount of context the user would like to be ranked.
+output:
+    out = a list of those words ranked
+'''
+def rank_context_dictionary(data, total=10):
+    lst = []
+
+    for i in range(0,total):
+        local_max = 0
+        context = ''
+        for key in data.keys():
+            amount = data[key]
+            if amount > local_max and (key,amount) not in lst:
+                local_max = amount
+                context = key
+        lst.append((context,local_max))
+    
+    return lst
+
+'''
 This method will determine the polarity of a tweet.
 input:
     text = The tweet we wish to determine polarity of.
@@ -118,6 +157,12 @@ def determine_sentiment_of_text(text):
     sia = SentimentIntensityAnalyzer()
     return sia.polarity_scores(text)["compound"] >= 0
 
+
+def pretty_print_context(lst):
+    count = 1
+    for c,a in lst:
+        print(f"{count}. {c}\t{a}")
+        count+=1
 
 def pretty_print(lst, is_neg=False):
     if not is_neg:
