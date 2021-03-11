@@ -120,47 +120,29 @@ def retrieve_all_tweets(user,results,max_id=-1):
     ids = []
     count = 0
     for tweet in tweets:
-
+        save_value(tweet._json,user,table="tweets")
         results.append(tweet)
         if local_min == -1 or tweet._json['id'] < local_min:
             local_min = tweet._json['id']-1
     
     return retrieve_all_tweets(user,results,max_id=local_min)
 
-
-
-
-''' 
-    Returns a dictionary word list of all the user's most commonly assciated words.
-    Data Structure used: List
-    Input: A string of the user's screen name
-    Output: a hashmap of commonly asscociated words
+'''
+The idea for this method came from here.
+https://gist.github.com/yanofsky/5436496
+Input: Username of user that we want to give context to.
 '''
 
-def create_word_dictionary(user):
-    words = {}
-    results = []
-    statuses = retrieve_all_statuses(user,results)
-    favorites = get_favorites(user)
+def save_all_tweets_context(user):
 
-    for status in statuses:
-        tweet = filter_out_words(status)
+    tweets = get_all_table_entries(user, table="tweets")
 
-        for word in tweet:
-            if word.lower() not in words:
-                words[word.lower()] = 1
-            else:
-                words.update({word.lower(): words[word.lower()]+1})
-    
-    
-    for favorite in favorites:
-        tweet = favorite['text']
-        tweet = filter_out_words(tweet)
+    for entry in tweets:
+        print(entry)
+        res = get_tweet_context(entry["id"])
+        if res:
+            save_value(res,userid=user,table="tweets_context")
+        else:
+            continue
 
-        for word in tweet:
-            if word.lower() not in words:
-                words[word.lower()] = 1
-            else:
-                words.update({word.lower(): words[word.lower()]+1})
 
-    return words

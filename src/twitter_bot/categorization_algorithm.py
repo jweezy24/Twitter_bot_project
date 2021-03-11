@@ -24,6 +24,7 @@ def filter_out_words(data):
     context = {}
     topics = {}
     for row in data:
+        
         text = row["text"]
         polarity = "pos" if determine_sentiment_of_text(text) else "neg"
         ss=nt.sent_tokenize(text)
@@ -59,7 +60,7 @@ def filter_out_words(data):
         
         for sentence in pos_sentences:
             for word,w_type in sentence:
-                if w_type in types_of_words_to_filter and len(word) > 1 and word not in ignored_words:
+                if w_type in types_of_words_to_filter and len(word) > 1 and word_check(word) and "/" not in word:
                     ele = (word.lower(), w_type)
                     if ele in out:
                         if polarity == "neg":
@@ -217,6 +218,7 @@ def combine_favorites_with_context(user):
     #intialization of two lists that we would like to merge.
     favs = get_all_favorites(user, table="favorite_tbl")
     favs_context = get_all_favorites(user, table="favorites_context")
+    all_tweets = get_all_table_entries(user, table="tweets")
 
     ''' MERGING ALGORITHM DESCRIPTION '''
     #We want to merge by tweet id.
@@ -230,6 +232,7 @@ def combine_favorites_with_context(user):
     #Create the id arrays
     favs_ids = []
     favs_context_ids = []
+    tweet_ids = []
     
     for tweet in favs:
         favs_ids.append(tweet["id"])
@@ -275,6 +278,8 @@ def combine_favorites_with_context(user):
 
         ids.append(ele)
 
+    
+
 
     #print(ids)
 
@@ -299,3 +304,119 @@ def combine_favorites_with_context(user):
                     break
     return final
 
+
+'''
+This method will combine user's tweets without context with tweets with context.
+input:
+    user = Twitter username to combine tweets with context.
+output:
+    list of tweets where the id with context is prioritized.
+'''
+def combine_tweets_with_context(user):
+    #This method will be another sorting algorithm
+
+    #intialization of two lists that we would like to merge.
+    all_tweets = get_all_table_entries(user, table="tweets")
+    tweets_context = get_all_table_entries(user, table="tweets_context")
+
+    print(all_tweets[0])
+
+    ''' MERGING ALGORITHM DESCRIPTION '''
+    #We want to merge by tweet id.
+    #Both lists in the initalization will be different sizes.
+    #So, we will have to approach the problem by copying all of the ids by themselves into two lists
+    #We then search for numbers that match.
+    #If the numbers do not match we take the entry from favs.
+    #If there exists a match we use the entry from tweets_context
+    
+
+    #Create the id arrays
+    tweet_ids = []
+    tweet_context_ids = []
+    
+    for tweet in all_tweets:
+        tweet_ids.append(tweet["id"])
+    
+    for tweet in tweets_context:
+        #The API we built has ids as strings rather than integers
+        tweet_context_ids.append(int(tweet["id"]))
+
+    #Sort the lists we gathered
+    tweet_ids.sort()
+    tweet_context_ids.sort()
+
+    #inits
+    h1 = None
+    h2 = None
+    ele = None
+    ids = []
+    
+    # Merge the lists
+    # In the algorithm below we will treat the lists above as queues
+    # Algorithm pseudocode https://en.wikipedia.org/wiki/Merge_algorithm
+    while len(tweet_ids) != 0 or len(tweet_context_ids) != 0:
+        
+        if not h1 and len(tweet_ids) > 0:
+            h1 = tweet_ids.pop(0)
+        
+        if not h2 and len(tweet_context_ids) > 0:
+            h2 = tweet_context_ids.pop(0)
+        
+        print(f"h1 = {h1}\t h2 = {h2} ")
+        
+        if h1 and not h2:
+            ele = (h1, 0)
+            h1 = None
+        
+        elif h2 and not h1:
+            ele = (h2, 0)
+            h2 = None
+
+        elif h1 < h2:
+            ele = (h1, 0)
+            h1 = None
+            
+        elif h1 == h2:
+            ele = (h2, 1)
+            h1 = None
+            h2 = None
+            
+        else:
+            ele = (h2, 1)
+            h2 = None
+
+
+        ids.append(ele)
+
+    
+
+
+    #print(ids)
+
+    #init of returned list
+    final = []
+
+    #We search through the list and dependign on the idicator flag given in the merge algorithm
+    #This may seem slower than quereying the databse but it is actually much faster for some reason.
+    #This may be a weakness of tinydb.
+    #We should migrate this over to a real database once that is ready.
+    for id,lst in ids:
+        if lst == 0:
+            for tweet in all_tweets:
+                if tweet["id"] == id:
+                    final.append(tweet)
+                    break
+
+        elif lst == 1:
+            for tweet in tweets_context:
+                if tweet["id"] == str(id):
+                    final.append(tweet)
+                    break
+    return final
+
+
+def word_check(word):
+    for bword in ignored_words:
+        if word.lower().strip() == bword.lower().strip():
+            return False
+    return True

@@ -28,17 +28,21 @@ class TestLanguageFunctions(unittest.TestCase):
         self.assertTrue(determine_sentiment_of_text(t1))
 
     def test_combine_favorites_with_context(self):
-        final = combine_favorites_with_context('alittl3ton13')
-        output1,output2,output3 = filter_out_words(final)
-        ranked = rank_words_dictionary(output1)
-        ranked2,ranked2_neg = rank_context_dictionary(output2)
-        ranked3,ranked3_neg = rank_context_dictionary(output3)
-        pretty_print_context(ranked2)
-        pretty_print_context(ranked2_neg)
-        pretty_print_context(ranked3)
-        pretty_print_context(ranked3_neg)
-        self.assertTrue(type(ranked) == type([]))
-        self.assertTrue(len(ranked) != 0)
+        #final = combine_favorites_with_context('alittl3ton13')
+        final2 = combine_tweets_with_context('alittl3ton13')
+        #output1,output2,output3 = filter_out_words(final)
+        output4,output5,output6 = filter_out_words(final2)
+        #ranked = rank_words_dictionary(output1)
+        ranked4 = rank_words_dictionary(output4)
+        #ranked2,ranked2_neg = rank_context_dictionary(output2)
+        #ranked3,ranked3_neg = rank_context_dictionary(output3)
+        # pretty_print_context(ranked2)
+        # pretty_print_context(ranked2_neg)
+        # pretty_print_context(ranked3)
+        # pretty_print_context(ranked3_neg)
+        # pretty_print(ranked4)
+        # self.assertTrue(type(ranked) == type([]))
+        # self.assertTrue(len(ranked) != 0)
 
         
 if __name__ == "__main__":
