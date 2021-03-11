@@ -19,7 +19,7 @@ class FollowingConnections(me.EmbeddedDocument):
     distance  = me.IntField()
 
 class Account(me.Document):
-    twitter_handle = me.StringField(required = True)
+    twitter_handle = me.StringField(required = True, unique = True)
     name           = me.StringField()
     update_date    = me.DateField(default=datetime.datetime.utcnow)
     group_type     = me.ReferenceField(Group)
@@ -28,7 +28,8 @@ class Account(me.Document):
 
 
 
-
+#this might be usefull to look at old results
 class Search(me.Document):
     search_handle = me.ReferenceField(Account, required=True, reverse_delete_rule=CASCADE)
     connections = me.ListField(EmbeddedDocumentField(FollowingConnections))
+    date = me.DateField(default=datetime.datetime.utcnow)
