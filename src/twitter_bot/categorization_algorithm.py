@@ -22,6 +22,7 @@ output:
 def filter_out_words(data):
     out = {}
     context = {}
+    topics = {}
     for row in data:
         text = row["text"]
         polarity = "pos" if determine_sentiment_of_text(text) else "neg"
@@ -34,14 +35,28 @@ def filter_out_words(data):
                     print(item)
                     if 'description' in item['entity'].keys():
                         if item['entity']['description'] in context:
-                            context[item['entity']['description']] += 1
+                            if polarity == "pos":
+                                context[item['entity']['description']] += 1
+                            elif polarity == "neg":
+                                context[item['entity']['description']] -= 1
                         else:
-                            context[item['entity']['description']] = 1
+                            if polarity == "pos":
+                                context[item['entity']['description']] = 1
+                            elif polarity == "neg":
+                                context[item['entity']['description']] = -1
+
                     if 'name' in item['entity'].keys():
-                        if item['entity']['name'] in context:
-                            context[item['entity']['name']] += 1
+                        if item['entity']['name'] in topics:
+                            if polarity == "pos":
+                                topics[item['entity']['name']] += 1
+                            elif polarity == "neg":
+                                topics[item['entity']['name']] -= 1
                         else:
-                            context[item['entity']['name']] = 1
+                            if polarity == "pos":
+                                topics[item['entity']['name']] = 1
+                            elif polarity == "neg":
+                                topics[item['entity']['name']] = -1
+        
         for sentence in pos_sentences:
             for word,w_type in sentence:
                 if w_type in types_of_words_to_filter and len(word) > 1 and word not in ignored_words:
@@ -57,7 +72,7 @@ def filter_out_words(data):
                         if polarity == "pos":
                             out[ele] = 1
 
-    return out,context
+    return out,context,topics
 
 '''
 This method will rank each word found in a given dictionary.
@@ -130,9 +145,11 @@ input:
 output:
     out = a list of those words ranked
 '''
-def rank_context_dictionary(data, total=10):
+def rank_context_dictionary(data, total=100):
     lst = []
-
+    lst_neg = []
+    if len(data.keys()) < total:
+        total = len(data.keys())
     for i in range(0,total):
         local_max = 0
         context = ''
@@ -142,8 +159,18 @@ def rank_context_dictionary(data, total=10):
                 local_max = amount
                 context = key
         lst.append((context,local_max))
+
+    for i in range(0,total):
+        local_min = None
+        context = ''
+        for key in data.keys():
+            amount = data[key]
+            if (local_min == None or amount < local_min ) and (key,amount) not in lst_neg:
+                local_min = amount
+                context = key
+        lst_neg.append((context,local_min))
     
-    return lst
+    return lst,lst_neg
 
 '''
 This method will determine the polarity of a tweet.
