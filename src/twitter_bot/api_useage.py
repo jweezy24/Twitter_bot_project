@@ -59,7 +59,7 @@ def get_favorites_with_context(user,total=100):
     table_cache = {"favorite_with_context_tbl" : None}
     max_id = get_maximum_id(user, "favorites_context")
 
-    for page in tweepy.Cursor(api2.favorites, screen_name=user,max_id =max_id).pages():
+    for page in tweepy.Cursor(api2.favorites, screen_name=user,since_id =max_id).pages():
         for entry in page:
             if not search_value(entry._json["id"], user, table="favorites_context"):
                 res = get_tweet_context(entry._json["id"])
