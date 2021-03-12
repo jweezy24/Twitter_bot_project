@@ -194,6 +194,7 @@ def build_user_web(user):
     print(f"{user} is Followed by {followers}")
 
     for people in followers:
+        people = people["id"]
         print(f"CHECKING {people}")
         retrieve_all_tweets(people)
         print(f"Got Tweets for {people}")
@@ -206,6 +207,7 @@ def build_user_web(user):
         
 
     for people in followers:
+        people = people["id"]
         print(f"CHECKING {people}")
         retrieve_all_tweets(people)
         print(f"Got Tweets for {people}")
