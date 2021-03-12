@@ -185,10 +185,10 @@ def build_user_web(user):
 
     if not followers:
         get_followers(user)
-        followers = get_all_table_entries("followers")
+        followers = get_all_table_entries(user,"followers")
     if not following:
         get_following(user)
-        following = get_all_table_entries("following")
+        following = get_all_table_entries(user,"following")
 
     print(f"{user} is Following {following}")
     print(f"{user} is Followed by {followers}")
