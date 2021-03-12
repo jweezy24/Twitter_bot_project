@@ -29,8 +29,8 @@ class TestAPICalls(unittest.TestCase):
         
     
     def test_retrieve_all_tweets(self):
-        retrieve_all_tweets('theneedledrop')
-        tweets = get_all_table_entries("theneedledrop","tweets")
+        retrieve_all_tweets('larry_coover')
+        tweets = get_all_table_entries("larry_coover","tweets")
 
         self.assertTrue(len(tweets) >=  1)
         # self.assertTrue(words == type({}))
@@ -60,9 +60,9 @@ if __name__ == "__main__":
     ''' DUE TO API LIMITATIONS RESERVE TESTING TO ONE METHOD AT A TIME '''
     #suite.addTest(TestAPICalls('test_get_favorites'))
     #suite.addTest(TestAPICalls('test_get_favorites_context'))
-    suite.addTest(TestAPICalls('test_get_followers'))
+    #suite.addTest(TestAPICalls('test_get_followers'))
     #suite.addTest(TestAPICalls('test_create_word_dictionary'))
-    #suite.addTest(TestAPICalls('test_retrieve_all_tweets'))
+    suite.addTest(TestAPICalls('test_retrieve_all_tweets'))
     #suite.addTest(TestAPICalls('test_get_context'))
     #suite.addTest(TestAPICalls('test_twitter_acc'))
     #suite.addTest(TestAPICalls('test_save_all_tweets_context'))

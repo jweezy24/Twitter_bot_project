@@ -128,21 +128,26 @@ Output: a list of tweets of that user.
 
 def retrieve_all_tweets(user,max_id=-1):
     
-    
+    data = api2.get_user(user)
+    created = data.created_at
     favs = []
     count = 0
     max_id = get_maximum_id(user, "tweets")
     print(max_id)
     if max_id == None:
-        cur = tweepy.Cursor(api2.user_timeline, id=user).pages()
+        cur = tweepy.Cursor(api2.user_timeline, id=user, since=created ).pages()
     else:
         cur = tweepy.Cursor(api2.user_timeline, id=user,since_id =max_id).pages()
     
+    count = 0
     for page in cur:
         for entry in page:
             if not search_value(entry._json["id"], user, table="tweets"):
+                    print(f"Saved Tweet")
                     save_value(entry._json,userid=user,table="tweets")
-    
+                    count+=1
+
+    print(f"Saved {count} Tweets from {user}")    
 '''
 The idea for this method came from here.
 https://gist.github.com/yanofsky/5436496
