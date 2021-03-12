@@ -155,3 +155,57 @@ def get_all_table_entries(user,table=""):
         else:
             tbl = tweets.table(table)
             return tbl.all()
+
+def get_minimum_id(user,table):
+    min_ = None
+    is_string = False
+    
+    db_path = os.environ["TINYDB_PATH"]
+    db = f"{user}.json"
+    db_path += db
+
+    with tinydb.TinyDB(db_path) as tweets:
+        tbl = tweets.table(table)
+        for entry in tbl:
+            if min_ == None:
+                if type(entry["id"]) == type(""):
+                    min_ = int(entry["id"])
+                    is_string = True
+                elif type(entry["id"]) == type(1):
+                    min_ = entry["id"]
+                continue
+            if is_string and min_ > int(entry["id"]):
+                min_ = int(entry["id"])
+            elif min_ > entry["id"]:
+                min_ = entry["id"]
+
+    return min_
+
+def get_maximum_id(user,table):
+    max_ = None
+    is_string = False
+    
+    db_path = os.environ["TINYDB_PATH"]
+    db = f"{user}.json"
+    db_path += db
+
+    with tinydb.TinyDB(db_path) as tweets:
+        tbl = tweets.table(table)
+        for entry in tbl:
+            if max_ == None:
+                if type(entry["id"]) == type(""):
+                    max_ = int(entry["id"])
+                    is_string = True
+                elif type(entry["id"]) == type(1):
+                    max_ = entry["id"]
+                continue
+            if is_string and max_ <  int(entry["id"]):
+                max_ = int(entry["id"])
+            elif max_ < entry["id"]:
+                max_ = entry["id"]
+
+    return max_
+        
+        
+
+        

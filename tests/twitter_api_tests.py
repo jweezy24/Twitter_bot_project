@@ -25,14 +25,14 @@ class TestAPICalls(unittest.TestCase):
         
     def test_get_followers(self):
         users = get_followers('jack_west24')
-        self.assertTrue(len(users) == 61)
+        print(users)
+        
     
     def test_retrieve_all_tweets(self):
-        res = []
-        tweets = retrieve_all_tweets('alittl3ton13',res)
-        print(res)
-        
-        self.assertTrue(len(tweets) > 200)
+        retrieve_all_tweets('theneedledrop')
+        tweets = get_all_table_entries("theneedledrop","tweets")
+
+        self.assertTrue(len(tweets) >=  1)
         # self.assertTrue(words == type({}))
         # self.assertTrue(len(words) != 0)
 
@@ -60,11 +60,11 @@ if __name__ == "__main__":
     ''' DUE TO API LIMITATIONS RESERVE TESTING TO ONE METHOD AT A TIME '''
     #suite.addTest(TestAPICalls('test_get_favorites'))
     #suite.addTest(TestAPICalls('test_get_favorites_context'))
-    #suite.addTest(TestAPICalls('test_get_followers'))
+    suite.addTest(TestAPICalls('test_get_followers'))
     #suite.addTest(TestAPICalls('test_create_word_dictionary'))
     #suite.addTest(TestAPICalls('test_retrieve_all_tweets'))
     #suite.addTest(TestAPICalls('test_get_context'))
     #suite.addTest(TestAPICalls('test_twitter_acc'))
-    suite.addTest(TestAPICalls('test_save_all_tweets_context'))
+    #suite.addTest(TestAPICalls('test_save_all_tweets_context'))
     
     unittest.TextTestRunner().run(suite)

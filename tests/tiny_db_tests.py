@@ -27,6 +27,11 @@ class TestTinyDBCalls(unittest.TestCase):
         self.assertTrue(type(res) == type([]))
         self.assertTrue(len(res) > 0)
 
+    def test_get_minimum(self):
+        min_ = get_minimum_id('alittl3ton13', 'favorite_tbl')
+        print(min_)
+
+
 
 
 if __name__ == "__main__":
