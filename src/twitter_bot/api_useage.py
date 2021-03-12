@@ -182,8 +182,15 @@ def save_all_tweets_context(user,max_id=-1):
 
 def build_user_web(user):
     print(f"Creating user web for {user}")
-    followers = get_followers(user)
-    following = get_following(user)
+    followers = get_all_table_entries("followers")
+    following = get_all_table_entries("following")
+
+    if not followers:
+        get_followers(user)
+        followers = get_all_table_entries("followers")
+    if not following:
+        get_following(user)
+        following = get_all_table_entries("following")
 
     for people in followers:
         print(f"CHECKING {people}")

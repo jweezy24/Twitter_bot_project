@@ -45,6 +45,11 @@ def get_following_REST(user):
 
     print(r1.json())
     
-    return r1.json()["data"]
+    names = []
+    if r1.json():
+        for entry in r1.json()["data"]:
+            names.append(entry["id"])
+
+    return names
 
     
