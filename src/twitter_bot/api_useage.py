@@ -64,7 +64,7 @@ def get_favorites_with_context(user,total=100):
             if not search_value(entry._json["id"], user, table="favorites_context"):
                 res = get_tweet_context(entry._json["id"])
                 if res:
-                    print(f"Saved {entr._json["id"]}")
+                    print(f"Saved {entry._json["id"]}")
                     save_value(res,userid=user,table="favorites_context")
             else:
                 continue
