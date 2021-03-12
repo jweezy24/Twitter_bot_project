@@ -190,6 +190,8 @@ def build_user_web(user):
         get_following(user)
         following = get_all_table_entries("following")
 
+    print(f"{user} is Following {following}")
+    print(f"{user} is Followed by {followers}")
 
     for people in followers:
         print(f"CHECKING {people}")
@@ -217,4 +219,11 @@ def build_user_web(user):
         
 
 if __name__ == "__main__":
+    #Below average twitter account in size
     build_user_web('jack_west24')
+    #Normal twitter account with consistant activity
+    build_user_web('alittl3ton13')
+    #Very little activity and size
+    build_user_web('allyssa_fogarty')
+    #Large activity and size
+    build_user_web('theneedledrop')

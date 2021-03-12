@@ -69,7 +69,6 @@ def search_value(id,userid="NA", table=""):
             f_1 = tbl.search(Entry.id == id)
 
     f = len(f_1) > 0 
-    print(f_1)
     
     if f:
         return True
@@ -102,7 +101,6 @@ def get_value(id,userid="NA", table=""):
             f = tbl.search(Entry.id == id)
 
     f = len(f) > 0
-    print(f)
 
     if f:
         return f

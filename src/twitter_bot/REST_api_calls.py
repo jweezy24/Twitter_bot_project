@@ -48,8 +48,6 @@ def get_following_REST(user):
     id = r1.json()["data"]["id"]
     r1 = requests.get(f'https://api.twitter.com/2/users/{id}/following?user.fields=name&max_results=1000', headers={'Authorization' : f'Bearer {bear}'})
 
-    print(r1.json())
-
     names = []
     if r1.json():
         for entry in r1.json()["data"]:
