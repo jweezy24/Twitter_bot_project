@@ -201,7 +201,7 @@ def get_maximum_id(user,table):
                 continue
             if is_string and max_ <  int(entry["id"]):
                 max_ = int(entry["id"])
-            elif max_ < entry["id"]:
+            elif max_ < int(entry["id"]):
                 max_ = int(entry["id"])
 
     return max_
