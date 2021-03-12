@@ -86,37 +86,47 @@ def get_favorites_with_context(user,total=100):
     Output: A list of strings with each followers' screen_name
 '''
 
-def get_followers(user, total=100):
+def get_followers(user):
     names = []
     count = 0
-    for page in tweepy.Cursor(api2.followers, screen_name=user).pages():
-        for entry in page:
-            if count < total:
-                names.append(entry._json['screen_name'])
-                count+=1
-            else:
-                break
-        
-        if count >= total:
-            break
-    
-    return names
+    twitter_followers = get_followers_REST(user)
+    current_followers = get_all_table_entries(user,"followers")
+    print(current_followers)
+    print(f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}" )
+    if len(current_followers) != len(twitter_followers):
+        for follower in current_followers:
+            name = follower["id"]
+            if name not in twitter_followers:
+                print(f"Removed {name}")
+                remove_from_table(user,"followers",follower, "id")
 
-def get_following(user, total=100):
+    
+        for entry in api2.followers(user):
+            cached_entry = {"id":entry._json['screen_name']}
+            if not search_value(cached_entry["id"], user, table="followers"):
+                print(f"Saved Follower {entry._json['screen_name']}")
+                save_value(cached_entry,userid=user,table="followers")
+
+def get_following(user):
     names = []
     count = 0
-    for page in tweepy.Cursor(api2.friends, screen_name=user).pages():
-        for entry in page:
-            if count < total:
-                names.append(entry._json['screen_name'])
-                count+=1
-            else:
-                break
-        
-        if count >= total:
-            break
+    twitter_followers = get_following_REST(user)
+    current_followers = get_all_table_entries(user,"following")
+    print(current_followers)
+    print(f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}" )
+    if len(current_followers) != len(twitter_followers):
+        for follower in current_followers:
+            name = follower["id"]
+            if name not in twitter_followers:
+                print(f"Removed {name}")
+                remove_from_table(user,"following",follower, "id")
+
     
-    return names
+        for entry in api2.followers(user):
+            cached_entry = {"id":entry._json['screen_name']}
+            if not search_value(cached_entry["id"], user, table="following"):
+                print(f"Saved Following {entry._json['screen_name']}")
+                save_value(cached_entry,userid=user,table="following")
 
 
 '''

@@ -5,6 +5,7 @@
  '''
 
 import tinydb
+from tinydb import where
 import os
 
 
@@ -30,7 +31,7 @@ def save_value(entry,userid="NA",table=""):
         print(e)
         return None
     
-    if search_value(id,table=table):
+    if search_value(id,userid,table=table):
         return False
     else:
         
@@ -65,10 +66,11 @@ def search_value(id,userid="NA", table=""):
             f = tweets.search(Entry.id == id)
         else:
             tbl = tweets.table(table)
-            f = tbl.search(Entry.id == id or str(Entry.id) == id)
+            f_1 = tbl.search(Entry.id == id)
 
-    f = len(f) > 0
-
+    f = len(f_1) > 0 
+    print(f_1)
+    
     if f:
         return True
     else:
@@ -206,6 +208,14 @@ def get_maximum_id(user,table):
 
     return max_
         
-        
+def remove_from_table(user,table,value,key):
+    db_path = os.environ["TINYDB_PATH"]
+    db = f"{user}.json"
+    db_path += db
+
+    with tinydb.TinyDB(db_path) as tweets:
+        tbl = tweets.table(table)
+        tbl.remove(where(key) == value)
+    
 
         

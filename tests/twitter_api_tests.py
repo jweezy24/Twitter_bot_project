@@ -24,8 +24,11 @@ class TestAPICalls(unittest.TestCase):
         print(favs)
         
     def test_get_followers(self):
-        users = get_followers('jack_west24')
-        print(users)
+        users = get_followers('allyssa_fogarty')
+        
+    
+    def test_get_following(self):
+        users = get_following('allyssa_fogarty')
         
     
     def test_retrieve_all_tweets(self):
@@ -54,6 +57,9 @@ class TestAPICalls(unittest.TestCase):
     def test_save_all_tweets_context(self):
         save_all_tweets_context('alittl3ton13')
 
+    def test_get_followers_REST(self):
+        get_followers_REST('jack_west24')
+
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -61,10 +67,12 @@ if __name__ == "__main__":
     #suite.addTest(TestAPICalls('test_get_favorites'))
     #suite.addTest(TestAPICalls('test_get_favorites_context'))
     #suite.addTest(TestAPICalls('test_get_followers'))
+    suite.addTest(TestAPICalls('test_get_following'))
     #suite.addTest(TestAPICalls('test_create_word_dictionary'))
-    suite.addTest(TestAPICalls('test_retrieve_all_tweets'))
+    #suite.addTest(TestAPICalls('test_retrieve_all_tweets'))
     #suite.addTest(TestAPICalls('test_get_context'))
     #suite.addTest(TestAPICalls('test_twitter_acc'))
     #suite.addTest(TestAPICalls('test_save_all_tweets_context'))
+    #suite.addTest(TestAPICalls('test_get_followers_REST'))
     
     unittest.TextTestRunner().run(suite)

@@ -28,3 +28,23 @@ def get_tweet_context(ids):
     else:
         return None
 
+def get_followers_REST(user):
+    r1 = requests.get(f'https://api.twitter.com/2/users/by/username/{user}', headers={'Authorization' : f'Bearer {bear}'})
+
+    id = r1.json()["data"]["id"]
+    r1 = requests.get(f'https://api.twitter.com/2/users/{id}/followers?&user.fields=name', headers={'Authorization' : f'Bearer {bear}'})
+
+    
+    return r1.json()["data"]
+
+def get_following_REST(user):
+    r1 = requests.get(f'https://api.twitter.com/2/users/by/username/{user}', headers={'Authorization' : f'Bearer {bear}'})
+
+    id = r1.json()["data"]["id"]
+    r1 = requests.get(f'https://api.twitter.com/2/users/{id}/following?&user.fields=name', headers={'Authorization' : f'Bearer {bear}'})
+
+    print(r1.json())
+    
+    return r1.json()["data"]
+
+    

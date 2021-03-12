@@ -2,4 +2,3 @@ python-twitter
 tweepy
 nltk
 tinydb
-GetOldTweets3
