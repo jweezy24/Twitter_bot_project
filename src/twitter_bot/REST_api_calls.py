@@ -32,10 +32,15 @@ def get_followers_REST(user):
     r1 = requests.get(f'https://api.twitter.com/2/users/by/username/{user}', headers={'Authorization' : f'Bearer {bear}'})
 
     id = r1.json()["data"]["id"]
-    r1 = requests.get(f'https://api.twitter.com/2/users/{id}/followers?&max_results=1000,user.fields=name', headers={'Authorization' : f'Bearer {bear}'})
+    r1 = requests.get(f'https://api.twitter.com/2/users/{id}/followers?&user.fields=name&max_results=1000', headers={'Authorization' : f'Bearer {bear}'})
 
     
-    return r1.json()["data"]
+    names = []
+    if r1.json():
+        for entry in r1.json()["data"]:
+            names.append(entry["username"])
+
+    return names
 
 def get_following_REST(user):
     r1 = requests.get(f'https://api.twitter.com/2/users/by/username/{user}', headers={'Authorization' : f'Bearer {bear}'})
