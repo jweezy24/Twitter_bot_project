@@ -149,7 +149,6 @@ Input: Username of user that we want to give context to.
 
 def save_all_tweets_context(user,max_id=-1):
 
-    tfavs = []
     count = 0
     max_id = get_maximum_id(user, "tweets_context")
     print(max_id)
@@ -165,19 +164,34 @@ def save_all_tweets_context(user,max_id=-1):
 
 
 def build_user_web(user):
+    print(f"Creating user web for {user}")
     followers = get_followers(user)
     following = get_following(user)
 
     for people in followers:
+        print(f"CHECKING {people}")
         retrieve_all_tweets(people)
+        print(f"Got Tweets for {people}")
         save_all_tweets_context(people)
+        print(f"Got Tweets with context for {people}")
         get_favorites(people)
+        print(f"Got favorites for {people}")
         get_favorites_with_context(people)
+        print(f"Got favorites with context for {people}")
         
 
     for people in followers:
+        print(f"CHECKING {people}")
         retrieve_all_tweets(people)
+        print(f"Got Tweets for {people}")
         save_all_tweets_context(people)
+        print(f"Got Tweets with context for {people}")
         get_favorites(people)
+        print(f"Got favorites for {people}")
         get_favorites_with_context(people)
+        print(f"Got favorites with context for {people}")
+
         
+
+if __name__ == "__main__":
+    build_user_web('jack_west24')

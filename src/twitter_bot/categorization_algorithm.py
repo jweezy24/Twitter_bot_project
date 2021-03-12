@@ -7,7 +7,7 @@ from tiny_db_calls import *
 
 types_of_words_to_filter = ['NNS', 'NN', 'NNP', 'NNPS']
 ignored_words = stopwords.words('english')
-bad = "/home/jweezy/Documents/Twitter_bot_project/src/data/badwords.txt"
+bad = "/home/jweezy/Twitter_bot_project/src/data/badwords.txt"
 with open(bad,"r") as f:
     for word in f:
         ignored_words.append(word.strip())
