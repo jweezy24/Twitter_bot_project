@@ -179,7 +179,12 @@ def save_all_tweets_context(user,max_id=-1):
         for entry in page:
             if not search_value(entry._json["id"], user, table="tweets_context"):
                     save_value(entry._json,userid=user,table="tweets_context")
-
+''' 
+Checks to see if a user is private. If so we cannot gather data and it causes timeouts.
+Verifying a private user earlier
+'''
+def is_private(user):
+    pass
 
 def build_user_web(user):
     print(f"Creating user web for {user}")
