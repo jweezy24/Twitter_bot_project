@@ -65,7 +65,7 @@ def search_value(id,userid="NA", table=""):
             f = tweets.search(Entry.id == id)
         else:
             tbl = tweets.table(table)
-            f = tbl.search(Entry.id == id)
+            f = tbl.search(Entry.id == id or str(Entry.id) == id)
 
     f = len(f) > 0
 
@@ -176,7 +176,7 @@ def get_minimum_id(user,table):
                 continue
             if is_string and min_ > int(entry["id"]):
                 min_ = int(entry["id"])
-            elif min_ > entry["id"]:
+            elif min_ > int(entry["id"]):
                 min_ = entry["id"]
 
     return min_
