@@ -24,11 +24,11 @@ class TestAPICalls(unittest.TestCase):
         print(favs)
         
     def test_get_followers(self):
-        users = get_followers('allyssa_fogarty')
+        users = get_followers('jack_west24')
         
     
     def test_get_following(self):
-        users = get_following('allyssa_fogarty')
+        users = get_following('jack_west24')
         
     
     def test_retrieve_all_tweets(self):

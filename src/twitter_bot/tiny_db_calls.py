@@ -208,14 +208,15 @@ def get_maximum_id(user,table):
 
     return max_
         
-def remove_from_table(user,table,value,key):
+def remove_from_table(user,table,value):
     db_path = os.environ["TINYDB_PATH"]
     db = f"{user}.json"
     db_path += db
 
     with tinydb.TinyDB(db_path) as tweets:
+        item = tinydb.Query()
         tbl = tweets.table(table)
-        tbl.remove(where(key) == value)
+        tbl.remove(item.id == value)
     
 
         

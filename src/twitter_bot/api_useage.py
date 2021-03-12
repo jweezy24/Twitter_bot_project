@@ -91,20 +91,19 @@ def get_followers(user):
     count = 0
     twitter_followers = get_followers_REST(user)
     current_followers = get_all_table_entries(user,"followers")
-    print(current_followers)
     print(f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}" )
     if len(current_followers) != len(twitter_followers):
         for follower in current_followers:
             name = follower["id"]
             if name not in twitter_followers:
                 print(f"Removed {name}")
-                remove_from_table(user,"followers",follower, "id")
+                remove_from_table(user,"followers",name)
 
     
-        for entry in api2.followers(user):
-            cached_entry = {"id":entry._json['screen_name']}
+        for entry in twitter_followers:
+            cached_entry = {"id":entry}
             if not search_value(cached_entry["id"], user, table="followers"):
-                print(f"Saved Follower {entry._json['screen_name']}")
+                print(f"Saved Followers {entry}")
                 save_value(cached_entry,userid=user,table="followers")
 
 def get_following(user):
@@ -112,20 +111,19 @@ def get_following(user):
     count = 0
     twitter_followers = get_following_REST(user)
     current_followers = get_all_table_entries(user,"following")
-    print(current_followers)
     print(f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}" )
     if len(current_followers) != len(twitter_followers):
         for follower in current_followers:
             name = follower["id"]
             if name not in twitter_followers:
                 print(f"Removed {name}")
-                remove_from_table(user,"following",follower, "id")
+                remove_from_table(user,"following",name)
 
     
-        for entry in api2.followers(user):
-            cached_entry = {"id":entry._json['screen_name']}
+        for entry in twitter_followers:
+            cached_entry = {"id":entry}
             if not search_value(cached_entry["id"], user, table="following"):
-                print(f"Saved Following {entry._json['screen_name']}")
+                print(f"Saved Following {entry}")
                 save_value(cached_entry,userid=user,table="following")
 
 
@@ -191,6 +189,7 @@ def build_user_web(user):
     if not following:
         get_following(user)
         following = get_all_table_entries("following")
+
 
     for people in followers:
         print(f"CHECKING {people}")
