@@ -23,7 +23,7 @@ def get_tweet_context(ids):
         r = None
 
 
-    if r and "context_annotations" in r.json()["data"]:
+    if r and "data" in r.json() and "context_annotations" in r.json()["data"]:
         return r.json()["data"]
     else:
         return None
@@ -36,7 +36,7 @@ def get_followers_REST(user):
 
     
     names = []
-    if r1.json():
+    if r1 and "data" in r.json():
         for entry in r1.json()["data"]:
             names.append(entry["username"])
 
@@ -49,7 +49,7 @@ def get_following_REST(user):
     r1 = requests.get(f'https://api.twitter.com/2/users/{id}/following?user.fields=name&max_results=1000', headers={'Authorization' : f'Bearer {bear}'})
 
     names = []
-    if r1.json():
+    if r1 and "data" in r.json():
         for entry in r1.json()["data"]:
             names.append(entry["username"])
 
