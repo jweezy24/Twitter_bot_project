@@ -1,0 +1,9 @@
+#cy {
+    width: 100%;
+    height: 300px;
+    display: block;
+  }
+
+.container .jumbotron {
+    border-radius: 10px !important;
+}

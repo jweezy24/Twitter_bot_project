@@ -22,3 +22,9 @@ input {
   padding: 5px;
 }
 
+.vertical-center {
+
+  display: flex;
+  align-items: center;
+}
+
