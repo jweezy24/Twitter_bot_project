@@ -4,3 +4,4 @@ nltk
 tinydb
 networkx
 scipy
+matplotlib

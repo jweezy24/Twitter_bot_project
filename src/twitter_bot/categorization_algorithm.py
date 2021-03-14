@@ -136,7 +136,7 @@ def rank_words_dictionary(data, total=100):
                 lst_neg[new_ind] = (ind[0], ind[1], data[ind], "neg")
     # pretty_print(lst_neg, is_neg=True)
     # pretty_print(lst_pos)
-    return lst_pos
+    return lst_pos,lst_neg
 
 '''
 This method will rank the contexts the user is most asscociated with.
@@ -218,7 +218,6 @@ def combine_favorites_with_context(user):
     #intialization of two lists that we would like to merge.
     favs = get_all_favorites(user, table="favorite_tbl")
     favs_context = get_all_favorites(user, table="favorites_context")
-    all_tweets = get_all_table_entries(user, table="tweets")
 
     ''' MERGING ALGORITHM DESCRIPTION '''
     #We want to merge by tweet id.
@@ -542,12 +541,21 @@ def get_weight_of_word(base, word, weight):
     if word in words:
         for w,tp,wgt,sent in base:
             if w == word:
-                if wgt > 0:
-                    return weight-wgt
-                else:
-                    return weight+wgt
+                if wgt > 0 and weight < 0:
+                    return wgt - abs(weight)
+                elif wgt < 0 and weight > 0:
+                    return wgt + weight
+                elif wgt < 0 and weight < 0:
+                    return wgt + abs(weight)
+                elif wgt > 0 and weight > 0:
+                    return wgt - weight
+                elif wgt == 0:
+                    return 0
+                elif weight == 0:
+                    return 0
+                    
     else:
-        return weight
+        return 0
 
 def get_weight_of_ct(base, word, weight):
     words = [ i[0] for i in base]
@@ -555,9 +563,17 @@ def get_weight_of_ct(base, word, weight):
     if word in words:
         for w,wgt in base:
             if w == word:
-                if wgt > 0:
-                    return weight-wgt
-                else:
-                    return weight+wgt
+                if wgt > 0 and weight < 0:
+                    return wgt - abs(weight)
+                elif wgt < 0 and weight > 0:
+                    return wgt + weight
+                elif wgt < 0 and weight < 0:
+                    return wgt + abs(weight)
+                elif wgt > 0 and weight > 0:
+                    return wgt - weight
+                elif wgt == 0:
+                    return 0
+                elif weight == 0:
+                    return 0
     else:
-        return weight
+        return 0

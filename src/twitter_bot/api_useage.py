@@ -185,9 +185,7 @@ Verifying a private user earlier
 '''
 def is_private(user):
     u = api2.get_user(user)
-    print(u.protected)
     return u.protected
-    pass
 
 def build_user_web(user):
     print(f"Creating user web for {user}")
