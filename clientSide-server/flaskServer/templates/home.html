@@ -1,16 +1,22 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container justify-bottom">
+<script src="../static/scripts/home.js"></script>
+<div class="container justify-center">
     <div class="row justify-content-md-center ">
         <div class="col-4 ">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Enter Twitter Username"
-                    aria-label="Recipient's username" aria-describedby="button-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+            <form  id="twitterHandleForm" action="{{ url_for('graph')}}" method="GET" >
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Enter Twitter Username"
+                            aria-label="Recipient's username" aria-describedby="button-addon2" id="TwitterHandleInput" name="TwitterHandleInput" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
+
     </div>
 </div>
 {% endblock content %}

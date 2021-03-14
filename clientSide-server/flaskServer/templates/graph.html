@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='graph.css') }}">
+<script src="http://marvl.infotech.monash.edu/webcola/cola.js"></script>
+<script src="../static/scripts/cytoscape.min.js"></script>
+<script src="../static/scripts/cytoscape-cola.js"></script>
+<script src="../static/scripts/graph.js"></script>
+<div class="container justify-center" style="width:100%;">
+    <div class="row justify-content-md-center ">
+        <h1>Graph</h1>
+    </div>
+    <div class="row justify-content-md-center ">
+        <div class="col jumbotron jumbotron-fluid">
+            <div class="container-fluid">
+                <!-- <h1 class="display-4">Fluid jumbotron</h1> -->
+                <!-- <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p> -->
+                <div class="graph " id="cy">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
