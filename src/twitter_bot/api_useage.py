@@ -184,6 +184,9 @@ Checks to see if a user is private. If so we cannot gather data and it causes ti
 Verifying a private user earlier
 '''
 def is_private(user):
+    u = api2.get_user(user)
+    print(u.protected)
+    return u.protected
     pass
 
 def build_user_web(user):
@@ -203,28 +206,34 @@ def build_user_web(user):
 
     for people in followers:
         people = people["id"]
-        print(f"CHECKING {people}")
-        retrieve_all_tweets(people)
-        print(f"Got Tweets for {people}")
-        save_all_tweets_context(people)
-        print(f"Got Tweets with context for {people}")
-        get_favorites(people)
-        print(f"Got favorites for {people}")
-        get_favorites_with_context(people)
-        print(f"Got favorites with context for {people}")
+        if not is_private(people):
+            print(f"CHECKING {people}")
+            retrieve_all_tweets(people)
+            print(f"Got Tweets for {people}")
+            save_all_tweets_context(people)
+            print(f"Got Tweets with context for {people}")
+            get_favorites(people)
+            print(f"Got favorites for {people}")
+            get_favorites_with_context(people)
+            print(f"Got favorites with context for {people}")
+        else:
+            print("Private user.")
         
 
     for people in followers:
         people = people["id"]
-        print(f"CHECKING {people}")
-        retrieve_all_tweets(people)
-        print(f"Got Tweets for {people}")
-        save_all_tweets_context(people)
-        print(f"Got Tweets with context for {people}")
-        get_favorites(people)
-        print(f"Got favorites for {people}")
-        get_favorites_with_context(people)
-        print(f"Got favorites with context for {people}")
+        if not is_private(people):
+            print(f"CHECKING {people}")
+            retrieve_all_tweets(people)
+            print(f"Got Tweets for {people}")
+            save_all_tweets_context(people)
+            print(f"Got Tweets with context for {people}")
+            get_favorites(people)
+            print(f"Got favorites for {people}")
+            get_favorites_with_context(people)
+            print(f"Got favorites with context for {people}")
+        else:
+            print("Private user.")
 
         
 
