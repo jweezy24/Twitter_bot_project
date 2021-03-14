@@ -3,6 +3,7 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 import nltk
 from tiny_db_calls import *
+from graph_data_structure import *
 
 
 types_of_words_to_filter = ['NNS', 'NN', 'NNP', 'NNPS']
@@ -33,7 +34,6 @@ def filter_out_words(data):
         if "context_annotations" in row.keys():
             for item in row["context_annotations"]:
                 if 'entity' in item.keys():
-                    print(item)
                     if 'description' in item['entity'].keys():
                         if item['entity']['description'] in context:
                             if polarity == "pos":
@@ -134,8 +134,8 @@ def rank_words_dictionary(data, total=100):
             
             if new_ind != None:
                 lst_neg[new_ind] = (ind[0], ind[1], data[ind], "neg")
-    pretty_print(lst_neg, is_neg=True)
-    pretty_print(lst_pos)
+    # pretty_print(lst_neg, is_neg=True)
+    # pretty_print(lst_pos)
     return lst_pos
 
 '''
@@ -262,7 +262,15 @@ def combine_favorites_with_context(user):
         if not h2 and len(favs_context_ids) > 0:
             h2 = favs_context_ids.pop(0)
         
-        if h1 < h2 and h1 != None:
+        if h1 and not h2:
+            ele = (h1, 0)
+            h1 = None
+        
+        elif h2 and not h1:
+            ele = (h2, 0)
+            h2 = None
+
+        elif h1 < h2:
             ele = (h1, 0)
             h1 = None
             
@@ -274,6 +282,7 @@ def combine_favorites_with_context(user):
         else:
             ele = (h2, 1)
             h2 = None
+
             
 
         ids.append(ele)
@@ -319,8 +328,6 @@ def combine_tweets_with_context(user):
     all_tweets = get_all_table_entries(user, table="tweets")
     tweets_context = get_all_table_entries(user, table="tweets_context")
 
-    print(all_tweets[0])
-
     ''' MERGING ALGORITHM DESCRIPTION '''
     #We want to merge by tweet id.
     #Both lists in the initalization will be different sizes.
@@ -362,7 +369,6 @@ def combine_tweets_with_context(user):
         if not h2 and len(tweet_context_ids) > 0:
             h2 = tweet_context_ids.pop(0)
         
-        print(f"h1 = {h1}\t h2 = {h2} ")
         
         if h1 and not h2:
             ele = (h1, 0)
@@ -420,3 +426,138 @@ def word_check(word):
         if word.lower().strip() == bword.lower().strip():
             return False
     return True
+
+
+'''
+This algorithm will determine the distance between users based on tweets associated with them.
+input:
+    root_user = The user that we want to act as the center
+output:
+    A dictionary which has each cached user's distance from the root_user
+'''
+def distance_algorithm_calculation(root_user):
+
+    ''' 
+    For the distance calculation, we want to gather the top 100 most used words from their tweets and favorites.
+    '''
+
+    ''' The first thing we want to do is gather up the users we have saved in the database.
+    These users are connected the the main user by either following them or the root_user follows them.
+    '''
+    #Inits of the followers and following
+    followers = [i["id"] for i in get_all_table_entries(root_user, "followers")]
+    following = [i["id"] for i in get_all_table_entries(root_user, "following")]
+
+    #List of users we want to gather their data for
+    to_check = []
+
+    
+
+    for root, dirs, files in os.walk(os.environ["TINYDB_PATH"], topdown=False):
+        for name in files:
+            user = name.replace(".json", "")
+            if user in followers or user in following:
+                to_check.append(user)
+
+    
+    base_favorites = combine_favorites_with_context(root_user)
+    base_tweets = combine_tweets_with_context(root_user)
+    base_all_tweets = base_favorites+base_tweets
+    
+    #We want to user this dictionary data structure to cache all text assoicated with a user
+    data_cache = {}
+    for user in to_check:
+        favorites = combine_favorites_with_context(user)
+        tweets = combine_tweets_with_context(user)
+        all_tweets = favorites+tweets
+        data_cache.update({user: all_tweets})
+
+
+    base_words, base_contexts, base_topics = filter_out_words(base_all_tweets)
+    print(base_all_tweets)
+    base_ranked_words = rank_words_dictionary(base_words)
+    base_ranked_context_pos, base_ranked_context_neg = rank_context_dictionary(base_contexts)
+    base_ranked_context = base_ranked_context_pos + base_ranked_context_neg
+    base_ranked_topics_pos,base_ranked_topics_neg = rank_context_dictionary(base_topics)
+    base_ranked_topics = base_ranked_topics_pos,base_ranked_topics_neg
+
+
+    weighted_users = []
+    for key in data_cache.keys():
+        tweets = data_cache[key]
+        words, contexts, topics = filter_out_words(tweets)
+        ranked_words = rank_words_dictionary(words)
+        ranked_context_pos,ranked_context_neg = rank_context_dictionary(contexts)
+        ranked_topics_pos,ranked_topics_neg = rank_context_dictionary(topics)
+
+        x = 0
+        y = 0
+        give_weight = False
+        for item in ranked_words:
+            if type(item) == type(()) and len(item) == 4:
+                word,tp,wgt,sent = item
+                wgt = get_weight_of_word(base_ranked_words, word, wgt)
+                x += wgt
+                give_weight = True
+
+        for item in ranked_context_pos:
+            if type(item) == type(()) and len(item) == 2:
+                word,wgt = item
+                wgt = get_weight_of_ct(base_ranked_context, word, wgt)
+                y += wgt
+                give_weight = True
+        
+        for item in ranked_context_neg:
+            if type(item) == type(()) and len(item) == 2:
+                word,wgt = item
+                wgt = get_weight_of_ct(base_ranked_context, word, wgt)
+                y += wgt
+                give_weight = True
+
+        for item in ranked_topics_pos:
+            if type(item) == type(()) and len(item) == 2:
+                word,wgt = item
+                wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
+                y += wgt
+                give_weight = True
+
+        for item in ranked_topics_neg:
+            if type(item) == type(()) and len(item) == 2:
+                word,wgt = item
+                wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
+                y += wgt
+                give_weight = True
+        
+        if give_weight:
+            weighted_users.append((key,x, y))
+    
+    graph = create_graph_obj(root_user, weighted_users)
+
+            
+
+        
+def get_weight_of_word(base, word, weight):
+    words = [ i[0] for i in base]
+
+    if word in words:
+        for w,tp,wgt,sent in base:
+            if w == word:
+                if wgt > 0:
+                    return weight-wgt
+                else:
+                    return weight+wgt
+    else:
+        return weight
+
+def get_weight_of_ct(base, word, weight):
+    words = [ i[0] for i in base]
+
+    if word in words:
+        for w,wgt in base:
+            if w == word:
+                if wgt > 0:
+                    return weight-wgt
+                else:
+                    return weight+wgt
+    else:
+        return weight
