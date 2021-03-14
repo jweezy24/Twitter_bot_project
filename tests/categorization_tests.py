@@ -43,12 +43,17 @@ class TestLanguageFunctions(unittest.TestCase):
         # pretty_print(ranked4)
         # self.assertTrue(type(ranked) == type([]))
         # self.assertTrue(len(ranked) != 0)
+    
+    def test_distance_algorithm_calculation(self):
+        distance_algorithm_calculation('jack_west24')
+
+
 
         
 if __name__ == "__main__":
     #unittest.main()
 
     suite = unittest.TestSuite()
-    suite.addTest(TestLanguageFunctions("test_combine_favorites_with_context"))
+    suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
