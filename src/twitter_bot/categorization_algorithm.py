@@ -374,7 +374,7 @@ def combine_tweets_with_context(user):
             h1 = None
         
         elif h2 and not h1:
-            ele = (h2, 0)
+            ele = (h2, 1)
             h2 = None
 
         elif h1 < h2:
