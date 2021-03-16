@@ -7,9 +7,24 @@ var elements = [
     { group: 'nodes', data: { id: 'n1' , label: 'n1'}, classes: 'center-center'},
     { group: 'nodes', data: { id: 'n3' , label: 'n3'}, classes: 'center-center'},
     { group: 'nodes', data: { id: 'n2', label: 'n2' }, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n4', label: 'n4' }, classes: 'center-center', position : {x:0, y:0}},
+    { group: 'nodes', data: { id: 'n5', label: 'n5' }, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n6', label: 'n6' }, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n7', label: 'n7' }, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n8', label: 'n8' }, classes: 'center-center', position : {x:10000, y:10000}},
+    { group: 'nodes', data: { id: 'n9', label: 'n7' }, classes: 'center-center', },
     { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight:4 } },
     { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight:5 } },
-    { group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight:5 } }
+    { group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight:5 } },
+    { group: 'edges', data: { id: 'e3', source: 'n0', target: 'n4', weight:10 } },
+    { group: 'edges', data: { id: 'e4', source: 'n4', target: 'n2', weight:10 } },
+    { group: 'edges', data: { id: 'e5', source: 'n3', target: 'n4', weight:10 } },
+    { group: 'edges', data: { id: 'e6', source: 'n3', target: 'n5', weight:10 } },
+    { group: 'edges', data: { id: 'e7', source: 'n3', target: 'n6', weight:10 } },
+    { group: 'edges', data: { id: 'e8', source: 'n2', target: 'n7', weight:10 } },
+    { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight:10 } },
+    { group: 'edges', data: { id: 'e10', source: 'n4', target: 'n9', weight:10 } },
+    { group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight:10 } },
   ]
 
 $(document).ready(function() {
@@ -18,10 +33,10 @@ $(document).ready(function() {
         autolock:false,
 
         elements:elements,
-        // layout: {
-        //     name: 'cola',
+        layout: {
+            name: 'cola',
             
-        // },
+        },
         style: [
             {
             "selector": "node[label]",
