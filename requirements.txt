@@ -2,3 +2,6 @@ python-twitter
 tweepy
 nltk
 tinydb
+networkx
+scipy
+matplotlib

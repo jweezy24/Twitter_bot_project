@@ -1,6 +1,7 @@
 # TCB: Twitter Categorization Bot
 
 
+See TwitterBotProject.md for project description, algorithm explanation, and analysis of data. 
 
 
 ## Installation
