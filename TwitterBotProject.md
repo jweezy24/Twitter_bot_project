@@ -20,9 +20,14 @@ Meaning, that if you only want to collect favorites of a specific user, getting 
 Although, there is a an extremely small amount of calls regardless of the lack of intersections calls could potientally have. Some calls will allow for `500` calls while others allow for `900`. Therefore, designing the API usage methods will require a different timing allocation for calls. After examining two Python libraries that accomplish the same task to see which one had better API rates, we can optimize the API calls.
 ##### Time
 This problem stems from the API call limit per amount of time. We are limited to '500' calls per 15 minutes. Due to lack of calls, time to generate a visualization could take longer than intended. This could be extended for longer time frames depending on the API calls.
+### Research
 ### Usage
 The Twitter API is the primary method the TCB uses to gather information about twitter accounts. A server running a background REST process consistently builds a database of user data for a graph to be built later. The data gathering algorithm starts with an arbitrary user and gathers the necessary information related to that user. The data gathering server runs 24/7 and paces itself with the Twitter API call rate so that the algorithm will not break due to time constraints.
 ## Categorization Algroithm
+### Research
 ## Front End Display Algorithm
+### Research
+## Data Analysis
+## Conclusion
 
 
