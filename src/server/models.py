@@ -22,7 +22,7 @@ class FollowerConnections(me.EmbeddedDocument):
 #top_words
 class Top_Words(me.EmbeddedDocument):
     word = me.StringField(required = True)
-    count = me.IntField(required = True)
+    value = me.IntField(required = True)
     
 class Tweet(me.EmbeddedDocument):
     id = me.IntField(primary_key = True)
@@ -62,7 +62,7 @@ class Account(me.Document):
     profile_image_url  = me.URLField()
     following          = me.EmbeddedDocumentListField(FollowingConnections)
     followers          = me.EmbeddedDocumentListField(FollowerConnections)
-    top_words_positve  = me.EmbeddedDocumentListField(Top_Words)
+    top_words_positive = me.EmbeddedDocumentListField(Top_Words)
     top_words_negative = me.EmbeddedDocumentListField(Top_Words)
     tweets             = me.EmbeddedDocumentListField(Tweet)
     tweets_context     = me.EmbeddedDocumentListField(Context)
@@ -74,8 +74,8 @@ class Account(me.Document):
 
 #this might be usefull to look at old results
 class Search(me.Document):
-    search_handle = me.ReferenceField(Account, required=True, reverse_delete_rule=CASCADE)
-    followers = me.ListField(EmbeddedDocumentField(FollowingConnections))
+    search_handle      = me.ReferenceField(Account, required=True, reverse_delete_rule=CASCADE)
+    followers          = me.ListField(EmbeddedDocumentField(FollowingConnections))
     following          = me.EmbeddedDocumentListField(FollowingConnections)
     top_words_positve  = me.EmbeddedDocumentListField(Top_Words)
     top_words_negative = me.EmbeddedDocumentListField(Top_Words)
@@ -83,4 +83,4 @@ class Search(me.Document):
     tweets_context     = me.EmbeddedDocumentListField(Context)
     favorite_tweets    = me.EmbeddedDocumentListField(Tweet)
     favorite_context   = me.EmbeddedDocumentListField(Context)
-    date = me.DateField(default=datetime.datetime.utcnow)
+    date               = me.DateField(default=datetime.datetime.utcnow)
