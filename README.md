@@ -1,6 +1,7 @@
 # TCB: Twitter Categorization Bot
 
 
+See TwitterBotProject.md for project report.
 
 
 ## Installation
@@ -28,7 +29,7 @@ You will also need some tokens within a environment variable `APIKEY`, `APISECRE
 
 ## Authors
 
-Jack West – [@GitHub](https://github.com/jweezy24) - Jwest1@luc.edu
+Jack West – [@GitHub](https://github.com/jweezy24) - Jwest1@luc.edu 
 Andrew Littleton - [@Github](https://github.com/alittleton98) - admin@andrewlittleton.com
 Piotr Jackowski - [@Github](https://github.com/pjack7oo) - pjackowski@luc.edu
 
