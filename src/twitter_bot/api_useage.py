@@ -12,7 +12,6 @@ api_secret = os.environ['APISECRET']
 username = os.environ['TWITTERUSER']
 password = os.environ['TWITTERPASS']
 
-print(api_key)
 
 api = twitter.Api(consumer_key=username,
                 consumer_secret=password,

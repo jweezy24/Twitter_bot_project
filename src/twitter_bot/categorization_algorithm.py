@@ -196,13 +196,13 @@ def pretty_print(lst, is_neg=False):
     if not is_neg:
         count = 1
         for i in lst:
-            print(f"{count}. {i[0]}\t {i[1]}\t {i[2]}")
+            print(f"{count}. {i}")
             count+=1
     else:
         lst.reverse()
         count = 1
         for i in lst:
-            print(f"{count}. {i[0]}\t {i[1]}\t {i[2]}")
+            print(f"{count}. {i}")
             count+=1
 
 '''
@@ -231,7 +231,6 @@ def combine_favorites_with_context(user):
     #Create the id arrays
     favs_ids = []
     favs_context_ids = []
-    tweet_ids = []
     
     for tweet in favs:
         favs_ids.append(tweet["id"])
@@ -266,7 +265,7 @@ def combine_favorites_with_context(user):
             h1 = None
         
         elif h2 and not h1:
-            ele = (h2, 0)
+            ele = (h2, 1)
             h2 = None
 
         elif h1 < h2:
@@ -474,7 +473,8 @@ def distance_algorithm_calculation(root_user):
 
     base_words, base_contexts, base_topics = filter_out_words(base_all_tweets)
     print(base_all_tweets)
-    base_ranked_words = rank_words_dictionary(base_words)
+    base_ranked_words_pos,base_ranked_words_neg = rank_words_dictionary(base_words)
+    base_ranked_words = base_ranked_words_pos + base_ranked_words_neg
     base_ranked_context_pos, base_ranked_context_neg = rank_context_dictionary(base_contexts)
     base_ranked_context = base_ranked_context_pos + base_ranked_context_neg
     base_ranked_topics_pos,base_ranked_topics_neg = rank_context_dictionary(base_topics)
@@ -485,17 +485,24 @@ def distance_algorithm_calculation(root_user):
     for key in data_cache.keys():
         tweets = data_cache[key]
         words, contexts, topics = filter_out_words(tweets)
-        ranked_words = rank_words_dictionary(words)
+        ranked_words_pos,ranked_words_neg = rank_words_dictionary(words)
         ranked_context_pos,ranked_context_neg = rank_context_dictionary(contexts)
         ranked_topics_pos,ranked_topics_neg = rank_context_dictionary(topics)
 
         x = 0
         y = 0
         give_weight = False
-        for item in ranked_words:
+        for item in ranked_words_pos:
             if type(item) == type(()) and len(item) == 4:
                 word,tp,wgt,sent = item
                 wgt = get_weight_of_word(base_ranked_words, word, wgt)
+                x += wgt
+                give_weight = True
+        
+        for item in ranked_words_neg:
+            if type(item) == type(()) and len(item) == 4:
+                word,tp,wgt,sent = item
+                wgt = get_weight_of_word(base_ranked_words, word, wgt)  
                 x += wgt
                 give_weight = True
 
@@ -528,34 +535,25 @@ def distance_algorithm_calculation(root_user):
                 give_weight = True
         
         if give_weight:
+            print(f"{x},{y}")
             weighted_users.append((key,x, y))
     
     graph = create_graph_obj(root_user, weighted_users)
 
             
 
-        
 def get_weight_of_word(base, word, weight):
     words = [ i[0] for i in base]
 
     if word in words:
         for w,tp,wgt,sent in base:
             if w == word:
-                if wgt > 0 and weight < 0:
-                    return wgt - abs(weight)
-                elif wgt < 0 and weight > 0:
-                    return wgt + weight
-                elif wgt < 0 and weight < 0:
-                    return wgt + abs(weight)
-                elif wgt > 0 and weight > 0:
-                    return wgt - weight
-                elif wgt == 0:
-                    return 0
-                elif weight == 0:
-                    return 0
-                    
+                if wgt > 0:
+                    return weight-wgt
+                else:
+                    return weight-wgt
     else:
-        return 0
+        return weight
 
 def get_weight_of_ct(base, word, weight):
     words = [ i[0] for i in base]
@@ -563,17 +561,9 @@ def get_weight_of_ct(base, word, weight):
     if word in words:
         for w,wgt in base:
             if w == word:
-                if wgt > 0 and weight < 0:
-                    return wgt - abs(weight)
-                elif wgt < 0 and weight > 0:
-                    return wgt + weight
-                elif wgt < 0 and weight < 0:
-                    return wgt + abs(weight)
-                elif wgt > 0 and weight > 0:
-                    return wgt - weight
-                elif wgt == 0:
-                    return 0
-                elif weight == 0:
-                    return 0
+                if wgt > 0:
+                    return weight-wgt
+                else:
+                    return weight-wgt
     else:
-        return 0
+        return weight
