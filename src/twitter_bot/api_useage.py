@@ -8,33 +8,35 @@ from tiny_db_calls import *
 
 
 api_key = os.environ['APIKEY']
-api_secret = os.environ['APISECRET'] 
+api_secret = os.environ['APISECRET']
 username = os.environ['TWITTERUSER']
 password = os.environ['TWITTERPASS']
 
 
 api = twitter.Api(consumer_key=username,
-                consumer_secret=password,
-                access_token_key=api_key,
-                access_token_secret=api_secret)
+                  consumer_secret=password,
+                  access_token_key=api_key,
+                  access_token_secret=api_secret)
 
-auth = tweepy.OAuthHandler(username, password) 
-  
-# set access to user's access key and access secret  
+auth = tweepy.OAuthHandler(username, password)
+
+# set access to user's access key and access secret
 auth.set_access_token(api_key, api_secret)
-api2 = tweepy.API(auth,wait_on_rate_limit=True, wait_on_rate_limit_notify=True) 
+api2 = tweepy.API(auth, wait_on_rate_limit=True,
+                  wait_on_rate_limit_notify=True)
 
 ''' Returns a list of favorites in a Json format '''
 
-def get_favorites(user,total=100):
+
+def get_favorites(user, total=100):
     favs = []
     count = 0
     max_id = get_maximum_id(user, "favorite_tbl")
     for page in tweepy.Cursor(api2.favorites, screen_name=user, since_id=max_id).pages():
         for entry in page:
-            if not search_value(entry._json["id"],user,table="favorite_tbl"):
-                save_value(entry._json,userid=user,table="favorite_tbl")
-                count+=1
+            if not search_value(entry._json["id"], user, table="favorite_tbl"):
+                save_value(entry._json, userid=user, table="favorite_tbl")
+                count += 1
                 print("ADDED FAVORITE")
             else:
                 continue
@@ -44,7 +46,7 @@ def get_favorites(user,total=100):
 
 ''' 
     Returns a list of favorites in a Json format.
-    This method focuses on favoirites with context.
+    This method focuses on favorites with context.
     input:
         user = screen name of the user you would like to get their favorites from
         total (optional) = the total number of favorites you would like to retrieve. default=100
@@ -52,30 +54,27 @@ def get_favorites(user,total=100):
         a list of favorites that are specficially contextual. 
 '''
 
-def get_favorites_with_context(user,total=100):
+
+def get_favorites_with_context(user, total=100):
     favs = []
     count = 0
-    table_cache = {"favorite_with_context_tbl" : None}
+    table_cache = {"favorite_with_context_tbl": None}
     max_id = get_maximum_id(user, "favorites_context")
 
-    for page in tweepy.Cursor(api2.favorites, screen_name=user,since_id =max_id).pages():
+    for page in tweepy.Cursor(api2.favorites, screen_name=user, since_id=max_id).pages():
         for entry in page:
             if not search_value(entry._json["id"], user, table="favorites_context"):
                 res = get_tweet_context(entry._json["id"])
                 if res:
                     tmp_id = entry._json["id"]
                     print(f"Saved {tmp_id}")
-                    save_value(res,userid=user,table="favorites_context")
+                    save_value(res, userid=user, table="favorites_context")
             else:
                 continue
             if res:
                 favs.append(res)
-                
-        
-    
 
     return favs
-
 
 
 ''' 
@@ -85,45 +84,47 @@ def get_favorites_with_context(user,total=100):
     Output: A list of strings with each followers' screen_name
 '''
 
+
 def get_followers(user):
     names = []
     count = 0
     twitter_followers = get_followers_REST(user)
-    current_followers = get_all_table_entries(user,"followers")
-    print(f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}" )
+    current_followers = get_all_table_entries(user, "followers")
+    print(
+        f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}")
     if len(current_followers) != len(twitter_followers):
         for follower in current_followers:
             name = follower["id"]
             if name not in twitter_followers:
                 print(f"Removed {name}")
-                remove_from_table(user,"followers",name)
+                remove_from_table(user, "followers", name)
 
-    
         for entry in twitter_followers:
-            cached_entry = {"id":entry}
+            cached_entry = {"id": entry}
             if not search_value(cached_entry["id"], user, table="followers"):
                 print(f"Saved Followers {entry}")
-                save_value(cached_entry,userid=user,table="followers")
+                save_value(cached_entry, userid=user, table="followers")
+
 
 def get_following(user):
     names = []
     count = 0
     twitter_followers = get_following_REST(user)
-    current_followers = get_all_table_entries(user,"following")
-    print(f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}" )
+    current_followers = get_all_table_entries(user, "following")
+    print(
+        f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}")
     if len(current_followers) != len(twitter_followers):
         for follower in current_followers:
             name = follower["id"]
             if name not in twitter_followers:
                 print(f"Removed {name}")
-                remove_from_table(user,"following",name)
+                remove_from_table(user, "following", name)
 
-    
         for entry in twitter_followers:
-            cached_entry = {"id":entry}
+            cached_entry = {"id": entry}
             if not search_value(cached_entry["id"], user, table="following"):
                 print(f"Saved Following {entry}")
-                save_value(cached_entry,userid=user,table="following")
+                save_value(cached_entry, userid=user, table="following")
 
 
 '''
@@ -133,8 +134,9 @@ Input: Username of user that we are going to examine
 Output: a list of tweets of that user.
 '''
 
-def retrieve_all_tweets(user,max_id=-1):
-    
+
+def retrieve_all_tweets(user, max_id=-1):
+
     data = api2.get_user(user)
     created = data.created_at
     favs = []
@@ -142,26 +144,30 @@ def retrieve_all_tweets(user,max_id=-1):
     max_id = get_maximum_id(user, "tweets")
     print(max_id)
     if max_id == None:
-        cur = tweepy.Cursor(api2.user_timeline, id=user, since=created ).pages()
+        cur = tweepy.Cursor(api2.user_timeline, id=user, since=created).pages()
     else:
-        cur = tweepy.Cursor(api2.user_timeline, id=user,since_id =max_id).pages()
-    
+        cur = tweepy.Cursor(api2.user_timeline, id=user,
+                            since_id=max_id).pages()
+
     count = 0
     for page in cur:
         for entry in page:
             if not search_value(entry._json["id"], user, table="tweets"):
-                    print(f"Saved Tweet")
-                    save_value(entry._json,userid=user,table="tweets")
-                    count+=1
+                print(f"Saved Tweet")
+                save_value(entry._json, userid=user, table="tweets")
+                count += 1
 
-    print(f"Saved {count} Tweets from {user}")    
+    print(f"Saved {count} Tweets from {user}")
+
+
 '''
 The idea for this method came from here.
 https://gist.github.com/yanofsky/5436496
 Input: Username of user that we want to give context to.
 '''
 
-def save_all_tweets_context(user,max_id=-1):
+
+def save_all_tweets_context(user, max_id=-1):
 
     data = api2.get_user(user)
     created = data.created_at
@@ -170,21 +176,27 @@ def save_all_tweets_context(user,max_id=-1):
     max_id = get_maximum_id(user, "tweets_context")
     print(max_id)
     if max_id == None:
-        cur = tweepy.Cursor(api2.user_timeline, id=user, since=created ).pages()
+        cur = tweepy.Cursor(api2.user_timeline, id=user, since=created).pages()
     else:
-        cur = tweepy.Cursor(api2.user_timeline, id=user,since_id =max_id).pages()
-    
+        cur = tweepy.Cursor(api2.user_timeline, id=user,
+                            since_id=max_id).pages()
+
     for page in cur:
         for entry in page:
             if not search_value(entry._json["id"], user, table="tweets_context"):
-                    save_value(entry._json,userid=user,table="tweets_context")
+                save_value(entry._json, userid=user, table="tweets_context")
+
+
 ''' 
 Checks to see if a user is private. If so we cannot gather data and it causes timeouts.
 Verifying a private user earlier
 '''
+
+
 def is_private(user):
     u = api2.get_user(user)
     return u.protected
+
 
 def build_user_web(user):
     print(f"Creating user web for {user}")
@@ -193,10 +205,10 @@ def build_user_web(user):
 
     if not followers:
         get_followers(user)
-        followers = get_all_table_entries(user,"followers")
+        followers = get_all_table_entries(user, "followers")
     if not following:
         get_following(user)
-        following = get_all_table_entries(user,"following")
+        following = get_all_table_entries(user, "following")
 
     print(f"{user} is Following {following}")
     print(f"{user} is Followed by {followers}")
@@ -215,7 +227,6 @@ def build_user_web(user):
             print(f"Got favorites with context for {people}")
         else:
             print("Private user.")
-        
 
     for people in followers:
         people = people["id"]
@@ -232,14 +243,13 @@ def build_user_web(user):
         else:
             print("Private user.")
 
-        
 
 if __name__ == "__main__":
-    #Below average twitter account in size
+    # Below average twitter account in size
     build_user_web('jack_west24')
-    #Normal twitter account with consistant activity
+    # Normal twitter account with consistant activity
     build_user_web('alittl3ton13')
-    #Very little activity and size
+    # Very little activity and size
     build_user_web('allyssa_fogarty')
-    #Large activity and size
+    # Large activity and size
     build_user_web('theneedledrop')
