@@ -89,11 +89,35 @@ $(document).ready(function () {
         console.log( 'tapped ' + node.id() );
         cy.fit(node);
         cy.zoom({level:1.5, position:{x:node.position('x'),y:node.position('y')}})
+    });
+      cy.nodes().forEach(function(ele) {
+        ele.qtip({
+          content: {
+            text: qtipText(ele),
+            title: ele.data('id')
+          },
+          style: {
+            classes: 'qtip-bootstrap'
+          },
+          position: {
+            my: 'bottom center',
+            at: 'top center',
+            target: ele
+          }
+        });
       });
-
     
 })
-
+function qtipText(node) {
+    var twitterLink = '<a href="http://twitter.com/' + node.data('id') + '">' + node.data('id') + '</a>';
+    var following = 'Following ' + node.data('followingCount') + ' other users';
+    var location = 'Location: ' + node.data('location');
+    var image = '<img src="' + node.data('image') + '" style="float:left;width:48px;height:48px;">';
+    var description = '<i>' + node.data('description') + '</i>';
+  
+    return image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<p><br>' + description + '</p>';
+  }
+  
 function setEdgeDistances() {
     for (let i = 0; i < edges.length; i++) {
 
