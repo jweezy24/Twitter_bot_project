@@ -3,28 +3,28 @@ var scale = 1;
 
 //temporary also in future it will be array of nodes and array of edges
 var elements = [
-    { group: 'nodes', data: { id: 'n0' , label: 'n0'}, classes: 'center-center' },
-    { group: 'nodes', data: { id: 'n1' , label: 'n1'}, classes: 'center-center'},
-    { group: 'nodes', data: { id: 'n3' , label: 'n3'}, classes: 'center-center'},
-    { group: 'nodes', data: { id: 'n2', label: 'n2' }, classes: 'center-center'},
-    { group: 'nodes', data: { id: 'n4', label: 'n4' }, classes: 'center-center', position : {x:0, y:0}},
-    { group: 'nodes', data: { id: 'n5', label: 'n5' }, classes: 'center-center'},
-    { group: 'nodes', data: { id: 'n6', label: 'n6' }, classes: 'center-center'},
-    { group: 'nodes', data: { id: 'n7', label: 'n7' }, classes: 'center-center'},
-    { group: 'nodes', data: { id: 'n8', label: 'n8' }, classes: 'center-center', position : {x:10000, y:10000}},
-    { group: 'nodes', data: { id: 'n9', label: 'n7' }, classes: 'center-center', },
-    { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight:4 } },
-    { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight:5 } },
-    { group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight:5 } },
-    { group: 'edges', data: { id: 'e3', source: 'n0', target: 'n4', weight:10 } },
-    { group: 'edges', data: { id: 'e4', source: 'n4', target: 'n2', weight:10 } },
-    { group: 'edges', data: { id: 'e5', source: 'n3', target: 'n4', weight:10 } },
-    { group: 'edges', data: { id: 'e6', source: 'n3', target: 'n5', weight:10 } },
-    { group: 'edges', data: { id: 'e7', source: 'n3', target: 'n6', weight:10 } },
-    { group: 'edges', data: { id: 'e8', source: 'n2', target: 'n7', weight:10 } },
-    { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight:10 } },
-    { group: 'edges', data: { id: 'e10', source: 'n4', target: 'n9', weight:10 } },
-    { group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight:10 } },
+    { group: 'nodes', data: { id: 'n0' , label: 'n0', "visited": false}, classes: 'center-center' },
+    { group: 'nodes', data: { id: 'n1' , label: 'n1', "visited": false}, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n3' , label: 'n3', "visited": false}, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n2', label: 'n2' , "visited": false}, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n4', label: 'n4' , "visited": false}, classes: 'center-center', },
+    { group: 'nodes', data: { id: 'n5', label: 'n5' , "visited": false}, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n6', label: 'n6' , "visited": false}, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n7', label: 'n7' , "visited": false}, classes: 'center-center'},
+    { group: 'nodes', data: { id: 'n8', label: 'n8' , "visited": false}, classes: 'center-center', },
+    { group: 'nodes', data: { id: 'n9', label: 'n7' , "visited": false}, classes: 'center-center', },
+    { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight:100 , "visited": false} },
+    //{ group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight:5 , "visited": false} },
+    { group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight:150 , "visited": false} },
+    { group: 'edges', data: { id: 'e3', source: 'n0', target: 'n4', weight:150 , "visited": false} },
+    { group: 'edges', data: { id: 'e4', source: 'n4', target: 'n2', weight:100 , "visited": false} },
+    { group: 'edges', data: { id: 'e5', source: 'n3', target: 'n4', weight:100, "visited": false } },
+    { group: 'edges', data: { id: 'e6', source: 'n3', target: 'n5', weight:100 , "visited": false} },
+    { group: 'edges', data: { id: 'e7', source: 'n3', target: 'n6', weight:100 , "visited": false} },
+    { group: 'edges', data: { id: 'e8', source: 'n2', target: 'n7', weight:100 , "visited": false} },
+    { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight:100 , "visited": false} },
+    { group: 'edges', data: { id: 'e10', source: 'n4', target: 'n9', weight:300 , "visited": false} },
+    { group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight:200 , "visited": false} },
   ]
 
 $(document).ready(function() {
@@ -56,29 +56,55 @@ $(document).ready(function() {
     var layout = cy.layout({name:'cola'}).run();
     layout.on('layoutstop',function() {
         //temporary location
-        elements.forEach( element => {
-            if (element.group== 'nodes') {
-                cy.$(`#${element.data.id}`).lock();
-            }
+        
+        for(let i =0; i <elements.length;i++) {
+
+        
             
-            if (element.group == 'edges') {
-                var el1 = cy.$(`#${element.data.source}`);
-                var el2 = cy.$(`#${element.data.target}`);
             
+            if (elements[i].group == 'edges') {
+                
+                var el1 = cy.$(`#${elements[i].data.source}`);
+                var el2 = cy.$(`#${elements[i].data.target}`);
+                
+                if (el2.data('visited')==true) {
+                    
+                    continue;
+                }
                 //calculate distance and if it is not the same as weight*scale adjust it while keeping angle the same
                 
                 
                 var dist = getDistance(el1.position(), el2.position())
-                if (dist !=element.data.weight*scale) {
-                    var difference = dist - element.data.weight*scale;
+                if (dist !=elements[i].data.weight*scale) {
+                    var difference = dist - elements[i].data.weight*scale;
                     //console.log(difference);
-                    console.log(el1.id(),getAngle(el1.position(), el2.position()),el2.id() )
+                    var angle = getAngle(el1.position(), el2.position());
+                    console.log(el1.id(),angle,el2.id())
+                    var x = elements[i].data.weight*scale*Math.cos(degrees_to_radians(angle-90));
+                    console.log(x);
+                    var y = elements[i].data.weight*scale* Math.sin(degrees_to_radians(angle-90));
+                    el2.position({x:x+el1.position('x'), y:y+el1.position('y')});
+                    console.log(el1.id(),getAngle(el1.position(), el2.position()),el2.id())
+                    console.log(el1.position(), el2.position());
+                    el2.data('visited', true);
+                    
                 }
             }
+        }
+        elements.forEach(element => {
+            if (element.group== 'nodes') {
+                cy.$(`#${element.data.id}`).lock();
+            }
         });
+
     })
     
 })
+
+function degrees_to_radians(degree) {
+    
+    return degree*(Math.PI/180);
+}
 
 //distance between two points
 function getDistance(p1, p2) {
@@ -100,6 +126,9 @@ function getAngle(p1, p2) {
     var p23 = getDistance(p3,p2);
 
     var angle = Math.acos(((Math.pow(p12, 2)) + (Math.pow(p13, 2)) - (Math.pow(p23, 2))) / (2 * p12 * p13)) * 180 / Math.PI;
+    if (p2.x <p1.x) {
+        angle = 360-angle;
+    }
 return angle;
 }
 
