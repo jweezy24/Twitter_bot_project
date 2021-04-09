@@ -111,8 +111,8 @@ $(document).ready(function () {
 function qtipText(node) {
     var twitterLink = '<a href="http://twitter.com/' + node.data('id') + '">' + node.data('id') + '</a>';
     var following = 'Following ' + node.data('followingCount') + ' other users';
-    var location = 'Location: ' + node.data('location');
-    var image = '<img src="' + node.data('image') + '" style="float:left;width:48px;height:48px;">';
+    
+    var image = '<img src="' + node.data('image') + '" style="float:left;width:50px;height:50px;">';
     var description = '<i>' + node.data('description') + '</i>';
   
     return image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<p><br>' + description + '</p>';
