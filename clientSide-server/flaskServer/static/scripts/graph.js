@@ -1,7 +1,7 @@
 //scale that will be applied to weights
 var scale = 1;
 var nodes = [
-    { group: 'nodes', data: { id: 'n0', label: 'n0', "visited": false }, classes: 'center-center' },
+    { group: 'nodes', data: { id: 'n0', label: 'n0', "visited": false, image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
     { group: 'nodes', data: { id: 'n1', label: 'n1', "visited": false }, classes: 'center-center' },
     { group: 'nodes', data: { id: 'n3', label: 'n3', "visited": false }, classes: 'center-center' },
     { group: 'nodes', data: { id: 'n2', label: 'n2', "visited": false }, classes: 'center-center' },
@@ -15,7 +15,7 @@ var nodes = [
 var edges = [
     { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight: 200, "visited": false } },
     { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight: 100, "visited": false } },
-    { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight: 100, "visited": false } },
+    // { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight: 100, "visited": false } },
     { group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight: 150, "visited": false } },
     { group: 'edges', data: { id: 'e3', source: 'n0', target: 'n4', weight: 150, "visited": false } },
     { group: 'edges', data: { id: 'e4', source: 'n4', target: 'n2', weight: 200, "visited": false } },
@@ -39,13 +39,27 @@ $(document).ready(function () {
         elements: elements,
         layout: {
             name: 'cola',
-
+            directed: false
         },
         style: [
             {
+                "selector": "node",
+                "style": {
+                    //'background-image':"data(image)",
+                    'height': 40,
+                    'width': 40,
+                    'background-fit': 'cover',
+                    'border-color': '#000',
+                    'border-width': 3,
+                    'border-opacity': 0.5
+                }
+                
+            },
+            {
                 "selector": "node[label]",
                 "style": {
-                    "label": "data(label)"
+                    "label": "data(label)",
+                    
                 }
             },
             {
@@ -57,7 +71,8 @@ $(document).ready(function () {
             },
         ]
     });
-    var layout = cy.layout({ name: 'cola' }).run();
+    var layout = cy.layout({ name: 'cola',randomize: true,
+    animate: true }).run();
     layout.on('layoutstop', function () {
         //temporary location
         //setEdgeDistancesQueue();
