@@ -13,19 +13,19 @@ var nodes = [
     { group: 'nodes', data: { id: 'n9', label: 'n9', "visited": false }, classes: 'center-center', }
 ]
 var edges = [
-    { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight: 200, "visited": false } },
+    
     { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight: 100, "visited": false } },
     // { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight: 100, "visited": false } },
-    { group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight: 150, "visited": false } },
+    //{ group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight: 150, "visited": false } },
     { group: 'edges', data: { id: 'e3', source: 'n0', target: 'n4', weight: 150, "visited": false } },
     { group: 'edges', data: { id: 'e4', source: 'n4', target: 'n2', weight: 200, "visited": false } },
     { group: 'edges', data: { id: 'e5', source: 'n4', target: 'n3', weight: 100, "visited": false } },
     { group: 'edges', data: { id: 'e6', source: 'n3', target: 'n5', weight: 100, "visited": false } },
     { group: 'edges', data: { id: 'e7', source: 'n3', target: 'n6', weight: 300, "visited": false } },
-    { group: 'edges', data: { id: 'e8', source: 'n2', target: 'n7', weight: 100, "visited": false } },
-    
+    { group: 'edges', data: { id: 'e8', source: 'n2', target: 'n7', weight: 200, "visited": false } },
+    { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight: 200, "visited": false } },
     { group: 'edges', data: { id: 'e10', source: 'n4', target: 'n9', weight: 300, "visited": false } },
-    { group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight: 200, "visited": false } }
+    //{ group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight: 200, "visited": false } }
 ]
 //temporary also in future it will be array of nodes and array of edges
 var elements = [...nodes.concat(edges)]
@@ -71,7 +71,7 @@ $(document).ready(function () {
             },
         ]
     });
-    var layout = cy.layout({ name: 'cola',randomize: true,
+    var layout = cy.layout({ name: 'euler',randomize: true,
     animate: true }).run();
     layout.on('layoutstop', function () {
         //temporary location
@@ -83,8 +83,15 @@ $(document).ready(function () {
             }
         });
 
-    })
+    });
+    cy.on('tap', 'node', function(evt){
+        var node = evt.target;
+        console.log( 'tapped ' + node.id() );
+        cy.fit(node);
+        cy.zoom({level:1.5, position:{x:node.position('x'),y:node.position('y')}})
+      });
 
+    
 })
 
 function setEdgeDistances() {
