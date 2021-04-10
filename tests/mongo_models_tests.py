@@ -156,11 +156,11 @@ class TestModels(unittest.TestCase):
         account = Account(id = 7,twitter_handle= "Steve2")
         account.name = 'Steve'
         
-        pos = Top_Words()
+        pos = Top_Word()
         pos.word = "test"
         pos.value = 5
 
-        neg = Top_Words()
+        neg = Top_Word()
         neg.word = "twitter"
         neg.value = 20
 

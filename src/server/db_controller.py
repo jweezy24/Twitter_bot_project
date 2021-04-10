@@ -1,4 +1,4 @@
-from re import search
+from re import A, search
 from typing import Dict
 import mongoengine
 import datetime
@@ -22,18 +22,19 @@ def insert_account(data:dict):
     account.update_date = datetime.datetime.utcnow()
     # check if group_type is present and if not in database insert it 
     # not sure if this is what we whant though maybe we dont want it to add a new group
+    if "profile_image_url" in data:
+        account.profile_image_url = data['profile_image_url']
     if "group_type" in data:
-        group = get_group(data['group_type'])
+        group = get_group(data['group_type']['name'])
         if group is not None:
             account.group_type = group
         else:
-            insert_group({'name':data['group_type']})
+            insert_group(data['group_type'])
             account.group_type = get_group(data['group_type'])
     if "following" in data or "followers" in data:
         if len(account.following) > 0 or len(account.followers) > 0: 
             create_search(account)
-            account.following.clear()
-            account.followers.clear()
+            clear_account(account)
     #insert following connections after creating them if account already has connections we create a search to store the old search
     if "following" in data:
         for connection in data['following']:
@@ -41,10 +42,75 @@ def insert_account(data:dict):
     if "followers" in data:
         for connection in data['followers']:
             account.followers.append(generate_follower_connection(connection))
+    if "top_words_positive" in data:
+        for word in data['top_words_positive']:
+            account.top_words_positive.append(generate_top_word(word))
+    if "top_words_negative" in data:
+        for word in data['top_words_negative']:
+            account.top_words_negative.append(generate_top_word(word))
+    if "tweets" in data:
+        for tweet in data['tweets']:
+            account.tweets.append(generate_tweet(tweet))
+    if "favorite_tweets" in data:
+        for tweet in data['favorite_tweets']:
+            account.favorite_tweets.append(generate_tweet(tweet))
+    if "tweets_context" in data:
+        for context in data['tweets_context']:
+            account.tweets_context.append(generate_context(context))    
+    if "favorite_context" in data:
+        for context in data['favorite_context']:
+            account.favorite_context.append(generate_context(context))      
     
     account.save()
         
     return account
+
+def generate_tweet(data:dict):
+    tweet = Tweet(id =data['id'])
+    tweet.created_at = data['created_at']
+    tweet.text = data['text']
+    return tweet
+
+def generate_top_word(data:dict):
+    top_word = Top_Word()
+    top_word.word = data['word']
+    top_word.value = data['value']
+    return top_word
+
+def generate_context(data:dict):
+    context = Context(id = data['id'])
+    context.text = data['text']
+    for annotation in data['context_annotations']:
+        context.context_annotations.append(generate_context_annotation(annotation))
+    return context
+
+def generate_context_annotation(data:dict):
+    context_annotation = Context_Annotation()
+    context_annotation.domain = generate_domain(data['domain'])
+    context_annotation.entity = generate_entity(data['entity'])
+    return context_annotation
+
+def generate_domain(data:dict):
+    domain = Domain(id = data['id'])
+    domain.name = data['name']
+    domain.description = data['description']
+    return domain
+
+def generate_entity(data:dict):
+    entity = Entity(id = data['id'])
+    entity.name = data['name']
+    entity.description =data['description']
+    return entity
+
+def clear_account(account):
+    account.following.clear()
+    account.followers.clear()
+    account.top_words_positive.clear()
+    account.top_words_negative.clear()
+    account.tweets.clear()
+    account.favorite_tweets.clear()
+    account.favorite_context.clear()
+    account.tweets_context.clear()
 
 def update_account(account:Account, data:dict):
     account.name = data['name']
@@ -98,6 +164,13 @@ def generate_follower_connection(data:dict):
 def create_search(account:Account):
     search = Search(search_handle = account)
     search.following = account.following
+    search.followers = account.followers
+    search.top_words_positve = account.top_words_positive
+    search.top_words_negative = account.top_words_negative
+    search.tweets = account.tweets
+    search.tweets_context = account.tweets_context
+    search.favorite_tweets = account.favorite_tweets
+    search.favorite_context = account.favorite_context
     search.date = account.update_date
     search.save()
 
