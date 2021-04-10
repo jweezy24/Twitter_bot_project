@@ -1,3 +1,4 @@
+from enum import unique
 from flask_mongoengine import MongoEngine, connection
 import datetime
 from mongoengine.fields import EmbeddedDocumentField
@@ -7,7 +8,7 @@ import mongoengine as me
 db:MongoEngine
 
 class Group(me.Document):
-    name = me.StringField(required = True)
+    name = me.StringField(required = True, unique = True)
     description = me.StringField()
 
 #this is the following
@@ -20,7 +21,7 @@ class FollowerConnections(me.EmbeddedDocument):
     distance  = me.IntField()
 
 #top_words
-class Top_Words(me.EmbeddedDocument):
+class Top_Word(me.EmbeddedDocument):
     word = me.StringField(required = True)
     value = me.IntField(required = True)
     
@@ -62,8 +63,8 @@ class Account(me.Document):
     profile_image_url  = me.URLField()
     following          = me.EmbeddedDocumentListField(FollowingConnections)
     followers          = me.EmbeddedDocumentListField(FollowerConnections)
-    top_words_positive = me.EmbeddedDocumentListField(Top_Words)
-    top_words_negative = me.EmbeddedDocumentListField(Top_Words)
+    top_words_positive = me.EmbeddedDocumentListField(Top_Word)
+    top_words_negative = me.EmbeddedDocumentListField(Top_Word)
     tweets             = me.EmbeddedDocumentListField(Tweet)
     tweets_context     = me.EmbeddedDocumentListField(Context)
     favorite_tweets    = me.EmbeddedDocumentListField(Tweet)
@@ -77,8 +78,8 @@ class Search(me.Document):
     search_handle      = me.ReferenceField(Account, required=True, reverse_delete_rule=CASCADE)
     followers          = me.ListField(EmbeddedDocumentField(FollowingConnections))
     following          = me.EmbeddedDocumentListField(FollowingConnections)
-    top_words_positve  = me.EmbeddedDocumentListField(Top_Words)
-    top_words_negative = me.EmbeddedDocumentListField(Top_Words)
+    top_words_positve  = me.EmbeddedDocumentListField(Top_Word)
+    top_words_negative = me.EmbeddedDocumentListField(Top_Word)
     tweets             = me.EmbeddedDocumentListField(Tweet)
     tweets_context     = me.EmbeddedDocumentListField(Context)
     favorite_tweets    = me.EmbeddedDocumentListField(Tweet)

@@ -62,46 +62,48 @@ class TestController(unittest.TestCase):
         
 
     def test_get_group(self):
-        account = {"id":4, "twitter_handle":"Jane4", "name" :"Jane Doe", 'group_type':'Politics'}
+        account = {"id":4, "twitter_handle":"Jane4", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}}
         
         controller.insert_account(account)
 
         query = models.Account.objects(twitter_handle = "Jane4").get()
-
-        assert query.group_type.name == 'Politics'
+        group = controller.get_group("Politics")
+        assert group.description == "test"
 
     def test_account_with_following(self):
-        account = {"id":5,"twitter_handle":"Jane5", "name" :"Jane Doe", 'group_type':'Politics', 
-        "following": [{"following":{"id":6,"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':'Politics'},'distance':10}]}
+        account = {"id":13,"twitter_handle":"Jane12", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+        "following": [{"following":{"id":18,"twitter_handle":"Jane11", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}},'distance':10}]}
 
         controller.insert_account(account)
 
-        query = models.Account.objects(twitter_handle = "Jane5").get()
-        query2 = models.Account.objects(twitter_handle = "Jane6").get()
+        query = models.Account.objects(twitter_handle = "Jane12").get()
+        #query2 = models.Account.objects(twitter_handle = "Jane11").get()
 
-        assert query.following[0].following.twitter_handle == "Jane6"
+        assert query.following[0].following.twitter_handle == "Jane11"
+        assert query.following[0].distance == 10
     
     def test_account_with_follower(self):
-        account = {"id":5,"twitter_handle":"Jane5", "name" :"Jane Doe", 'group_type':'Politics', 
-        "followers": [{"follower":{"id":6,"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':'Politics'},'distance':10}]}
+        account = {"id":5,"twitter_handle":"Jane5", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+        "followers": [{"follower":{"id":6,"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}},'distance':10}]}
 
         controller.insert_account(account)
 
         query = models.Account.objects(twitter_handle = "Jane5").get()
-        query2 = models.Account.objects(twitter_handle = "Jane6").get()
+        #query2 = models.Account.objects(twitter_handle = "Jane6").get()
 
         assert query.followers[0].follower.twitter_handle == "Jane6"
+        assert query.followers[0].distance == 10
     
     #insert account or update if it exists
     def test_insert_account_update(self):
-        account = {"id": 9,"twitter_handle":"Jane7", "name" :"Jane Doe", 'group_type':'Politics', 
-        "following": [{"following":{"id":6,"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':'Politics'},'distance':10}]}
+        account = {"id": 9,"twitter_handle":"Jane7", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+        "following": [{"following":{"id":9,"twitter_handle":"Jane9", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}},'distance':10}]}
         
         controller.insert_account(account)
 
         account['name'] = 'Jane Smith'
         account['following'].clear()
-        account['following'].append({"following":{"id":8,"twitter_handle":"Jane4", "name" :"Jane Doe", 'group_type':'Politics'},'distance':5})
+        account['following'].append({"following":{"id":8,"twitter_handle":"Jane4", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}},'distance':5})
 
         controller.insert_account(account)
 
@@ -111,8 +113,8 @@ class TestController(unittest.TestCase):
         assert query.following[0].following.twitter_handle == "Jane4"
 
     def test_find_previous_searchs(self):
-        account = controller.insert_account({"id":10,"twitter_handle":"John4", "name" :"John Doe", 'group_type':'Politics'})
-        connection = controller.generate_following_connection({"following":{"id":6,"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':'Politics'},'distance':10})
+        account = controller.insert_account({"id":10,"twitter_handle":"John4", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}})
+        connection = controller.generate_following_connection({"following":{"id":6,"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}},'distance':10})
         
         search = models.Search(search_handle = account)
         search.following.append(connection)
@@ -127,7 +129,7 @@ class TestController(unittest.TestCase):
         assert query[0].following[0].following.twitter_handle == "Jane6"
 
     def test_create_search(self):
-        account = controller.insert_account({"id":11,"twitter_handle":"John55", "name" :"John Doe", 'group_type':'Politics', "connections": [{"following":{"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':'Politics'},'distance':10}]})
+        account = controller.insert_account({"id":11,"twitter_handle":"John55", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, "connections": [{"following":{"twitter_handle":"Jane6", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}},'distance':10}]})
         
         controller.create_search(account)
 
@@ -135,3 +137,76 @@ class TestController(unittest.TestCase):
 
         assert query.search_handle.twitter_handle == account.twitter_handle
     
+
+    def test_top_words(self):
+        account = controller.insert_account({"id":20,"twitter_handle":"John21", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+                                            "top_words_positive":[{"word": "test_pos", "value": 11}],
+                                            "top_words_negative":[{"word": "test_neg", "value": 20}]
+                                            })
+
+        controller.insert_account(account)
+
+        query = models.Account.objects(twitter_handle = "John21").get()
+
+        assert query.top_words_positive[0].value == 11
+        assert query.top_words_negative[0].value == 20
+        assert query.top_words_negative[0].word == "test_neg"
+        assert query.top_words_positive[0].word == "test_pos"
+
+    def test_tweets(self):
+        account = controller.insert_account({"id":21,"twitter_handle":"John22", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+                                            "tweets":[{"id":1, "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test"}],
+                                            "favorite_tweets":[{"id":1, "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test2"}]
+                                            })
+        
+
+        query = models.Account.objects(twitter_handle = "John22").get()
+
+        assert query.tweets[0].text == "test"
+        assert query.tweets[0].id == 1
+        assert query.favorite_tweets[0].text == "test2"
+        assert query.favorite_tweets[0].id == 1
+
+    def test_tweets_context(self):
+        account = controller.insert_account({"id":22,"twitter_handle":"John22", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+                                            "tweets_context":[{"id":1, "text": "test", "context_annotations": [{"domain":{"id":2, "name":'Politics', "description" :"test"}, "entity":{"id":1, "name":'Politics', "description" :"test"}}]}],
+                                            "favorite_context":[{"id":1, "text": "test2", "context_annotations": [{"domain":{"id":2, "name":'Politics', "description" :"test"}, "entity":{"id":1, "name":'Politics', "description" :"test"}}]}]
+                                            })
+        
+
+        query = models.Account.objects(twitter_handle = "John22").get()
+
+        assert query.tweets_context[0].text == "test"
+        assert query.tweets_context[0].id == 1
+        assert query.favorite_context[0].text == "test2"
+        assert query.favorite_context[0].id == 1
+        assert query.favorite_context[0].context_annotations[0].domain.name == "Politics"
+        assert query.favorite_context[0].context_annotations[0].domain.id == 2
+        assert query.tweets_context[0].context_annotations[0].domain.name == "Politics"
+        assert query.tweets_context[0].context_annotations[0].domain.id == 2
+
+    def test_tweets_full(self):
+        account = controller.insert_account({"id":22,"twitter_handle":"John22", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+                                            "tweets_context":[{"id":1, "text": "test", "context_annotations": [{"domain":{"id":1, "name":'Politics', "description" :"test"}, "entity":{"id":1, "name":'Politics', "description" :"test"}}]}],
+                                            "favorite_context":[{"id":1, "text": "test2", "context_annotations": [{"domain":{"id":1, "name":'Politics', "description" :"test"}, "entity":{"id":1, "name":'Politics', "description" :"test"}}]}],
+                                            "tweets":[{"id":1, "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test"}],
+                                            "favorite_tweets":[{"id":1, "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test2"}],
+                                            "top_words_positive":[{"word": "test_pos", "value": 11}],
+                                            "top_words_negative":[{"word": "test_neg", "value": 20}]
+                                            })
+        
+
+        query = models.Account.objects(twitter_handle = "John22").get()
+
+        assert query.tweets_context[0].text == "test"
+        assert query.tweets_context[0].id == 1
+        assert query.favorite_context[0].text == "test2"
+        assert query.favorite_context[0].id == 1
+        assert query.tweets[0].text == "test"
+        assert query.tweets[0].id == 1
+        assert query.favorite_tweets[0].text == "test2"
+        assert query.favorite_tweets[0].id == 1
+        assert query.top_words_positive[0].value == 11
+        assert query.top_words_negative[0].value == 20
+        assert query.top_words_negative[0].word == "test_neg"
+        assert query.top_words_positive[0].word == "test_pos"
