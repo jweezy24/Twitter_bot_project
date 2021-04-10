@@ -18,8 +18,10 @@ def translate_to_mongo():
         for f in files:
             if ".json.json" in f:
                 os.remove(f"./src/data/{f}")
-            f = f"./src/data/{f}"
-            users.append(f)
+            if ".json" in f:
+                f = f"./src/data/{f}"
+                if os.path.exists(f):
+                    users.append(f)
 
     for user in users:
         print(user)
