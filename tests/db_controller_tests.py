@@ -4,7 +4,7 @@ import sys
 
 
 #sys.path.append('.')
-sys.path.append('./src')
+sys.path.append('../src')
 #sys.path.insert(1, '../src/server/')
 
 import server.db_controller as controller
@@ -135,3 +135,5 @@ class TestController(unittest.TestCase):
 
         assert query.search_handle.twitter_handle == account.twitter_handle
     
+if __name__ == "__main__":
+    unittest.main()

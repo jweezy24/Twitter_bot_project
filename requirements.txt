@@ -5,3 +5,7 @@ tinydb
 networkx
 scipy
 matplotlib
+mongoengine
+flask
+flask_mongoengine
+mongomock

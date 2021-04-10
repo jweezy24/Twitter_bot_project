@@ -8,7 +8,7 @@ import sys
 
 from mongoengine.errors import DoesNotExist
 from mongoengine.queryset.transform import query
-sys.path.append('./src')
+sys.path.append('../src')
 from server.models import *
 
 
@@ -229,4 +229,6 @@ class TestModels(unittest.TestCase):
         #test
         assert query_account.tweets_context[0] == context
         assert query_account.tweets_context[0].context_annotations[0] == contextAnnotation
-        
+
+if __name__ == "__main__":
+    unittest.main()
