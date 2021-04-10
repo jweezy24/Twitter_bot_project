@@ -2,6 +2,7 @@ from re import A, search
 from typing import Dict
 import mongoengine
 import datetime
+import json
 from server.models import *
 
 
@@ -18,7 +19,7 @@ def insert_account(data:dict):
     if account is None:
         account = Account(id = data['id'],twitter_handle=data['twitter_handle'])
     
-    account.name = data['name']
+    account.name = data['twitter_handle']
     account.update_date = datetime.datetime.utcnow()
     # check if group_type is present and if not in database insert it 
     # not sure if this is what we whant though maybe we dont want it to add a new group
@@ -49,16 +50,20 @@ def insert_account(data:dict):
         for word in data['top_words_negative']:
             account.top_words_negative.append(generate_top_word(word))
     if "tweets" in data:
-        for tweet in data['tweets']:
+        for key in data['tweets']:
+            tweet = data['tweets'][key]
             account.tweets.append(generate_tweet(tweet))
-    if "favorite_tweets" in data:
-        for tweet in data['favorite_tweets']:
+    if "favorite_tbl" in data:
+        for key in data['favorite_tbl']:
+            tweet = data['favorite_tbl'][key]
             account.favorite_tweets.append(generate_tweet(tweet))
     if "tweets_context" in data:
-        for context in data['tweets_context']:
+        for key in data['tweets_context']:
+            context = data["tweets_context"][key]
             account.tweets_context.append(generate_context(context))    
-    if "favorite_context" in data:
-        for context in data['favorite_context']:
+    if "favorites_context" in data:
+        for key in data['favorites_context']:
+            context = data["favorites_context"][key]
             account.favorite_context.append(generate_context(context))      
     
     account.save()
@@ -66,7 +71,7 @@ def insert_account(data:dict):
     return account
 
 def generate_tweet(data:dict):
-    tweet = Tweet(id =data['id'])
+    tweet = Tweet(id = str(data['id']))
     tweet.created_at = data['created_at']
     tweet.text = data['text']
     return tweet
@@ -78,10 +83,12 @@ def generate_top_word(data:dict):
     return top_word
 
 def generate_context(data:dict):
-    context = Context(id = data['id'])
+    context = Context(id = str(data['id']))
     context.text = data['text']
-    for annotation in data['context_annotations']:
-        context.context_annotations.append(generate_context_annotation(annotation))
+    if 'context_annotations' in data:
+        for annotation in data['context_annotations']:
+            print(annotation)
+            context.context_annotations.append(generate_context_annotation(annotation))
     return context
 
 def generate_context_annotation(data:dict):
@@ -91,15 +98,17 @@ def generate_context_annotation(data:dict):
     return context_annotation
 
 def generate_domain(data:dict):
-    domain = Domain(id = data['id'])
+    domain = Domain(id = str(data['id']))
     domain.name = data['name']
-    domain.description = data['description']
+    if 'description' in data:
+        domain.description = data['description']
     return domain
 
 def generate_entity(data:dict):
-    entity = Entity(id = data['id'])
+    entity = Entity(id = str(data['id']))
     entity.name = data['name']
-    entity.description =data['description']
+    if 'description' in data:
+        entity.description =data['description']
     return entity
 
 def clear_account(account):

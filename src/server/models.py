@@ -26,20 +26,20 @@ class Top_Word(me.EmbeddedDocument):
     value = me.IntField(required = True)
     
 class Tweet(me.EmbeddedDocument):
-    id = me.IntField(primary_key = True)
+    id = me.StringField(primary_key = True)
     created_at = me.DateField()
     text = me.StringField()
 
 
 #used by context annotation
 class Domain(me.EmbeddedDocument):
-    id = me.IntField(primary_key = True)
+    id = me.StringField(primary_key = True)
     name = me.StringField()
     description = me.StringField()
 
 #used by context annotation
 class Entity(me.EmbeddedDocument):
-    id = me.IntField(primary_key = True)
+    id = me.StringField(primary_key = True)
     name = me.StringField()
     description = me.StringField()
 
@@ -49,13 +49,13 @@ class Context_Annotation(me.EmbeddedDocument):
     entity = me.EmbeddedDocumentField(Entity)
 
 class Context(me.EmbeddedDocument):
-    id = me.IntField(primary_key = True)
+    id = me.StringField(primary_key = True)
     text = me.StringField()
     context_annotations = me.EmbeddedDocumentListField(Context_Annotation)
 
 #twitterAccount
 class Account(me.Document):
-    id                 = me.IntField(primary_key = True)
+    id                 = me.StringField(primary_key = True)
     twitter_handle     = me.StringField(required = True, unique = True)
     name               = me.StringField()
     update_date        = me.DateField(default=datetime.datetime.utcnow)
