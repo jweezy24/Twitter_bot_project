@@ -35,10 +35,7 @@ def translate_to_mongo():
                 data.update({"id": id_})
                 insert_account(data)
                 print("interted")
-                #print(data)
             else:
                 continue
-        exit()
-            #    insert_account(get_all_table_entries(user, table))
             
 translate_to_mongo()
