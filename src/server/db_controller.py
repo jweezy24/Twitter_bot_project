@@ -10,9 +10,39 @@ from server.models import *
 def get_account(twitter_handle:str):
     try:
         return Account.objects(twitter_handle = twitter_handle).get()
-    except mongoengine.errors.DoesNotExist:
+    except mongoengine.errors.DoesNotExist as e:
+        print(e)
         return None
-
+        
+def get_max_id(val,username):
+    acc = get_account(username)
+    if acc != None:
+        if val == "tweets":
+            m = -1
+            for i in acc.tweets:
+                if int(i.id) > m:
+                    m = int(i.id)
+            return m
+        elif val == "tweets_context":
+            m = -1
+            for i in acc.tweets_context:
+                if int(i.id) > m:
+                    m = int(i.id)
+            return m
+        elif val == "favorites":
+            m = -1
+            for i in acc.favorite_tweets:
+                if int(i.id) > m:
+                    m = int(i.id)
+            return m
+        elif val == "favorites_context":
+            m = -1
+            for i in acc.favorite_context:
+                if int(i.id) > m:
+                    m = int(i.id)
+            return m
+    else:
+        return -1 
 def insert_account(data:dict):
     
     account = get_account(data['twitter_handle'])

@@ -1,6 +1,7 @@
 ''' 
 The purpose of this file is to migrate the .json data from the data directory to our mongodb.
-We will still use tinydb as it make for a much easier local algorithm development, although for speed we should be using mongo on the server.
+We will still use tinydb as it make for a much easier local algorithm development.
+Although, for speed we should be using mongo on the server.
 '''
 import sys
 import os
@@ -34,7 +35,6 @@ def translate_to_mongo():
                 id_ = sha256(name.encode("utf-8")).hexdigest()
                 data.update({"id": id_})
                 insert_account(data)
-                print("interted")
             else:
                 continue
             

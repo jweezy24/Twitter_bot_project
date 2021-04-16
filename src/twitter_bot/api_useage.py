@@ -1,16 +1,21 @@
 import os
+import sys
 import twitter
 import tweepy
 import time
 from categorization_algorithm import *
 from REST_api_calls import *
 from tiny_db_calls import *
-
+sys.path.append('./src')
+from server.db_controller import *
+from hashlib import *
 
 api_key = os.environ['APIKEY']
 api_secret = os.environ['APISECRET']
 username = os.environ['TWITTERUSER']
 password = os.environ['TWITTERPASS']
+
+use_mongo = False
 
 
 api = twitter.Api(consumer_key=username,
@@ -28,18 +33,54 @@ api2 = tweepy.API(auth, wait_on_rate_limit=True,
 ''' Returns a list of favorites in a Json format '''
 
 
-def get_favorites(user, total=100):
+def get_favorites(user, total=100, use_mongo=False):
     favs = []
     count = 0
-    max_id = get_maximum_id(user, "favorite_tbl")
-    for page in tweepy.Cursor(api2.favorites, screen_name=user, since_id=max_id).pages():
+    data = api2.get_user(user)
+    created = data.created_at
+    if not use_mongo:
+        max_id = get_maximum_id(user, "favorite_tbl")
+    else:
+        max_id = get_max_id( "favorites", user)
+    
+    if max_id == None or max_id==-1:
+        cur = tweepy.Cursor(api2.favorites, id=user, since=created).pages()
+    else:
+        cur = tweepy.Cursor(api2.favorites, id=user,
+                            since_id=max_id).pages()
+
+    for page in cur:
+        if count >= total:
+            break
         for entry in page:
-            if not search_value(entry._json["id"], user, table="favorite_tbl"):
+            if count >= total:
+                break
+            if not search_value(entry._json["id"], user, table="favorite_tbl") and not use_mongo:
                 save_value(entry._json, userid=user, table="favorite_tbl")
                 count += 1
                 print("ADDED FAVORITE")
-            else:
-                continue
+            elif use_mongo:
+                
+                acc = get_account(user)
+                
+                if acc == None:
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user})
+                    id_ = sha256(user.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
+
+                    acc = get_account(user)
+
+                    acc.favorite_tweets.append(generate_tweet(entry._json))
+                    acc.save()
+                    count+=1
+                    continue
+
+                acc.favorite_tweets.append(generate_tweet(entry._json))
+                acc.save()
+                
+                count+=1
     print(f"ADDED {count} NEW FAVORITES")
     return favs
 
@@ -55,26 +96,57 @@ def get_favorites(user, total=100):
 '''
 
 
-def get_favorites_with_context(user, total=100):
+def get_favorites_with_context(user, total=100, use_mongo=False):
     favs = []
     count = 0
-    table_cache = {"favorite_with_context_tbl": None}
-    max_id = get_maximum_id(user, "favorites_context")
+    data = api2.get_user(user)
+    created = data.created_at
+    if not use_mongo:
+        max_id = get_maximum_id(user, "favorite_with_context_tbl")
+    else:
+        max_id = get_max_id( "favorites_context", user)
+    
+    if max_id == None or max_id==-1:
+        cur = tweepy.Cursor(api2.favorites, id=user, since=created).pages()
+    else:
+        cur = tweepy.Cursor(api2.favorites, id=user,
+                            since_id=max_id).pages()
 
-    for page in tweepy.Cursor(api2.favorites, screen_name=user, since_id=max_id).pages():
+    for page in cur:
+        if count >= total:
+            break
         for entry in page:
-            if not search_value(entry._json["id"], user, table="favorites_context"):
-                res = get_tweet_context(entry._json["id"])
-                if res:
-                    tmp_id = entry._json["id"]
-                    print(f"Saved {tmp_id}")
-                    save_value(res, userid=user, table="favorites_context")
-            else:
-                continue
-            if res:
-                favs.append(res)
+            if count >= total:
+                break
+            if not search_value(entry._json["id"], user, table="favorite_tbl") and not use_mongo:
+                save_value(entry._json, userid=user, table="favorite_tbl")
+                count += 1
+                print("ADDED FAVORITE")
+            elif use_mongo:
+                
+                acc = get_account(user)
+                
+                if acc == None:
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user})
+                    id_ = sha256(user.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
 
-    return favs
+                    acc = get_account(user)
+                    t = get_tweet_context(entry._json["id"])
+                    if t != None:
+                        acc.favorite_context.append(generate_context(t))
+                        acc.save()
+                    count+=1
+                    continue
+                
+                t = get_tweet_context(entry._json["id"])
+                if t != None:
+                    acc.favorite_context.append(generate_context(t))
+                    acc.save()
+                
+                count+=1
 
 
 ''' 
@@ -135,27 +207,60 @@ Output: a list of tweets of that user.
 '''
 
 
-def retrieve_all_tweets(user, max_id=-1):
+def retrieve_all_tweets(user, max_id=-1, total=100, use_mongo=False):
 
     data = api2.get_user(user)
     created = data.created_at
     favs = []
     count = 0
-    max_id = get_maximum_id(user, "tweets")
-    print(max_id)
-    if max_id == None:
+    if not use_mongo:
+        max_id = get_maximum_id(user, "tweets")
+    else:
+        max_id = get_max_id( "tweets", user)
+    
+    if max_id == None or max_id==-1:
         cur = tweepy.Cursor(api2.user_timeline, id=user, since=created).pages()
     else:
         cur = tweepy.Cursor(api2.user_timeline, id=user,
                             since_id=max_id).pages()
-
+    print(use_mongo)
     count = 0
+
     for page in cur:
+        if count >= total:
+                break
         for entry in page:
-            if not search_value(entry._json["id"], user, table="tweets"):
+            if count >= total:
+                break
+
+            if not search_value(entry._json["id"], user, table="tweets") and not use_mongo:
                 print(f"Saved Tweet")
+                
                 save_value(entry._json, userid=user, table="tweets")
                 count += 1
+            
+            elif use_mongo:
+                
+                acc = get_account(user)
+                
+                if acc == None:
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user})
+                    id_ = sha256(user.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
+
+                    acc = get_account(user)
+
+                    acc.tweets.append(generate_tweet(entry._json))
+                    acc.save()
+                    count+=1
+                    continue
+
+                acc.tweets.append(generate_tweet(entry._json))
+                acc.save()
+                
+                count+=1
 
     print(f"Saved {count} Tweets from {user}")
 
@@ -164,28 +269,66 @@ def retrieve_all_tweets(user, max_id=-1):
 The idea for this method came from here.
 https://gist.github.com/yanofsky/5436496
 Input: Username of user that we want to give context to.
+TODO: We can remove the intial api call and iterate through the user's tweet ids list.
 '''
 
 
-def save_all_tweets_context(user, max_id=-1):
+def save_all_tweets_context(user, max_id=-1,total=100,use_mongo=False):
 
     data = api2.get_user(user)
     created = data.created_at
     favs = []
     count = 0
-    max_id = get_maximum_id(user, "tweets_context")
-    print(max_id)
-    if max_id == None:
+    if not use_mongo:
+        max_id = get_maximum_id(user, "tweets_context")
+    else:
+        max_id = get_max_id( "tweets_context", user)
+
+    if max_id == None or max_id == -1:
         cur = tweepy.Cursor(api2.user_timeline, id=user, since=created).pages()
     else:
         cur = tweepy.Cursor(api2.user_timeline, id=user,
                             since_id=max_id).pages()
 
     for page in cur:
+        if count >= total:
+                break
         for entry in page:
-            if not search_value(entry._json["id"], user, table="tweets_context"):
-                save_value(entry._json, userid=user, table="tweets_context")
+            if count >= total:
+                break
 
+            if not search_value(entry._json["id"], user, table="tweets_context") and not use_mongo:
+                save_value(entry._json, userid=user, table="tweets_context")
+            elif use_mongo:
+                
+                acc = get_account(user)
+                
+                if acc == None:
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user})
+                    id_ = sha256(user.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
+                    
+                    acc = get_account(user)
+
+                    print(entry._json["id"])
+                    t = get_tweet_context(entry._json["id"])
+                    print(t)
+                    if t != None:
+                        acc.tweets_context.append(generate_context(t))
+                        acc.save()
+                    count+=1
+                    continue
+
+                t = get_tweet_context(entry._json["id"])
+                print(t)
+                if t != None:
+                    acc.tweets_context.append(generate_context(t))
+                    acc.save()
+                print("SAVED CONTEXT WITH TWEET MONGO")
+                
+                count+=1
 
 ''' 
 Checks to see if a user is private. If so we cannot gather data and it causes timeouts.
@@ -198,7 +341,7 @@ def is_private(user):
     return u.protected
 
 
-def build_user_web(user):
+def build_user_web(user, mongo=False):
     print(f"Creating user web for {user}")
     followers = get_all_table_entries("followers")
     following = get_all_table_entries("following")
@@ -210,6 +353,16 @@ def build_user_web(user):
         get_following(user)
         following = get_all_table_entries(user, "following")
 
+    print(f"CHECKING {user}")
+    retrieve_all_tweets(user,use_mongo=mongo)
+    print(f"Got Tweets for {user}")
+    save_all_tweets_context(user, use_mongo=mongo)
+    print(f"Got Tweets with context for {user}")
+    get_favorites(user, use_mongo=mongo)
+    print(f"Got favorites for {user}")
+    get_favorites_with_context(user, use_mongo=mongo)
+    print(f"Got favorites with context for {user}")
+
     print(f"{user} is Following {following}")
     print(f"{user} is Followed by {followers}")
 
@@ -217,28 +370,28 @@ def build_user_web(user):
         people = people["id"]
         if not is_private(people):
             print(f"CHECKING {people}")
-            retrieve_all_tweets(people)
+            retrieve_all_tweets(people,use_mongo=mongo)
             print(f"Got Tweets for {people}")
-            save_all_tweets_context(people)
+            save_all_tweets_context(people, use_mongo=mongo)
             print(f"Got Tweets with context for {people}")
-            get_favorites(people)
+            get_favorites(people, use_mongo=mongo)
             print(f"Got favorites for {people}")
-            get_favorites_with_context(people)
+            get_favorites_with_context(people, use_mongo=mongo)
             print(f"Got favorites with context for {people}")
         else:
             print("Private user.")
 
-    for people in followers:
+    for people in following:
         people = people["id"]
         if not is_private(people):
             print(f"CHECKING {people}")
-            retrieve_all_tweets(people)
+            retrieve_all_tweets(people,use_mongo=mongo)
             print(f"Got Tweets for {people}")
-            save_all_tweets_context(people)
+            save_all_tweets_context(people, use_mongo=mongo)
             print(f"Got Tweets with context for {people}")
-            get_favorites(people)
+            get_favorites(people, use_mongo=mongo)
             print(f"Got favorites for {people}")
-            get_favorites_with_context(people)
+            get_favorites_with_context(people, use_mongo=mongo)
             print(f"Got favorites with context for {people}")
         else:
             print("Private user.")
@@ -246,10 +399,10 @@ def build_user_web(user):
 
 if __name__ == "__main__":
     # Below average twitter account in size
-    build_user_web('jack_west24')
+    build_user_web('jack_west24',mongo=True)
     # Normal twitter account with consistant activity
-    build_user_web('alittl3ton13')
+    build_user_web('alittl3ton13', mongo=True)
     # Very little activity and size
-    build_user_web('allyssa_fogarty')
+    build_user_web('allyssa_fogarty', mongo=True)
     # Large activity and size
-    build_user_web('theneedledrop')
+    build_user_web('theneedledrop', mongo=True)
