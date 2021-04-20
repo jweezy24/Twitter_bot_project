@@ -1,5 +1,5 @@
 //scale that will be applied to weights
-var scale = 1;
+var scale =1;
 var nodes = [
     { group: 'nodes', data: { id: 'n0', label: 'n0', "visited": false, image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
     { group: 'nodes', data: { id: 'n1', label: 'n1', "visited": false }, classes: 'center-center' },
@@ -28,15 +28,15 @@ var edges = [
     //{ group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight: 200, "visited": false } }
 ]
 //temporary also in future it will be array of nodes and array of edges
-var elements = [...nodes.concat(edges)]
 
+var ele = [...nodes.concat(edges)]
 var cy;
 $(document).ready(function () {
     cy = cytoscape({
         container: $("#cy"),
         autolock: false,
 
-        elements: elements,
+        elements: ele,
         layout: {
             name: 'cola',
             directed: false
@@ -71,52 +71,88 @@ $(document).ready(function () {
             },
         ]
     });
-    var layout = cy.layout({ name: 'euler',randomize: true,
-    animate: true }).run();
+    var layout = cy.layout({ name: 'cola'}).run();
     layout.on('layoutstop', function () {
         //temporary location
         //setEdgeDistancesQueue();
         setEdgeDistances();
-        elements.forEach(element => {
+        ele.forEach(element => {
             if (element.group == 'nodes') {
                 cy.$(`#${element.data.id}`).lock();
             }
         });
 
     });
-    cy.on('tap', 'node', function(evt){
-        var node = evt.target;
-        console.log( 'tapped ' + node.id() );
-        cy.fit(node);
-        cy.zoom({level:1.5, position:{x:node.position('x'),y:node.position('y')}})
-    });
-      cy.nodes().forEach(function(ele) {
-        ele.qtip({
-          content: {
-            text: qtipText(ele),
-            title: ele.data('id')
+    //based of https://codepen.io/rbogard/details/jOEyWrL
+    function makePopper(ele) {
+        let ref = ele.popperRef(); // used only for positioning
+        let dummyDomEle = document.createElement('div');
+        ele.tippy =  tippy(dummyDomEle, { // tippy options:
+            getReferenceClientRect: ref.getBoundingClientRect,
+            content: () => {
+            let content = document.createElement('div');
+    
+            content.innerHTML = ele.id();
+    
+            return content;
           },
-          style: {
-            classes: 'qtip-bootstrap'
-          },
-          position: {
-            my: 'bottom center',
-            at: 'top center',
-            target: ele
-          }
+          trigger: 'manual' // probably want manual mode
         });
-      });
+      }
+      cy.ready(function() {
+        //    tippy.setDefaultProps({followCursor: 'true'});
+
+            cy.elements().forEach(function(element) {
+                console.log(element)
+              makePopper(element);
+            });
+            
+            cy.elements().on('tap', function(event){
+                console.log()
+                if (event.target.isNode()) {
+                    var node = event.target;
+                    console.log( 'tapped ' + node.id() );
+                    
+                    cy.fit(node);
+                    cy.zoom({level:1.5, position:{x:node.position('x'),y:node.position('y')}})
+                }
+                
+                event.target.tippy.show();
+                
+            });
+        });
+    
+    
+//based on example on cytoscape.js-popper github
+    
+    //   cy.nodes().forEach(function(ele) {
+    //     ele.qtip({
+    //       content: {
+    //         text: qtipText(ele),
+    //         title: ele.data('id')
+    //       },
+    //       style: {
+    //         classes: 'qtip-bootstrap'
+    //       },
+    //       position: {
+    //         my: 'bottom center',
+    //         at: 'top center',
+    //         target: ele
+    //       }
+    //     });
+    //   });
     
 })
-function qtipText(node) {
-    var twitterLink = '<a href="http://twitter.com/' + node.data('id') + '">' + node.data('id') + '</a>';
-    var following = 'Following ' + node.data('followingCount') + ' other users';
+
+// function qtipText(node) {
+//     var twitterLink = '<a href="http://twitter.com/' + node.data('id') + '">' + node.data('id') + '</a>';
+//     var following = 'Following ' + node.data('followingCount') + ' other users';
     
-    var image = '<img src="' + node.data('image') + '" style="float:left;width:50px;height:50px;">';
-    var description = '<i>' + node.data('description') + '</i>';
+//     var image = '<img src="' + node.data('image') + '" style="float:left;width:50px;height:50px;">';
+//     var description = '<i>' + node.data('description') + '</i>';
   
-    return image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<p><br>' + description + '</p>';
-  }
+//     return image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<p><br>' + description + '</p>';
+// }
   
 function setEdgeDistances() {
     for (let i = 0; i < edges.length; i++) {
