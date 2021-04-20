@@ -1,7 +1,7 @@
 //scale that will be applied to weights
 var scale =1;
 var nodes = [
-    { group: 'nodes', data: { id: 'n0', label: 'n0', "visited": false, image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
+    { group: 'nodes', data: { id: 'n0', label: 'n0', visited: false, followers:100, following:1000 ,image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
     { group: 'nodes', data: { id: 'n1', label: 'n1', "visited": false }, classes: 'center-center' },
     { group: 'nodes', data: { id: 'n3', label: 'n3', "visited": false }, classes: 'center-center' },
     { group: 'nodes', data: { id: 'n2', label: 'n2', "visited": false }, classes: 'center-center' },
@@ -88,22 +88,50 @@ $(document).ready(function () {
         let ref = ele.popperRef(); // used only for positioning
         let dummyDomEle = document.createElement('div');
         ele.tippy =  tippy(dummyDomEle, { // tippy options:
+            
             getReferenceClientRect: ref.getBoundingClientRect,
+            
             content: () => {
             let content = document.createElement('div');
-    
-            content.innerHTML = ele.id();
+            
+            if (ele.isNode()) {
+                var twitterLink = '<a href="http://twitter.com/' + ele.data('id') + '">' + ele.data('id') + '</a>';
+                var following = 'Following ' + ele.data('following');
+                var followers =  ele.data('followers')+' Followers'; 
+                var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
+                 //var description = '<i>' + ele.data('description') + '</i>';
+                content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp'+ followers;//+ '<p><br>' + description + '</p>'
+            }
+            else {
+                var distance =  ele.data('weight');
+                content.innerHTML = distance;
+            }
+           
+              
+            //image + '&nbsp' + twitterLink + '<br> &nbsp' + following +'<br> &nbsp'+ followers+'<p><br>' + description + '</p>';
+            
     
             return content;
           },
-          trigger: 'manual' // probably want manual mode
+          //trigger: 'manual',
+          //interactive:true,
+            //interactiveBorder: 30, // probably want manual mode
+            onClickOutside(instance, event) {
+                // ...
+                instance.setProps({
+                   
+                    
+                    interactive:false,
+                  });
+                instance.hide();
+              },
         });
       }
       cy.ready(function() {
         //    tippy.setDefaultProps({followCursor: 'true'});
 
             cy.elements().forEach(function(element) {
-                console.log(element)
+                //console.log(element)
               makePopper(element);
             });
             
@@ -118,7 +146,12 @@ $(document).ready(function () {
                 }
                 
                 event.target.tippy.show();
-                
+                event.target.tippy.setProps({
+                   
+                    animation: 'scale',
+                    trigger: 'manual',
+                    interactive:true,
+                  });
             });
         });
     
@@ -172,7 +205,7 @@ function setEdgeDistances() {
             //var difference = dist - elements[i].data.weight*scale;
             //console.log(difference);
             var angle = getAngle(el1.position(), el2.position());
-            console.log(el1.id(), angle, el2.id())
+            //console.log(el1.id(), angle, el2.id())
             var x = edges[i].data.weight * scale * Math.cos(degrees_to_radians(angle - 90));
             //console.log(x);
             var y = edges[i].data.weight * scale * Math.sin(degrees_to_radians(angle - 90));
