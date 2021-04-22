@@ -53,7 +53,7 @@ class TestController(unittest.TestCase):
         assert query2.name == "Jane"
 
     def test_get_account(self):
-        account = models.Account(id = 7, twitter_handle = "John84")
+        account = models.Account(id = "7", twitter_handle = "John84")
         account.name = "johnnyboy"
         account.save()
         query = models.Account.objects(twitter_handle = "John84").get()
@@ -96,7 +96,7 @@ class TestController(unittest.TestCase):
     
     #insert account or update if it exists
     def test_insert_account_update(self):
-        account = {"id": 9,"twitter_handle":"Jane7", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}, 
+        account = {"id": "9","twitter_handle":"Jane7", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}, 
         "following": [{"following":{"id":"9","twitter_handle":"Jane9", "name" :"Jane Doe", 'group_type':{"name":'Politics', "description": "test"}},'distance':10}]}
         
         controller.insert_account(account)
@@ -156,16 +156,16 @@ class TestController(unittest.TestCase):
     def test_tweets(self):
         account = controller.insert_account({"id":"21","twitter_handle":"John22", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, 
                                             "tweets":[{"id":"1", "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test"}],
-                                            "favorite_tweets":[{"id":"1", "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test2"}]
+                                            "favorite_tbl":[{"id":"1", "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test2"}]
                                             })
         
 
         query = models.Account.objects(twitter_handle = "John22").get()
 
         assert query.tweets[0].text == "test"
-        assert query.tweets[0].id == 1
+        assert query.tweets[0].id == "1"
         assert query.favorite_tweets[0].text == "test2"
-        assert query.favorite_tweets[0].id == 1
+        assert query.favorite_tweets[0].id == "1"
 
     def test_tweets_context(self):
         account = controller.insert_account({"id":"22","twitter_handle":"John22", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, 
@@ -177,20 +177,20 @@ class TestController(unittest.TestCase):
         query = models.Account.objects(twitter_handle = "John22").get()
 
         assert query.tweets_context[0].text == "test"
-        assert query.tweets_context[0].id == 1
+        assert query.tweets_context[0].id == "1"
         assert query.favorite_context[0].text == "test2"
-        assert query.favorite_context[0].id == 1
+        assert query.favorite_context[0].id == "2"
         assert query.favorite_context[0].context_annotations[0].domain.name == "Politics"
-        assert query.favorite_context[0].context_annotations[0].domain.id == 2
+        assert query.favorite_context[0].context_annotations[0].domain.id == "2"
         assert query.tweets_context[0].context_annotations[0].domain.name == "Politics"
-        assert query.tweets_context[0].context_annotations[0].domain.id == 2
+        assert query.tweets_context[0].context_annotations[0].domain.id == "2"
 
     def test_tweets_full(self):
         account = controller.insert_account({"id":"22","twitter_handle":"John22", "name" :"John Doe", 'group_type':{"name":'Politics', "description": "test"}, 
                                             "tweets_context":[{"id":"1", "text": "test", "context_annotations": [{"domain":{"id":"1", "name":'Politics', "description" :"test"}, "entity":{"id":"1", "name":'Politics', "description" :"test"}}]}],
                                             "favorite_context":[{"id":"1", "text": "test2", "context_annotations": [{"domain":{"id":"1", "name":'Politics', "description" :"test"}, "entity":{"id":"1", "name":'Politics', "description" :"test"}}]}],
                                             "tweets":[{"id":"1", "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test"}],
-                                            "favorite_tweets":[{"id":"1", "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test2"}],
+                                            "favorite_tbl":[{"id":"1", "created_at": "Wed Sep 13 08:32:55 +0000 2017", "text": "test2"}],
                                             "top_words_positive":[{"word": "test_pos", "value": 11}],
                                             "top_words_negative":[{"word": "test_neg", "value": 20}]
                                             })
@@ -199,13 +199,13 @@ class TestController(unittest.TestCase):
         query = models.Account.objects(twitter_handle = "John22").get()
 
         assert query.tweets_context[0].text == "test"
-        assert query.tweets_context[0].id == 1
+        assert query.tweets_context[0].id == "1"
         assert query.favorite_context[0].text == "test2"
-        assert query.favorite_context[0].id == 1
+        assert query.favorite_context[0].id == "2"
         assert query.tweets[0].text == "test"
-        assert query.tweets[0].id == 1
+        assert query.tweets[0].id == "1"
         assert query.favorite_tweets[0].text == "test2"
-        assert query.favorite_tweets[0].id == 1
+        assert query.favorite_tweets[0].id == "1"
         assert query.top_words_positive[0].value == 11
         assert query.top_words_negative[0].value == 20
         assert query.top_words_negative[0].word == "test_neg"

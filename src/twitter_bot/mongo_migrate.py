@@ -34,6 +34,9 @@ def translate_to_mongo():
                 data.update({"twitter_handle": name})
                 id_ = sha256(name.encode("utf-8")).hexdigest()
                 data.update({"id": id_})
+                print(json.dumps(data, indent=4, sort_keys=True))
+
+                exit()
                 insert_account(data)
             else:
                 continue

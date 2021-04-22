@@ -49,7 +49,10 @@ def insert_account(data:dict):
     if account is None:
         account = Account(id = data['id'],twitter_handle=data['twitter_handle'])
     
-    account.name = data['twitter_handle']
+    if "name" not in data:
+        account.name = data['twitter_handle']
+    else:
+        account.name = data['name']
     account.update_date = datetime.datetime.utcnow()
     # check if group_type is present and if not in database insert it 
     # not sure if this is what we whant though maybe we dont want it to add a new group
@@ -80,21 +83,50 @@ def insert_account(data:dict):
         for word in data['top_words_negative']:
             account.top_words_negative.append(generate_top_word(word))
     if "tweets" in data:
-        for key in data['tweets']:
-            tweet = data['tweets'][key]
-            account.tweets.append(generate_tweet(tweet))
+        t = data['tweets']
+        if type(t) == type([]):
+            for tweet in t:
+                account.tweets.append(generate_tweet(tweet))
+        if type(t) == type({}):
+            for key in t.keys():
+                tweet = t[key]
+                account.tweets.append(generate_tweet(tweet))
     if "favorite_tbl" in data:
-        for key in data['favorite_tbl']:
-            tweet = data['favorite_tbl'][key]
-            account.favorite_tweets.append(generate_tweet(tweet))
+        t = data['favorite_tbl']
+        if type(t) == type([]):
+            for tweet in t:
+                account.favorite_tweets.append(generate_tweet(tweet))
+        if type(t) == type({}):
+            for key in t.keys():
+                tweet = t[key]
+                account.favorite_tweets.append(generate_tweet(tweet))
     if "tweets_context" in data:
-        for key in data['tweets_context']:
-            context = data["tweets_context"][key]
-            account.tweets_context.append(generate_context(context))    
+        t = data['tweets_context']
+        if type(t) == type([]):
+            for tweet in t:
+                account.tweets_context.append(generate_context(tweet))
+        if type(t) == type({}):
+            for key in t.keys():
+                tweet = t[key]
+                account.tweets_context.append(generate_context(tweet))    
     if "favorites_context" in data:
-        for key in data['favorites_context']:
-            context = data["favorites_context"][key]
-            account.favorite_context.append(generate_context(context))      
+        t = data['favorites_context']
+        if type(t) == type([]):
+            for tweet in t:
+                account.favorite_context.append(generate_context(tweet))
+        if type(t) == type({}):
+            for key in t.keys():
+                tweet = t[key]
+                account.favorite_context.append(generate_context(tweet))
+    if "favorite_context" in data:
+        t = data['favorite_context']
+        if type(t) == type([]):
+            for tweet in t:
+                account.favorite_context.append(generate_context(tweet))
+        if type(t) == type({}):
+            for key in t.keys():
+                tweet = t[key]
+                account.favorite_context.append(generate_context(tweet))            
     
     account.save()
         
