@@ -9,9 +9,10 @@ from graph_data_structure import *
 types_of_words_to_filter = ['NNS', 'NN', 'NNP', 'NNPS']
 ignored_words = stopwords.words('english')
 bad = os.environ['BADWORDSPATH']
-with open(bad,"r") as f:
-    for word in f:
-        ignored_words.append(word.strip())
+if bad != "":
+    with open(bad,"r") as f:
+        for word in f:
+            ignored_words.append(word.strip())
 
 '''
 This method creates a dictionary which indexs by word and the value at the index is word classification and amount of occurances.
