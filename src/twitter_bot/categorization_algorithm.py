@@ -466,7 +466,7 @@ def distance_algorithm_calculation(root_user):
 
     #List of users we want to gather their data for
     print(followers)
-    
+
     to_check = followers + following
 
     
@@ -573,7 +573,7 @@ def calculate_weight(key, data_cache):
 
 def get_weight_of_word(base, word, weight):
     words = [ i[0] for i in base]
-
+    print(base)
     if word in words:
         for w,tp,wgt,sent in base:
             if w == word:
