@@ -538,8 +538,8 @@ def distance_algorithm_calculation(root_user):
         if give_weight:
             print(f"{x},{y}")
             weighted_users.append((key,x, y))
-    
-    graph = create_graph_obj(root_user, weighted_users)
+
+    return weighted_users
 
             
 

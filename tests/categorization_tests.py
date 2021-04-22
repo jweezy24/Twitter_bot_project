@@ -47,6 +47,9 @@ class TestLanguageFunctions(unittest.TestCase):
     def test_distance_algorithm_calculation(self):
         distance_algorithm_calculation('jack_west24')
 
+    def test_combine_tweets_with_context(self):
+        combine_tweets_with_context('jack_west24')
+
 
 
         
@@ -55,6 +58,7 @@ if __name__ == "__main__":
 
     suite = unittest.TestSuite()
     suite.addTest(TestLanguageFunctions("test_sentiment_calculation"))
+    suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
     runner = unittest.TextTestRunner()
     #runner.run(suite)
     ret = not runner.run(suite).wasSuccessful()
