@@ -1,9 +1,23 @@
+import sys
 import nltk.tokenize as nt
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 import nltk
+import multiprocessing as mp
+from functools import partial
 from tiny_db_calls import *
 from graph_data_structure import *
+sys.path.append('../src')
+from server.db_controller import *
+
+base_words, base_contexts, base_topics = ([],[],[])
+base_ranked_words_pos,base_ranked_words_neg = ([],[])
+base_ranked_words = []
+base_ranked_context_pos, base_ranked_context_neg = ([],[])
+base_ranked_context = []
+base_ranked_topics_pos,base_ranked_topics_neg = ([],[])
+base_ranked_topics = base_ranked_topics_pos,base_ranked_topics_neg
+
 
 
 types_of_words_to_filter = ['NNS', 'NN', 'NNP', 'NNPS']
@@ -21,43 +35,46 @@ input:
 output:
     out = dictionary of words with the word's type and occurances.
 '''
-def filter_out_words(data):
+def filter_out_words(data, mongo=False):
     out = {}
     context = {}
     topics = {}
     for row in data:
-        
-        text = row["text"]
+        if not mongo:
+            text = row["text"]
+        else:
+            text = row.text
         polarity = "pos" if determine_sentiment_of_text(text) else "neg"
         ss=nt.sent_tokenize(text)
         tokenized_sent=[nt.word_tokenize(sent) for sent in ss]
         pos_sentences=[nltk.pos_tag(sent) for sent in tokenized_sent]
-        if "context_annotations" in row.keys():
-            for item in row["context_annotations"]:
-                if 'entity' in item.keys():
-                    if 'description' in item['entity'].keys():
-                        if item['entity']['description'] in context:
-                            if polarity == "pos":
-                                context[item['entity']['description']] += 1
-                            elif polarity == "neg":
-                                context[item['entity']['description']] -= 1
-                        else:
-                            if polarity == "pos":
-                                context[item['entity']['description']] = 1
-                            elif polarity == "neg":
-                                context[item['entity']['description']] = -1
+        if type(row) == type({}):
+            if "context_annotations" in row.keys():
+                for item in row["context_annotations"]:
+                    if 'entity' in item.keys():
+                        if 'description' in item['entity'].keys():
+                            if item['entity']['description'] in context:
+                                if polarity == "pos":
+                                    context[item['entity']['description']] += 1
+                                elif polarity == "neg":
+                                    context[item['entity']['description']] -= 1
+                            else:
+                                if polarity == "pos":
+                                    context[item['entity']['description']] = 1
+                                elif polarity == "neg":
+                                    context[item['entity']['description']] = -1
 
-                    if 'name' in item['entity'].keys():
-                        if item['entity']['name'] in topics:
-                            if polarity == "pos":
-                                topics[item['entity']['name']] += 1
-                            elif polarity == "neg":
-                                topics[item['entity']['name']] -= 1
-                        else:
-                            if polarity == "pos":
-                                topics[item['entity']['name']] = 1
-                            elif polarity == "neg":
-                                topics[item['entity']['name']] = -1
+                        if 'name' in item['entity'].keys():
+                            if item['entity']['name'] in topics:
+                                if polarity == "pos":
+                                    topics[item['entity']['name']] += 1
+                                elif polarity == "neg":
+                                    topics[item['entity']['name']] -= 1
+                            else:
+                                if polarity == "pos":
+                                    topics[item['entity']['name']] = 1
+                                elif polarity == "neg":
+                                    topics[item['entity']['name']] = -1
         
         for sentence in pos_sentences:
             for word,w_type in sentence:
@@ -448,15 +465,17 @@ def distance_algorithm_calculation(root_user):
     following = [i["id"] for i in get_all_table_entries(root_user, "following")]
 
     #List of users we want to gather their data for
-    to_check = []
+    print(followers)
+    
+    to_check = followers + following
 
     
 
-    for root, dirs, files in os.walk(os.environ["TINYDB_PATH"], topdown=False):
-        for name in files:
-            user = name.replace(".json", "")
-            if user in followers or user in following:
-                to_check.append(user)
+    # for root, dirs, files in os.walk(os.environ["TINYDB_PATH"], topdown=False):
+    #     for name in files:
+    #         user = name.replace(".json", "")
+    #         if user in followers or user in following:
+    #             to_check.append(user)
 
     
     base_favorites = combine_favorites_with_context(root_user)
@@ -465,83 +484,92 @@ def distance_algorithm_calculation(root_user):
     
     #We want to user this dictionary data structure to cache all text assoicated with a user
     data_cache = {}
+
     for user in to_check:
-        favorites = combine_favorites_with_context(user)
-        tweets = combine_tweets_with_context(user)
-        all_tweets = favorites+tweets
-        data_cache.update({user: all_tweets})
-
-
+        u = get_account(user)
+        if u is not None:
+            data_cache.update({user: u})
+    
+    global base_words, base_contexts, base_topics 
     base_words, base_contexts, base_topics = filter_out_words(base_all_tweets)
-    print(base_all_tweets)
+    global base_ranked_words_pos,base_ranked_words_neg
     base_ranked_words_pos,base_ranked_words_neg = rank_words_dictionary(base_words)
+    global base_ranked_words
     base_ranked_words = base_ranked_words_pos + base_ranked_words_neg
+    global base_ranked_context_pos, base_ranked_context_neg 
     base_ranked_context_pos, base_ranked_context_neg = rank_context_dictionary(base_contexts)
+    global base_ranked_context
     base_ranked_context = base_ranked_context_pos + base_ranked_context_neg
+    global base_ranked_topics_pos,base_ranked_topics_neg
     base_ranked_topics_pos,base_ranked_topics_neg = rank_context_dictionary(base_topics)
+    global base_ranked_topics 
     base_ranked_topics = base_ranked_topics_pos,base_ranked_topics_neg
 
-
+    
     weighted_users = []
-    for key in data_cache.keys():
-        tweets = data_cache[key]
-        words, contexts, topics = filter_out_words(tweets)
-        ranked_words_pos,ranked_words_neg = rank_words_dictionary(words)
-        ranked_context_pos,ranked_context_neg = rank_context_dictionary(contexts)
-        ranked_topics_pos,ranked_topics_neg = rank_context_dictionary(topics)
-
-        x = 0
-        y = 0
-        give_weight = False
-        for item in ranked_words_pos:
-            if type(item) == type(()) and len(item) == 4:
-                word,tp,wgt,sent = item
-                wgt = get_weight_of_word(base_ranked_words, word, wgt)
-                x += wgt
-                give_weight = True
-        
-        for item in ranked_words_neg:
-            if type(item) == type(()) and len(item) == 4:
-                word,tp,wgt,sent = item
-                wgt = get_weight_of_word(base_ranked_words, word, wgt)  
-                x += wgt
-                give_weight = True
-
-        for item in ranked_context_pos:
-            if type(item) == type(()) and len(item) == 2:
-                word,wgt = item
-                wgt = get_weight_of_ct(base_ranked_context, word, wgt)
-                y += wgt
-                give_weight = True
-        
-        for item in ranked_context_neg:
-            if type(item) == type(()) and len(item) == 2:
-                word,wgt = item
-                wgt = get_weight_of_ct(base_ranked_context, word, wgt)
-                y += wgt
-                give_weight = True
-
-        for item in ranked_topics_pos:
-            if type(item) == type(()) and len(item) == 2:
-                word,wgt = item
-                wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
-                y += wgt
-                give_weight = True
-
-        for item in ranked_topics_neg:
-            if type(item) == type(()) and len(item) == 2:
-                word,wgt = item
-                wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
-                y += wgt
-                give_weight = True
-        
-        if give_weight:
-            print(f"{x},{y}")
-            weighted_users.append((key,x, y))
+    with mp.Pool() as pool:
+        for key in data_cache.keys():
+            val = pool.starmap(calculate_weight, [(key, data_cache)] )
+            weighted_users.append(val)
 
     return weighted_users
 
-            
+
+def calculate_weight(key, data_cache):
+    tweets = data_cache[key].favorite_tweets + data_cache[key].tweets 
+    words, contexts, topics = filter_out_words(tweets)
+    ranked_words_pos,ranked_words_neg = rank_words_dictionary(words)
+    ranked_context_pos,ranked_context_neg = rank_context_dictionary(contexts)
+    ranked_topics_pos,ranked_topics_neg = rank_context_dictionary(topics)
+
+    x = 0
+    y = 0
+    give_weight = False
+    for item in ranked_words_pos:
+        if type(item) == type(()) and len(item) == 4:
+            word,tp,wgt,sent = item
+            wgt = get_weight_of_word(base_ranked_words, word, wgt)
+            x += wgt
+            give_weight = True
+    
+    for item in ranked_words_neg:
+        if type(item) == type(()) and len(item) == 4:
+            word,tp,wgt,sent = item
+            wgt = get_weight_of_word(base_ranked_words, word, wgt)  
+            x += wgt
+            give_weight = True
+
+    for item in ranked_context_pos:
+        if type(item) == type(()) and len(item) == 2:
+            word,wgt = item
+            wgt = get_weight_of_ct(base_ranked_context, word, wgt)
+            y += wgt
+            give_weight = True
+    
+    for item in ranked_context_neg:
+        if type(item) == type(()) and len(item) == 2:
+            word,wgt = item
+            wgt = get_weight_of_ct(base_ranked_context, word, wgt)
+            y += wgt
+            give_weight = True
+
+    for item in ranked_topics_pos:
+        if type(item) == type(()) and len(item) == 2:
+            word,wgt = item
+            wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
+            y += wgt
+            give_weight = True
+
+    for item in ranked_topics_neg:
+        if type(item) == type(()) and len(item) == 2:
+            word,wgt = item
+            wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
+            y += wgt
+            give_weight = True
+    
+    if give_weight:
+        return (key,x, y)
+        
 
 def get_weight_of_word(base, word, weight):
     words = [ i[0] for i in base]
