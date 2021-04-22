@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/klugjo/hexo-autolinker.svg?branch=master)](https://travis-ci.com/github/jweezy24/Twitter_bot_project)
 # TCB: Twitter Categorization Bot
 
 
@@ -13,6 +14,13 @@ Debian:
 ```
 sudo apt install python3
 ```
+
+Arch:
+
+```
+sudo pacman -Sy python python-pip 
+```
+
 
 
 
