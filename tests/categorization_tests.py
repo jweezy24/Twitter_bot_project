@@ -57,3 +57,5 @@ if __name__ == "__main__":
     suite.addTest(TestLanguageFunctions("test_sentiment_calculation"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
+    ret = not runner.run(suite).wasSuccessful()
+    exit(ret)
