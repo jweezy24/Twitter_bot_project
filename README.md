@@ -32,7 +32,9 @@ To install all dependencies run the command below. We also require python3.
 pip install -r ./requirements.txt
 ```
 
-You will also need some tokens within a environment variable `APIKEY`, `APISECRET`, `TWITTERUSER`, and `TWITTERPASS` to properly run the python twitter bot code.  
+You will also need some tokens within a environment variable `APIKEY`, `APISECRET`, `TWITTERUSER`, and `TWITTERPASS` to properly run the python twitter bot code.
+
+One of the dependencies is the [Natural Language Toolkit](https://www.nltk.org/)(NLTK).
 
 
 ## Authors
