@@ -521,7 +521,9 @@ def calculate_weight(key, data_cache):
     ranked_words_pos,ranked_words_neg = rank_words_dictionary(words)
     ranked_context_pos,ranked_context_neg = rank_context_dictionary(contexts)
     ranked_topics_pos,ranked_topics_neg = rank_context_dictionary(topics)
-
+    global base_ranked_words
+    global base_ranked_context
+    global base_ranked_topics
     x = 0
     y = 0
     give_weight = False
