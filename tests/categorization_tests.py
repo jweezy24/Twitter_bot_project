@@ -1,5 +1,6 @@
 import unittest
 import sys
+import os
 sys.path.append("../src/twitter_bot")
 from categorization_algorithm import *
 from tiny_db_calls import *
@@ -59,7 +60,8 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTest(TestLanguageFunctions("test_sentiment_calculation"))
     #suite.addTest(TestLanguageFunctions("test_word_filter"))
-    suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
+    if "MONGO" not in os.environ.keys():
+        suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
     runner = unittest.TextTestRunner()
     #runner.run(suite)
     ret = not runner.run(suite).wasSuccessful()

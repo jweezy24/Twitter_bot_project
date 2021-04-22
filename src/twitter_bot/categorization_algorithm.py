@@ -575,26 +575,30 @@ def calculate_weight(key, data_cache):
 
 def get_weight_of_word(base, word, weight):
     words = [ i[0] for i in base]
-    print(base)
+    weights = [ i[2] for i in base]
+    
     if word in words:
-        for w,tp,wgt,sent in base:
-            if w == word:
-                if wgt > 0:
-                    return weight-wgt
-                else:
-                    return weight-wgt
+        ind = words.index(word)
+        wgt = weights[ind]
+        if word in words:
+            if wgt > 0:
+                return weight-wgt
+            else:
+                return weight-wgt
     else:
         return weight
 
 def get_weight_of_ct(base, word, weight):
     words = [ i[0] for i in base]
+    weights = [ i[1] for i in base]
 
     if word in words:
-        for w,wgt in base:
-            if w == word:
-                if wgt > 0:
-                    return weight-wgt
-                else:
-                    return weight-wgt
+        ind = words.index(word)
+        wgt = weights[ind]
+        if w == word:
+            if wgt > 0:
+                return weight-wgt
+            else:
+                return weight-wgt
     else:
         return weight

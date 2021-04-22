@@ -10,6 +10,8 @@ src/data/
 
 vars_setup.sh
 
+makefile
+
 # Distribution / packaging
 .Python
 build/
