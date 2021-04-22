@@ -2,8 +2,7 @@ language: python
 python:
   - "3.8"
 env:
-  - BADWORDSPATH=""
-  - TINYDB_PATH="test/data"
+  - BADWORDSPATH="" TINYDB_PATH="test/data"
 install:
   - pip install -r requirements.txt
   - "export PYTHONPATH=$PYTHONPATH:$(pwd)/src"
