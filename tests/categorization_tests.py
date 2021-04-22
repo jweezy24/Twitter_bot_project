@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     suite = unittest.TestSuite()
     suite.addTest(TestLanguageFunctions("test_sentiment_calculation"))
-    suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
+    #suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
     runner = unittest.TextTestRunner()
     #runner.run(suite)
     ret = not runner.run(suite).wasSuccessful()
