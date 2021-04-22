@@ -1,7 +1,8 @@
 language: python
 python:
   - "3.8"
-# command to install dependencies
+env:
+  - BADWORDSPATH=""
 install:
   - pip install -r requirements.txt
   - "export PYTHONPATH=$PYTHONPATH:$(pwd)/src"
