@@ -5,6 +5,7 @@ python:
 install:
   - pip install -r requirements.txt
   - "export PYTHONPATH=$PYTHONPATH:$(pwd)/src"
+  - "export PYTHONPATH=$PYTHONPATH:$(pwd)/src/twitter_bot"
 # command to run tests
 script:
   - python3 setup.py
