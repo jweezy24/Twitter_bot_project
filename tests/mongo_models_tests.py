@@ -30,7 +30,7 @@ class TestModels(unittest.TestCase):
     
     
     def test_account(self):
-        user =  Account(id = 1, twitter_handle= "John21")
+        user =  Account(id = "1", twitter_handle= "John21")
         user.name = "John Doe"
         user.save()
 
@@ -62,7 +62,7 @@ class TestModels(unittest.TestCase):
 
         group1.save()
 
-        account =  Account(id = 2,twitter_handle= "John3")
+        account =  Account(id = "2",twitter_handle= "John3")
         account.name = "John"
         account.group_type = group1
         
@@ -76,12 +76,12 @@ class TestModels(unittest.TestCase):
 
     def test_FollowingConnections(self):
         #create account
-        account = Account(id = 3, twitter_handle= "Steve3")
+        account = Account(id = "3", twitter_handle= "Steve3")
         account.name = 'Steve'
         account.save()
 
         #create second account
-        account2 = Account(id = 4, twitter_handle= "Jane3")
+        account2 = Account(id = "4", twitter_handle= "Jane3")
         account2.name = 'Jane'
         account2.save()
         
@@ -100,12 +100,12 @@ class TestModels(unittest.TestCase):
 
     def test_FollowerConnections(self):
         #create account
-        account = Account(id = 3, twitter_handle= "Steve3")
+        account = Account(id = "3", twitter_handle= "Steve3")
         account.name = 'Steve'
         account.save()
 
         #create second account
-        account2 = Account(id = 4, twitter_handle= "Jane3")
+        account2 = Account(id = "4", twitter_handle= "Jane3")
         account2.name = 'Jane'
         account2.save()
         
@@ -124,12 +124,12 @@ class TestModels(unittest.TestCase):
 
     def test_Search(self):
         #create account
-        account = Account(id = 5,twitter_handle= "Steve1")
+        account = Account(id = "5",twitter_handle= "Steve1")
         account.name = 'Steve'
         account.save()
 
         #create second account
-        account2 = Account(id = 6, twitter_handle= "Jane2")
+        account2 = Account(id = "6", twitter_handle= "Jane2")
         account2.name = 'Jane'
         account2.save()
         
@@ -153,7 +153,7 @@ class TestModels(unittest.TestCase):
         
 
     def test_top_words(self):
-        account = Account(id = 7,twitter_handle= "Steve2")
+        account = Account(id = "7",twitter_handle= "Steve2")
         account.name = 'Steve'
         
         pos = Top_Word()
@@ -180,10 +180,10 @@ class TestModels(unittest.TestCase):
 
     #test tweets/favorite tweets embedded document 
     def test_tweets(self):
-        account = Account(id = 8,twitter_handle= "Steve4")
+        account = Account(id = "8",twitter_handle= "Steve4")
         account.name = 'Steve'
         
-        tweet = Tweet(id = 1)
+        tweet = Tweet(id = "1")
         tweet.text = "Whats up"
 
         account.tweets.append(tweet)
@@ -198,17 +198,17 @@ class TestModels(unittest.TestCase):
         assert query_account.tweets[0] == tweet
         
     def test_context(self):
-        account = Account(id = 9,twitter_handle= "Steve5")
+        account = Account(id = "9",twitter_handle= "Steve5")
         account.name = 'Steve'
         
-        context = Context(id = 1)
+        context = Context(id = "1")
         context.text = "test"
 
-        domain = Domain(id = 1)
+        domain = Domain(id = "1")
         domain.name = "test2"
         domain.description = "testing"
 
-        entity = Entity(id = 1)
+        entity = Entity(id = "1")
         entity.name = "test2"
         entity.description = "testing"
 
