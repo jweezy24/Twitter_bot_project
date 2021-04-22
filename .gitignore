@@ -6,7 +6,7 @@ __pycache__/
 # C extensions
 *.so
 
-data/
+src/data/
 
 vars_setup.sh
 
