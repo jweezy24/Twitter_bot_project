@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='graph.css') }}">
+
+<script>var accounts = JSON.parse('{{accounts | tojson}}');
+   
+    </script>
+<script src="../static/scripts/topSearches.js"></script>
+<!-- For loading external data files -->
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise,fetch"></script>
+<div class="container " style="width:100%;">
+    <div class="row justify-content-md-center ">
+        <h1>Top Searches</h1>
+    </div>
+    
+    <div class="container">
+        <table class="table" id="topSearchesTable">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Picture</th>
+                <th scope="col">Name</th>
+                <th scope="col">Handle</th>
+                <th scope="col">Views</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td><img class="" src="https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg" style="float:left;width:50px;height:50px;" ></td>
+                
+                <td>Mark</td>
+                <td><a href="http://twitter.com/'">@mdo</a></td>
+                <td>50</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td><img class="" src="https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg" style="float:left;width:50px;height:50px;" ></td>
+                <td>Jake</td>
+                <td><a href="http://twitter.com/'">@fat</a></td>
+                <td>48</td>
+              </tr>
+              <tr>
+                <th scope="row">3</th>
+                <td><img class="" src="https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg" style="float:left;width:50px;height:50px;" ></td>
+                <td>Larry</td>
+                <td><a href="http://twitter.com/'">@twitter</a></td>
+                
+                <td>40</td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+    
+</div>
+{% endblock content %}
