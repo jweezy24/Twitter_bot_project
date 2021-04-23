@@ -93,7 +93,7 @@ def insert_account(data:dict, tinydb=False):
     if "followers" in data:
         for connection in data['followers']:
             if not tinydb:
-                account.follower.append(generate_follower_connection(connection))
+                account.followers.append(generate_follower_connection(connection))
             else:
                 c = FollowerConnections()
                 user_ = connection
