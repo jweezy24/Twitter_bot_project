@@ -10,13 +10,6 @@ from graph_data_structure import *
 sys.path.append('../src')
 from server.db_controller import *
 
-base_words, base_contexts, base_topics = ([],[],[])
-base_ranked_words_pos,base_ranked_words_neg = ([],[])
-base_ranked_words = []
-base_ranked_context_pos, base_ranked_context_neg = ([],[])
-base_ranked_context = []
-base_ranked_topics_pos,base_ranked_topics_neg = ([],[])
-base_ranked_topics = base_ranked_topics_pos,base_ranked_topics_neg
 
 
 
@@ -75,6 +68,33 @@ def filter_out_words(data, mongo=False):
                                     topics[item['entity']['name']] = 1
                                 elif polarity == "neg":
                                     topics[item['entity']['name']] = -1
+        elif "context_annotations" in dir(row):
+            context_t = row.context_annotations
+            for item in context_t:
+                if 'entity' in dir(item):
+                    if 'description' in dir(item.entity):
+                        if item['entity']['description'] in context:
+                            if polarity == "pos":
+                                context[item['entity']['description']] += 1
+                            elif polarity == "neg":
+                                context[item['entity']['description']] -= 1
+                        else:
+                            if polarity == "pos":
+                                context[item['entity']['description']] = 1
+                            elif polarity == "neg":
+                                context[item['entity']['description']] = -1
+
+                    if 'name' in dir(item.entity):
+                        if item['entity']['name'] in topics:
+                            if polarity == "pos":
+                                topics[item['entity']['name']] += 1
+                            elif polarity == "neg":
+                                topics[item['entity']['name']] -= 1
+                        else:
+                            if polarity == "pos":
+                                topics[item['entity']['name']] = 1
+                            elif polarity == "neg":
+                                topics[item['entity']['name']] = -1
         
         for sentence in pos_sentences:
             for word,w_type in sentence:
@@ -490,93 +510,109 @@ def distance_algorithm_calculation(root_user):
         if u is not None:
             data_cache.update({user: u})
     
-    global base_words, base_contexts, base_topics 
     base_words, base_contexts, base_topics = filter_out_words(base_all_tweets)
-    global base_ranked_words_pos,base_ranked_words_neg
     base_ranked_words_pos,base_ranked_words_neg = rank_words_dictionary(base_words)
-    global base_ranked_words
     base_ranked_words = base_ranked_words_pos + base_ranked_words_neg
-    global base_ranked_context_pos, base_ranked_context_neg 
     base_ranked_context_pos, base_ranked_context_neg = rank_context_dictionary(base_contexts)
-    global base_ranked_context
     base_ranked_context = base_ranked_context_pos + base_ranked_context_neg
-    global base_ranked_topics_pos,base_ranked_topics_neg
     base_ranked_topics_pos,base_ranked_topics_neg = rank_context_dictionary(base_topics)
-    global base_ranked_topics 
     base_ranked_topics = base_ranked_topics_pos,base_ranked_topics_neg
 
-    
+    print(base_ranked_words)
+    words_t = []
+    weight_t = []
+    words_w = [ i[0] for i in base_ranked_words]
+    words_c = [ i[0] for i in base_ranked_context]
+    if len(base_ranked_topics[0]) > 0:
+        words_t = [ i[0] for i in base_ranked_topics]
+    else:
+        words_t = []
+    weight_w = [ i[2] for i in base_ranked_words]
+    weight_c = [ i[2] for i in base_ranked_context]
+    if len(base_ranked_topics[1]) > 0:
+        weight_t = [ i[1] for i in base_ranked_topics]
+    else:
+        weight_t = []
     weighted_users = []
-    with mp.Pool() as pool:
-        for key in data_cache.keys():
-            val = pool.starmap(calculate_weight, [(key, data_cache)] )
-            weighted_users.append(val)
+
+    manager = mp.Manager()
+    return_dict = manager.dict()
+    cutoff = 5 ##
+    processes = []
+    count = 0
+    for key in data_cache.keys():
+        val = mp.Process(target=calculate_weight, args=(key, data_cache,(words_w,weight_w), (words_c,weight_c),(words_t,weight_t),return_dict,) )
+        val.start()
+        processes.append(val)
+        count+=1
+        if cutoff < count:
+            for process in processes:
+                process.join()
+            count = 0
+            print(return_dict.values())
+    weighted_users = return_dict.values()
 
     return weighted_users
 
 
-def calculate_weight(key, data_cache):
-    tweets = data_cache[key].favorite_tweets + data_cache[key].tweets 
-    words, contexts, topics = filter_out_words(tweets)
+def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
+    tweets = data_cache[key].favorite_tweets + data_cache[key].tweets + data_cache[key].tweets_context + data_cache[key].favorite_context
+    words, contexts, topics = filter_out_words(tweets, mongo=True)
     ranked_words_pos,ranked_words_neg = rank_words_dictionary(words)
     ranked_context_pos,ranked_context_neg = rank_context_dictionary(contexts)
     ranked_topics_pos,ranked_topics_neg = rank_context_dictionary(topics)
-    global base_ranked_words
-    global base_ranked_context
-    global base_ranked_topics
+    
     x = 0
     y = 0
     give_weight = False
     for item in ranked_words_pos:
         if type(item) == type(()) and len(item) == 4:
             word,tp,wgt,sent = item
-            wgt = get_weight_of_word(base_ranked_words, word, wgt)
+            wgt = get_weight_of_word(base_rw[0], base_rw[1], word, wgt)
             x += wgt
             give_weight = True
     
     for item in ranked_words_neg:
         if type(item) == type(()) and len(item) == 4:
             word,tp,wgt,sent = item
-            wgt = get_weight_of_word(base_ranked_words, word, wgt)  
+            wgt = get_weight_of_word(base_rw[0], base_rw[1], word, wgt)  
             x += wgt
             give_weight = True
 
     for item in ranked_context_pos:
         if type(item) == type(()) and len(item) == 2:
             word,wgt = item
-            wgt = get_weight_of_ct(base_ranked_context, word, wgt)
+            wgt = get_weight_of_ct(base_rc[0], base_rc[1], word, wgt)
             y += wgt
             give_weight = True
     
     for item in ranked_context_neg:
         if type(item) == type(()) and len(item) == 2:
             word,wgt = item
-            wgt = get_weight_of_ct(base_ranked_context, word, wgt)
+            wgt = get_weight_of_ct(base_rc[0], base_rc[1], word, wgt)
             y += wgt
             give_weight = True
 
     for item in ranked_topics_pos:
         if type(item) == type(()) and len(item) == 2:
             word,wgt = item
-            wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
+            wgt = get_weight_of_ct(base_rt[0], base_rt[1], word, wgt)
             y += wgt
             give_weight = True
 
     for item in ranked_topics_neg:
         if type(item) == type(()) and len(item) == 2:
             word,wgt = item
-            wgt = get_weight_of_ct(base_ranked_topics, word, wgt)
+            wgt = get_weight_of_ct(base_rt[0], base_rt[1], word, wgt)
             y += wgt
             give_weight = True
     
     if give_weight:
-        return (key,x, y)
+        returns.update({key:(key,x, y)})
         
 
-def get_weight_of_word(base, word, weight):
-    words = [ i[0] for i in base]
-    weights = [ i[2] for i in base]
-    
+def get_weight_of_word(words, weights, word, weight):
+
     if word in words:
         ind = words.index(word)
         wgt = weights[ind]
@@ -588,9 +624,7 @@ def get_weight_of_word(base, word, weight):
     else:
         return weight
 
-def get_weight_of_ct(base, word, weight):
-    words = [ i[0] for i in base]
-    weights = [ i[1] for i in base]
+def get_weight_of_ct(words, weights, word, weight):
 
     if word in words:
         ind = words.index(word)
@@ -602,3 +636,6 @@ def get_weight_of_ct(base, word, weight):
                 return weight-wgt
     else:
         return weight
+
+if __name__ == "__main__":
+    print(distance_algorithm_calculation('jack_west24'))
