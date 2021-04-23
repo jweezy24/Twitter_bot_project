@@ -30,11 +30,12 @@ def translate_to_mongo():
             data = str(f.read())
             if len(data) > 0:
                 data = json.loads(data)
-                name = user.split(".")[0]
+                name = (user.split("/")[-1]).split(".")[0]
+                
                 data.update({"twitter_handle": name})
                 id_ = sha256(name.encode("utf-8")).hexdigest()
                 data.update({"id": id_})
-                insert_account(data)
+                insert_account(data,tinydb=True)
             else:
                 continue
             

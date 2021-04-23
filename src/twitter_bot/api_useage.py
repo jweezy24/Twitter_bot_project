@@ -3,10 +3,10 @@ import sys
 import twitter
 import tweepy
 import time
-from categorization_algorithm import *
 from REST_api_calls import *
 from tiny_db_calls import *
 sys.path.append('./src')
+from categorization_algorithm import *
 from server.db_controller import *
 from hashlib import *
 
@@ -157,46 +157,148 @@ def get_favorites_with_context(user, total=100, use_mongo=False):
 '''
 
 
-def get_followers(user):
+def get_followers(user, mongo=False):
     names = []
     count = 0
     twitter_followers = get_followers_REST(user)
-    current_followers = get_all_table_entries(user, "followers")
-    print(
-        f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}")
+    if not mongo:
+        current_followers = get_all_table_entries(user, "followers")
+    else:
+        u = get_account(user)
+        if u != None:
+            current_followers = u.followers
+        else:
+            current_followers = []
+
+    print(f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}")
     if len(current_followers) != len(twitter_followers):
-        for follower in current_followers:
-            name = follower["id"]
-            if name not in twitter_followers:
-                print(f"Removed {name}")
-                remove_from_table(user, "followers", name)
+        if not mongo:
+            for follower in current_followers:
+                name = follower["id"]
+                if name not in twitter_followers:
+                    print(f"Removed {name}")
+                    if not mongo:
+                        remove_from_table(user, "followers", name)
 
-        for entry in twitter_followers:
-            cached_entry = {"id": entry}
-            if not search_value(cached_entry["id"], user, table="followers"):
-                print(f"Saved Followers {entry}")
-                save_value(cached_entry, userid=user, table="followers")
+            for entry in twitter_followers:
+                cached_entry = {"id": entry}
+                if not search_value(cached_entry["id"], user, table="followers"):
+                    print(f"Saved Followers {entry}")
+                    if not mongo:
+                        save_value(cached_entry, userid=user, table="followers")
+        else:
 
+            if u != None:
+                final_list = []
+                for user_ in twitter_followers:
+                    connection = FollowerConnections()
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user_})
+                    id_ = sha256(user_.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
 
-def get_following(user):
+                    acc = get_account(user_)
+                    connection.follower = acc
+                    connection.distance = 0
+                    final_list.append(connection)
+                u.followers = final_list
+                u.save()
+
+            else:
+                acc_info = {}
+                acc_info.update({"twitter_handle": user})
+                id_ = sha256(user.encode("utf-8")).hexdigest()
+                acc_info.update({"id": id_})
+                insert_account(acc_info)
+                u = get_account(user)
+                final_list = []
+
+                for user_ in twitter_followers:
+                    connection = FollowerConnections()
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user_})
+                    id_ = sha256(user_.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
+
+                    acc = get_account(user_)
+                    connection.follower = acc
+                    connection.distance = 0
+                    final_list.append(connection)
+                u.follwers = final_list
+                u.save()
+    
+
+def get_following(user, mongo=False):
     names = []
     count = 0
     twitter_followers = get_following_REST(user)
-    current_followers = get_all_table_entries(user, "following")
-    print(
-        f"Table size = {len(current_followers)} Twitter record = {len(twitter_followers)}")
-    if len(current_followers) != len(twitter_followers):
-        for follower in current_followers:
-            name = follower["id"]
-            if name not in twitter_followers:
-                print(f"Removed {name}")
-                remove_from_table(user, "following", name)
+    u = None
+    if not mongo:
+        current_followers = get_all_table_entries(user, "following")
+    else:
+        u = get_account(user)
+        if u != None:
+            current_followers = u.following
+        else:
+            current_followers = []
 
-        for entry in twitter_followers:
-            cached_entry = {"id": entry}
-            if not search_value(cached_entry["id"], user, table="following"):
-                print(f"Saved Following {entry}")
-                save_value(cached_entry, userid=user, table="following")
+
+    if len(current_followers) != len(twitter_followers):
+        if not mongo:
+            for follower in current_followers:
+                name = follower["id"]
+                if name not in twitter_followers:
+                    print(f"Removed {name}")
+                    remove_from_table(user, "following", name)
+
+            for entry in twitter_followers:
+                cached_entry = {"id": entry}
+                if not search_value(cached_entry["id"], user, table="following"):
+                    print(f"Saved Following {entry}")
+                    save_value(cached_entry, userid=user, table="following")
+        else:
+            if u != None:
+                final_list = []
+                for user_ in twitter_followers:
+                    connection = FollowingConnections()
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user_})
+                    id_ = sha256(user_.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
+
+                    acc = get_account(user_)
+                    connection.following = acc
+                    connection.distance = 0
+                    final_list.append(connection)
+                u.following = final_list
+                u.save()
+
+            else:
+                acc_info = {}
+                acc_info.update({"twitter_handle": user})
+                id_ = sha256(user.encode("utf-8")).hexdigest()
+                acc_info.update({"id": id_})
+                insert_account(acc_info)
+                u = get_account(user)
+                final_list = []
+
+                for user_ in twitter_followers:
+                    connection = FollowingConnections()
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user_})
+                    id_ = sha256(user_.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
+
+                    acc = get_account(user_)
+                    connection.following = acc
+                    connection.distance = 0
+                    final_list.append(connection)
+                u.following = final_list
+                u.save()
 
 
 '''
@@ -347,10 +449,10 @@ def build_user_web(user, mongo=False):
     following = get_all_table_entries("following")
 
     if not followers:
-        get_followers(user)
+        get_followers(user, mongo=mongo)
         followers = get_all_table_entries(user, "followers")
     if not following:
-        get_following(user)
+        get_following(user, mongo=mongo)
         following = get_all_table_entries(user, "following")
 
     print(f"CHECKING {user}")

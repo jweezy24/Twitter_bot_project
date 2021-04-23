@@ -28,10 +28,12 @@ input:
 output:
     out = dictionary of words with the word's type and occurances.
 '''
-def filter_out_words(data, mongo=False, debug=False):
+def filter_out_words(data, mongo=False, debug=False, total=300):
     out = {}
     context = {}
     topics = {}
+    c1 = 0
+    c2 = 0
     for row in data:
         if not mongo:
             text = row["text"]
@@ -82,24 +84,30 @@ def filter_out_words(data, mongo=False, debug=False):
                         context[item.entity.description] = 1
                     elif polarity == "neg":
                         context[item.entity.description] = -1
+            c2+=1
         
             
+        if c1 < (int(total/2) + int(total/4)):
+            for sentence in pos_sentences:
+                for word,w_type in sentence:
+                    if w_type in types_of_words_to_filter and len(word) > 1 and word_check(word) and "/" not in word:
+                        ele = (word.lower(), w_type)
+                        if ele in out:
+                            if polarity == "neg":
+                                out[ele] = out[ele] - 1
+                            if polarity == "pos":
+                                out[ele] = out[ele] + 1
+                        else:
+                            if polarity == "neg":
+                                out[ele] = -1
+                            if polarity == "pos":
+                                out[ele] = 1
+            c1+=1
         
-        for sentence in pos_sentences:
-            for word,w_type in sentence:
-                if w_type in types_of_words_to_filter and len(word) > 1 and word_check(word) and "/" not in word:
-                    ele = (word.lower(), w_type)
-                    if ele in out:
-                        if polarity == "neg":
-                            out[ele] = out[ele] - 1
-                        if polarity == "pos":
-                            out[ele] = out[ele] + 1
-                    else:
-                        if polarity == "neg":
-                            out[ele] = -1
-                        if polarity == "pos":
-                            out[ele] = 1
+        if c1+c2 >= total:
+            break
 
+    print(context)
     return out,context,topics
 
 '''
@@ -563,8 +571,9 @@ def distance_algorithm_calculation(root_user):
 
 def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
     tweets = combine_tweets_with_context(key)
+    favorites = combine_favorites_with_context(key)
+    tweets = tweets+favorites
     words, contexts, topics = filter_out_words(tweets, mongo=True, debug=True)
-    #print(contexts)
     user = key
     x = 0
     y = 0
@@ -615,8 +624,9 @@ def after_collation_weights(x,b,b2):
     count = 0
     b_w = b[0]
     b_w2 = b[1]
+    keys = b2.keys()
     for word in b_w:
-        if word not in b2.keys():
+        if word not in keys:
             wgt = b_w2[count]
             x -= wgt
         count+=1

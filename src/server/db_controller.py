@@ -3,6 +3,7 @@ from typing import Dict
 import mongoengine
 import datetime
 import json
+from hashlib import *
 from server.models import *
 
 
@@ -43,7 +44,7 @@ def get_max_id(val,username):
             return m
     else:
         return -1 
-def insert_account(data:dict):
+def insert_account(data:dict, tinydb=False):
     
     account = get_account(data['twitter_handle'])
     if account is None:
@@ -65,17 +66,48 @@ def insert_account(data:dict):
         else:
             insert_group(data['group_type'])
             account.group_type = get_group(data['group_type'])
-    if "following" in data or "followers" in data:
+    if ("following" in data or "followers" in data) and not tinydb:
         if len(account.following) > 0 or len(account.followers) > 0: 
             create_search(account)
             clear_account(account)
     #insert following connections after creating them if account already has connections we create a search to store the old search
     if "following" in data:
         for connection in data['following']:
-            account.following.append(generate_following_connection(connection))
+            if not tinydb:
+                account.following.append(generate_following_connection(connection))
+            else:
+                c = FollowingConnections()
+                user_ = connection
+                acc_info = {}
+                acc_info.update({"twitter_handle": user_})
+                id_ = sha256(user_.encode("utf-8")).hexdigest()
+                acc_info.update({"id": id_})
+                insert_account(acc_info)
+
+                acc = get_account(user_)
+                c.following = acc
+                c.distance = 0
+                print(c)
+                account.following.append(c)
+    
     if "followers" in data:
         for connection in data['followers']:
-            account.followers.append(generate_follower_connection(connection))
+            if not tinydb:
+                account.follower.append(generate_follower_connection(connection))
+            else:
+                c = FollowerConnections()
+                user_ = connection
+                acc_info = {}
+                acc_info.update({"twitter_handle": user_})
+                id_ = sha256(user_.encode("utf-8")).hexdigest()
+                acc_info.update({"id": id_})
+                insert_account(acc_info)
+
+                acc = get_account(user_)
+                c.follower = acc
+                c.distance = 0
+                account.followers.append(c)
+
     if "top_words_positive" in data:
         for word in data['top_words_positive']:
             account.top_words_positive.append(generate_top_word(word))
