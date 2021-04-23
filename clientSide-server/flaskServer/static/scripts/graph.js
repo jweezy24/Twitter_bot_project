@@ -1,5 +1,5 @@
 //scale that will be applied to weights
-var scale =1;
+var scale = 1;
 // var nodes = [
 //     { group: 'nodes', data: { id: 'n0', label: 'n0', visited: false, followers:100, following:1000 ,image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
 //     { group: 'nodes', data: { id: 'n1', label: 'n1', "visited": false }, classes: 'center-center' },
@@ -13,7 +13,7 @@ var scale =1;
 //     { group: 'nodes', data: { id: 'n9', label: 'n9', "visited": false }, classes: 'center-center', }
 // ]
 // var edges = [
-    
+
 //     { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight: 100, "visited": false } },
 //     // { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight: 100, "visited": false } },
 //     //{ group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight: 150, "visited": false } },
@@ -45,7 +45,7 @@ $(document).ready(function () {
             {
                 "selector": "node",
                 "style": {
-                    'background-image':"data(image)",
+                    'background-image': "data(image)",
                     'height': 40,
                     'width': 40,
                     'background-fit': 'cover',
@@ -53,13 +53,13 @@ $(document).ready(function () {
                     'border-width': 3,
                     'border-opacity': 0.5
                 }
-                
+
             },
             {
                 "selector": "node[label]",
                 "style": {
                     "label": "data(label)",
-                    
+
                 }
             },
             {
@@ -71,122 +71,162 @@ $(document).ready(function () {
             },
         ]
     });
-    var layout = cy.layout({ name: 'cola'}).run();
-    layout.on('layoutstop', function () {
-        //temporary location
-        //setEdgeDistancesQueue();
-        setEdgeDistances();
-        ele.forEach(element => {
-            if (element.group == 'nodes') {
-                cy.$(`#${element.data.id}`).lock();
-            }
-        });
-
-    });
+    // var layout = cy.layout({ name: 'cola'}).run();
+    // layout.on('layoutstop', function () {
+    //     //temporary location
+    //     //setEdgeDistancesQueue();
+    //     setEdgeDistances();
+    //     ele.forEach(element => {
+    //         if (element.group == 'nodes') {
+    //             cy.$(`#${element.data.id}`).lock();
+    //         }
+    //     });
+    //var cy = $('#cy').cytoscape('get');
+    
+    // });
+    setColaLayout();
     //based of https://codepen.io/rbogard/details/jOEyWrL
     function makePopper(ele) {
         let ref = ele.popperRef(); // used only for positioning
         let dummyDomEle = document.createElement('div');
-        ele.tippy =  tippy(dummyDomEle, { // tippy options:
-            
+        ele.tippy = tippy(dummyDomEle, { // tippy options:
+
             getReferenceClientRect: ref.getBoundingClientRect,
-            
+
             content: () => {
-            let content = document.createElement('div');
-            
-            if (ele.isNode()) {
-                var twitterLink = '<a href="http://twitter.com/' + ele.data('id') + '">' + ele.data('id') + '</a>';
-                var following = 'Following: ' + ele.data('following');
-                var followers =  'Followers: ' + ele.data('followers'); 
-                var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
-                 //var description = '<i>' + ele.data('description') + '</i>';
-                content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp'+ followers;//+ '<p><br>' + description + '</p>'
-            }
-            else {
-                var distance =  ele.data('weight');
-                content.innerHTML = distance;
-            }
-           
-              
-            //image + '&nbsp' + twitterLink + '<br> &nbsp' + following +'<br> &nbsp'+ followers+'<p><br>' + description + '</p>';
-            
-    
-            return content;
-          },
-          //trigger: 'manual',
-          //interactive:true,
+                let content = document.createElement('div');
+
+                if (ele.isNode()) {
+                    var twitterLink = '<a href="http://twitter.com/' + ele.data('id') + '">' + ele.data('id') + '</a>';
+                    var following = 'Following: ' + ele.data('following');
+                    var followers = 'Followers: ' + ele.data('followers');
+                    var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
+                    //var description = '<i>' + ele.data('description') + '</i>';
+                    content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp' + followers;//+ '<p><br>' + description + '</p>'
+                }
+                else {
+                    var distance = ele.data('weight');
+                    content.innerHTML = distance;
+                }
+
+
+                //image + '&nbsp' + twitterLink + '<br> &nbsp' + following +'<br> &nbsp'+ followers+'<p><br>' + description + '</p>';
+
+
+                return content;
+            },
+            //trigger: 'manual',
+            //interactive:true,
             //interactiveBorder: 30, // probably want manual mode
             onClickOutside(instance, event) {
                 // ...
                 instance.setProps({
-                   
-                    
-                    interactive:false,
-                  });
+
+
+                    interactive: false,
+                });
                 instance.hide();
-              },
+            },
         });
-      }
-      cy.ready(function() {
+    }
+    cy.ready(function () {
         //    tippy.setDefaultProps({followCursor: 'true'});
 
-            cy.elements().forEach(function(element) {
-                //console.log(element)
-              makePopper(element);
+        cy.elements().forEach(function (element) {
+            //console.log(element)
+            makePopper(element);
+        });
+        
+        cy.elements().on('tap', function (event) {
+            console.log()
+            if (event.target.isNode()) {
+                var node = event.target;
+                console.log('tapped ' + node.id());
+
+                cy.fit(node);
+                cy.zoom({ level: 1.5, position: { x: node.position('x'), y: node.position('y') } })
+                if (node.selected()) {
+                    console.log('selected ' + node.id());
+                    GetMoreNodes(node.id());
+                  }
+            }
+
+            event.target.tippy.show();
+            event.target.tippy.setProps({
+
+                animation: 'scale',
+                trigger: 'manual',
+                interactive: true,
             });
             
-            cy.elements().on('tap', function(event){
-                console.log()
-                if (event.target.isNode()) {
-                    var node = event.target;
-                    console.log( 'tapped ' + node.id() );
-                    
-                    cy.fit(node);
-                    cy.zoom({level:1.5, position:{x:node.position('x'),y:node.position('y')}})
-                }
-                
-                event.target.tippy.show();
-                event.target.tippy.setProps({
-                    
-                    animation: 'scale',
-                    trigger: 'manual',
-                    interactive:true,
-                  });
-            });
         });
-    
-    
-//based on example on cytoscape.js-popper github
-    
-    //   cy.nodes().forEach(function(ele) {
-    //     ele.qtip({
-    //       content: {
-    //         text: qtipText(ele),
-    //         title: ele.data('id')
-    //       },
-    //       style: {
-    //         classes: 'qtip-bootstrap'
-    //       },
-    //       position: {
-    //         my: 'bottom center',
-    //         at: 'top center',
-    //         target: ele
-    //       }
-    //     });
-    //   });
-    
+        
+    });
+
 })
 
-// function qtipText(node) {
-//     var twitterLink = '<a href="http://twitter.com/' + node.data('id') + '">' + node.data('id') + '</a>';
-//     var following = 'Following ' + node.data('followingCount') + ' other users';
-    
-//     var image = '<img src="' + node.data('image') + '" style="float:left;width:50px;height:50px;">';
-//     var description = '<i>' + node.data('description') + '</i>';
-  
-//     return image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<p><br>' + description + '</p>';
-// }
-  
+
+function GetMoreNodes(id) {
+    $.ajax({
+        type:"GET",
+        url:"/graph/AdditionalNodes",
+        data: {"twitter_handle":id},
+        success: function(data) {
+            var objects = JSON.parse(data);
+          console.log(objects);
+        }
+      })
+}
+
+function toggleNodeLock(lock) {
+    ele.forEach(element => {
+        if (element.group == 'nodes') {
+
+            var node = cy.$(`#${element.data.id}`)
+            if (lock) {
+                node.lock();
+            }
+            else {
+                node.unlock();
+            }
+        }
+    });
+}
+
+function setGridLayout() {
+    toggleNodeLock(false);
+    var layout = cy.layout({ name: 'grid' }).run();
+    layout.on('layoutstop', function () {
+        //temporary location
+        //setEdgeDistancesQueue();
+        setEdgeDistances();
+        toggleNodeLock(true);
+
+    });
+}
+function setColaLayout() {
+    toggleNodeLock(false);
+    var layout = cy.layout({ name: 'cola' }).run();
+    layout.on('layoutstop', function () {
+        //temporary location
+        //setEdgeDistancesQueue();
+        setEdgeDistances();
+        toggleNodeLock(true);
+
+    });
+}
+function setEulerLayout() {
+    toggleNodeLock(false);
+    var layout = cy.layout({ name: 'euler' }).run();
+    layout.on('layoutstop', function () {
+        //temporary location
+        //setEdgeDistancesQueue();
+        setEdgeDistances();
+        toggleNodeLock(true);
+
+    });
+}
+
 function setEdgeDistances() {
     for (let i = 0; i < edges.length; i++) {
 
@@ -213,7 +253,7 @@ function setEdgeDistances() {
             console.log(el1.id(), getAngle(el1.position(), el2.position()), el2.id())
             console.log(el1.position(), el2.position());
             el1.data('visited', true);
-            
+
         }
 
     }
@@ -257,7 +297,7 @@ function setEdgeDistancesQueue() {
                     //console.log(node.id(),getAngle(node.position(), target.position()),target.id())
                     console.log(node.position(), target.position());
                     target.data('visited', true);
-                    
+
                 }
 
             }

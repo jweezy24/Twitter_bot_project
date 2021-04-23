@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, flash, redirect, request
 from flaskServer import app, db
+import json
 
 @app.route("/")
 @app.route("/home")
@@ -11,12 +12,7 @@ def home():
 def about():
     return render_template("about.html")
 
-@app.route("/graph", methods=['GET'])
-def graph():
-    twitterHandle = request.args['TwitterHandleInput']
-    print(twitterHandle)
-    #data = twitterHandle
-    nodes = [
+nodes = [
         { "group": 'nodes', "data": { "id": 'n0', "label": 'n0', "visited": "false", "followers":100, "following":1000 ,"image":'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, "classes": 'center-center', },
     { "group": 'nodes', "data": { "id": 'n1', "label": 'n1', "visited": "false" }, "classes": 'center-center' },
     { "group": 'nodes', "data": { "id": 'n3', "label": 'n3', "visited": "false" }, "classes": 'center-center' },
@@ -30,7 +26,7 @@ def graph():
     ]
 
     
-    edges = [
+edges = [
     { "group": 'edges', "data": { "id": 'e0', "source": 'n0', "target": 'n1', "weight": 100, "visited": "false" } },
     
     { "group": 'edges', "data": { "id": 'e3', "source": 'n0', "target": 'n4', "weight": 150, "visited": "false" } },
@@ -45,6 +41,13 @@ def graph():
     { "group": 'edges', "data": { "id": 'e10', "source": 'n4', "target": 'n9', "weight": 300, "visited": "false" } },
     ]
 
+@app.route("/graph", methods=['GET'])
+def graph():
+    twitterHandle = request.args['TwitterHandleInput']
+    print(twitterHandle)
+    #data = twitterHandle
+    #get nodes from back end
+
     
     #return data and load the page with the graph
     return render_template("graph.html", nodes = nodes, edges=edges)
@@ -54,7 +57,7 @@ accounts = [{"twitter_handle":"test","views":1,"image":"https://live.staticflick
 
 @app.route("/topSearches")
 def topSearches():
-    
+    #get searches from back end server
     return render_template("topSearches.html", accounts = accounts)
 
 @app.route("/topSearches/update",methods = ['POST'])
@@ -64,4 +67,10 @@ def updateSearches():
     for dict in accounts:
         if dict["twitter_handle"]== twitter_handle:
             dict["views"] +=1
-    
+
+@app.route("/graph/AdditionalNodes", methods=['GET'])
+def graphAdditionalNodes():
+    twitterHandle = request.args['twitter_handle']
+    print(twitterHandle)
+    #get nodes from back end
+    return json.dumps(nodes + edges)
