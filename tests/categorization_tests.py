@@ -49,8 +49,8 @@ class TestLanguageFunctions(unittest.TestCase):
         print(distance_algorithm_calculation('jack_west24'))
         
     def test_combine_tweets_with_context(self):
-        combine_tweets_with_context('jack_west24')
-
+        print(combine_tweets_with_context('jack_west24'))
+        print(combine_favorites_with_context('jack_west24'))
 
 
         
@@ -62,6 +62,7 @@ if __name__ == "__main__":
     #suite.addTest(TestLanguageFunctions("test_word_filter"))
     if "MONGO" not in os.environ.keys():
         suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
+        #suite.addTest(TestLanguageFunctions("test_combine_tweets_with_context"))
     runner = unittest.TextTestRunner()
     #runner.run(suite)
     ret = not runner.run(suite).wasSuccessful()
