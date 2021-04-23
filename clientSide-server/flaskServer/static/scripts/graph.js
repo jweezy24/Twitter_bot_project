@@ -1,32 +1,32 @@
 //scale that will be applied to weights
 var scale =1;
-var nodes = [
-    { group: 'nodes', data: { id: 'n0', label: 'n0', visited: false, followers:100, following:1000 ,image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
-    { group: 'nodes', data: { id: 'n1', label: 'n1', "visited": false }, classes: 'center-center' },
-    { group: 'nodes', data: { id: 'n3', label: 'n3', "visited": false }, classes: 'center-center' },
-    { group: 'nodes', data: { id: 'n2', label: 'n2', "visited": false }, classes: 'center-center' },
-    { group: 'nodes', data: { id: 'n4', label: 'n4', "visited": false }, classes: 'center-center', },
-    { group: 'nodes', data: { id: 'n5', label: 'n5', "visited": false }, classes: 'center-center' },
-    { group: 'nodes', data: { id: 'n6', label: 'n6', "visited": false }, classes: 'center-center' },
-    { group: 'nodes', data: { id: 'n7', label: 'n7', "visited": false }, classes: 'center-center' },
-    { group: 'nodes', data: { id: 'n8', label: 'n8', "visited": false }, classes: 'center-center', },
-    { group: 'nodes', data: { id: 'n9', label: 'n9', "visited": false }, classes: 'center-center', }
-]
-var edges = [
+// var nodes = [
+//     { group: 'nodes', data: { id: 'n0', label: 'n0', visited: false, followers:100, following:1000 ,image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
+//     { group: 'nodes', data: { id: 'n1', label: 'n1', "visited": false }, classes: 'center-center' },
+//     { group: 'nodes', data: { id: 'n3', label: 'n3', "visited": false }, classes: 'center-center' },
+//     { group: 'nodes', data: { id: 'n2', label: 'n2', "visited": false }, classes: 'center-center' },
+//     { group: 'nodes', data: { id: 'n4', label: 'n4', "visited": false }, classes: 'center-center', },
+//     { group: 'nodes', data: { id: 'n5', label: 'n5', "visited": false }, classes: 'center-center' },
+//     { group: 'nodes', data: { id: 'n6', label: 'n6', "visited": false }, classes: 'center-center' },
+//     { group: 'nodes', data: { id: 'n7', label: 'n7', "visited": false }, classes: 'center-center' },
+//     { group: 'nodes', data: { id: 'n8', label: 'n8', "visited": false }, classes: 'center-center', },
+//     { group: 'nodes', data: { id: 'n9', label: 'n9', "visited": false }, classes: 'center-center', }
+// ]
+// var edges = [
     
-    { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight: 100, "visited": false } },
-    // { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight: 100, "visited": false } },
-    //{ group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight: 150, "visited": false } },
-    { group: 'edges', data: { id: 'e3', source: 'n0', target: 'n4', weight: 150, "visited": false } },
-    { group: 'edges', data: { id: 'e4', source: 'n4', target: 'n2', weight: 200, "visited": false } },
-    { group: 'edges', data: { id: 'e5', source: 'n4', target: 'n3', weight: 100, "visited": false } },
-    { group: 'edges', data: { id: 'e6', source: 'n3', target: 'n5', weight: 100, "visited": false } },
-    { group: 'edges', data: { id: 'e7', source: 'n3', target: 'n6', weight: 300, "visited": false } },
-    { group: 'edges', data: { id: 'e8', source: 'n2', target: 'n7', weight: 200, "visited": false } },
-    { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight: 200, "visited": false } },
-    { group: 'edges', data: { id: 'e10', source: 'n4', target: 'n9', weight: 300, "visited": false } },
-    //{ group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight: 200, "visited": false } }
-]
+//     { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight: 100, "visited": false } },
+//     // { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight: 100, "visited": false } },
+//     //{ group: 'edges', data: { id: 'e2', source: 'n0', target: 'n2', weight: 150, "visited": false } },
+//     { group: 'edges', data: { id: 'e3', source: 'n0', target: 'n4', weight: 150, "visited": false } },
+//     { group: 'edges', data: { id: 'e4', source: 'n4', target: 'n2', weight: 200, "visited": false } },
+//     { group: 'edges', data: { id: 'e5', source: 'n4', target: 'n3', weight: 100, "visited": false } },
+//     { group: 'edges', data: { id: 'e6', source: 'n3', target: 'n5', weight: 100, "visited": false } },
+//     { group: 'edges', data: { id: 'e7', source: 'n3', target: 'n6', weight: 300, "visited": false } },
+//     { group: 'edges', data: { id: 'e8', source: 'n2', target: 'n7', weight: 200, "visited": false } },
+//     { group: 'edges', data: { id: 'e9', source: 'n7', target: 'n8', weight: 200, "visited": false } },
+//     { group: 'edges', data: { id: 'e10', source: 'n4', target: 'n9', weight: 300, "visited": false } },
+//     //{ group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight: 200, "visited": false } }
+// ]
 //temporary also in future it will be array of nodes and array of edges
 
 var ele = [...nodes.concat(edges)]
@@ -45,7 +45,7 @@ $(document).ready(function () {
             {
                 "selector": "node",
                 "style": {
-                    //'background-image':"data(image)",
+                    'background-image':"data(image)",
                     'height': 40,
                     'width': 40,
                     'background-fit': 'cover',
@@ -96,8 +96,8 @@ $(document).ready(function () {
             
             if (ele.isNode()) {
                 var twitterLink = '<a href="http://twitter.com/' + ele.data('id') + '">' + ele.data('id') + '</a>';
-                var following = 'Following ' + ele.data('following');
-                var followers =  ele.data('followers')+' Followers'; 
+                var following = 'Following: ' + ele.data('following');
+                var followers =  'Followers: ' + ele.data('followers'); 
                 var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
                  //var description = '<i>' + ele.data('description') + '</i>';
                 content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp'+ followers;//+ '<p><br>' + description + '</p>'
@@ -147,7 +147,7 @@ $(document).ready(function () {
                 
                 event.target.tippy.show();
                 event.target.tippy.setProps({
-                   
+                    
                     animation: 'scale',
                     trigger: 'manual',
                     interactive:true,
