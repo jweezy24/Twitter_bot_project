@@ -28,13 +28,16 @@ var scale = 1;
 //     //{ group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight: 200, "visited": false } }
 // ]
 //temporary also in future it will be array of nodes and array of edges
-
+var addedElements = []
+var addedNodes = []
+var addedEdges = []
 var ele = [...nodes.concat(edges)]
 var cy;
+var previousTapStamp;
+var doubleClickDelayMs = 350;
 $(document).ready(function () {
     cy = cytoscape({
         container: $("#cy"),
-        autolock: false,
 
         elements: ele,
         layout: {
@@ -42,6 +45,7 @@ $(document).ready(function () {
             directed: false
         },
         style: [
+
             {
                 "selector": "node",
                 "style": {
@@ -71,73 +75,35 @@ $(document).ready(function () {
             },
         ]
     });
-    // var layout = cy.layout({ name: 'cola'}).run();
-    // layout.on('layoutstop', function () {
-    //     //temporary location
-    //     //setEdgeDistancesQueue();
-    //     setEdgeDistances();
-    //     ele.forEach(element => {
-    //         if (element.group == 'nodes') {
-    //             cy.$(`#${element.data.id}`).lock();
-    //         }
-    //     });
+    var layout = cy.layout({ name: 'cola' }).run();
+    layout.on('layoutstop', function () {
+        //temporary location
+        //setEdgeDistancesQueue();
+        //setEdgeDistances();
+        ele.forEach(element => {
+            if (element.group == 'nodes') {
+                cy.$(`#${element.data.id}`).ungrabify();
+            }
+        });
+    });
     //var cy = $('#cy').cytoscape('get');
-    
+
     // });
     setColaLayout();
+    setColaLayout();
     //based of https://codepen.io/rbogard/details/jOEyWrL
-    function makePopper(ele) {
-        let ref = ele.popperRef(); // used only for positioning
-        let dummyDomEle = document.createElement('div');
-        ele.tippy = tippy(dummyDomEle, { // tippy options:
 
-            getReferenceClientRect: ref.getBoundingClientRect,
-
-            content: () => {
-                let content = document.createElement('div');
-
-                if (ele.isNode()) {
-                    var twitterLink = '<a href="http://twitter.com/' + ele.data('id') + '">' + ele.data('id') + '</a>';
-                    var following = 'Following: ' + ele.data('following');
-                    var followers = 'Followers: ' + ele.data('followers');
-                    var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
-                    //var description = '<i>' + ele.data('description') + '</i>';
-                    content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp' + followers;//+ '<p><br>' + description + '</p>'
-                }
-                else {
-                    var distance = ele.data('weight');
-                    content.innerHTML = distance;
-                }
-
-
-                //image + '&nbsp' + twitterLink + '<br> &nbsp' + following +'<br> &nbsp'+ followers+'<p><br>' + description + '</p>';
-
-
-                return content;
-            },
-            //trigger: 'manual',
-            //interactive:true,
-            //interactiveBorder: 30, // probably want manual mode
-            onClickOutside(instance, event) {
-                // ...
-                instance.setProps({
-
-
-                    interactive: false,
-                });
-                instance.hide();
-            },
-        });
-    }
     cy.ready(function () {
         //    tippy.setDefaultProps({followCursor: 'true'});
-
+        
         cy.elements().forEach(function (element) {
             //console.log(element)
             makePopper(element);
         });
-        
+
         cy.elements().on('tap', function (event) {
+            var currentTapStamp = event.timeStamp;
+            var msFromLastTap = currentTapStamp - previousTapStamp;
             console.log()
             if (event.target.isNode()) {
                 var node = event.target;
@@ -145,10 +111,17 @@ $(document).ready(function () {
 
                 cy.fit(node);
                 cy.zoom({ level: 1.5, position: { x: node.position('x'), y: node.position('y') } })
-                if (node.selected()) {
-                    console.log('selected ' + node.id());
-                    GetMoreNodes(node.id());
-                  }
+                if (msFromLastTap < doubleClickDelayMs) {
+                    if (node.selected()) {
+                        console.log('selected ' + node.id());
+                        GetMoreNodes(node.id());
+                        startTime = 0;
+                        event.target.tippy.hide();
+                    }
+
+                }
+                previousTapStamp = currentTapStamp;
+
             }
 
             event.target.tippy.show();
@@ -158,24 +131,133 @@ $(document).ready(function () {
                 trigger: 'manual',
                 interactive: true,
             });
-            
+
         });
-        
+
     });
 
 })
+var startTime = 0, endTime;
+function start() {
+    startTime = new Date();
+}
+function elapsed() {
+    endTime = new Date();
+    var timeDiff = endTime - startTime; //in ms
+    // strip the ms
+    timeDiff /= 1000;
+
+    // get seconds 
+    console.log(timeDiff);
+    //var seconds = Math.round(timeDiff);
+    return timeDiff
+}
+function makePopper(ele) {
+    let ref = ele.popperRef(); // used only for positioning
+    let dummyDomEle = document.createElement('div');
+    ele.tippy = tippy(dummyDomEle, { // tippy options:
+
+        getReferenceClientRect: ref.getBoundingClientRect,
+
+        content: () => {
+            let content = document.createElement('div');
+
+            if (ele.isNode()) {
+                var twitterLink = '<a href="http://twitter.com/' + ele.data('id') + '">' + ele.data('id') + '</a>';
+                var following = 'Following: ' + ele.data('following');
+                var followers = 'Followers: ' + ele.data('followers');
+                var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
+                //var description = '<i>' + ele.data('description') + '</i>';
+                content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp' + followers;//+ '<p><br>' + description + '</p>'
+            }
+            else {
+                var distance = ele.data('weight');
+                content.innerHTML = distance;
+            }
 
 
+            //image + '&nbsp' + twitterLink + '<br> &nbsp' + following +'<br> &nbsp'+ followers+'<p><br>' + description + '</p>';
+
+
+            return content;
+        },
+        //trigger: 'manual',
+        //interactive:true,
+        //interactiveBorder: 30, // probably want manual mode
+        onClickOutside(instance, event) {
+            // ...
+            instance.setProps({
+
+
+                interactive: false,
+            });
+            instance.hide();
+        },
+    });
+}
 function GetMoreNodes(id) {
     $.ajax({
-        type:"GET",
-        url:"/graph/AdditionalNodes",
-        data: {"twitter_handle":id},
-        success: function(data) {
+        type: "GET",
+        url: "/graph/AdditionalNodes",
+        data: { "twitter_handle": id },
+        success: function (data) {
             var objects = JSON.parse(data);
-          console.log(objects);
+            addedElements = objects;
+            var items = cy.add(objects);
+            addedElements.forEach(element => {
+                if (element.group == 'nodes') {
+                    cy.$(`#${element.data.id}`).ungrabify();
+                    addedNodes.push(element);
+                }
+                else {
+                    addedEdges.push(element);
+                }
+            });
+            edges = [...edges.concat(addedEdges)]
+
+            setColaLayout();
+            setColaLayout();
+            items.forEach(function (element) {
+                //console.log(element)
+                makePopper(element);
+            });
+            items.on('tap', function (event) {
+                var currentTapStamp = event.timeStamp;
+            var msFromLastTap = currentTapStamp - previousTapStamp;
+
+                console.log()
+                if (event.target.isNode()) {
+                    var node = event.target;
+                    console.log('tapped ' + node.id());
+                    cy.fit(node);
+                    cy.zoom({ level: 1.5, position: { x: node.position('x'), y: node.position('y') } })
+
+                    if (msFromLastTap < doubleClickDelayMs) {
+                        if (node.selected()) {
+                            console.log('selected ' + node.id());
+                            GetMoreNodes(node.id());
+                            startTime = 0;
+                            event.target.tippy.hide();
+                        }
+    
+                    }
+                    previousTapStamp = currentTapStamp;
+
+
+                }
+
+                event.target.tippy.show();
+                event.target.tippy.setProps({
+
+                    animation: 'scale',
+                    trigger: 'manual',
+                    interactive: true,
+                });
+
+            });
+            console.log(objects);
         }
-      })
+    })
 }
 
 function toggleNodeLock(lock) {
@@ -194,40 +276,41 @@ function toggleNodeLock(lock) {
 }
 
 function setGridLayout() {
-    toggleNodeLock(false);
+    //stoggleNodeLock(false);
     var layout = cy.layout({ name: 'grid' }).run();
     layout.on('layoutstop', function () {
         //temporary location
         //setEdgeDistancesQueue();
-        setEdgeDistances();
-        toggleNodeLock(true);
+        setEdgeDistances(edges);
+        // toggleNodeLock(true);
 
     });
 }
 function setColaLayout() {
-    toggleNodeLock(false);
+    //toggleNodeLock(false);
     var layout = cy.layout({ name: 'cola' }).run();
     layout.on('layoutstop', function () {
         //temporary location
         //setEdgeDistancesQueue();
-        setEdgeDistances();
-        toggleNodeLock(true);
+        setEdgeDistances(edges);
+
+        // toggleNodeLock(true);
 
     });
 }
 function setEulerLayout() {
-    toggleNodeLock(false);
+    //toggleNodeLock(false);
     var layout = cy.layout({ name: 'euler' }).run();
     layout.on('layoutstop', function () {
         //temporary location
         //setEdgeDistancesQueue();
-        setEdgeDistances();
-        toggleNodeLock(true);
+        setEdgeDistances(edges);
+        //toggleNodeLock(true);
 
     });
 }
 
-function setEdgeDistances() {
+function setEdgeDistances(edges) {
     for (let i = 0; i < edges.length; i++) {
 
         var el1 = cy.$(`#${edges[i].data.source}`);

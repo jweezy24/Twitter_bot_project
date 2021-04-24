@@ -72,5 +72,17 @@ def updateSearches():
 def graphAdditionalNodes():
     twitterHandle = request.args['twitter_handle']
     print(twitterHandle)
+    newNodes = [
+        { "group": 'nodes', "data": { "id": 'n10', "label": 'n10', "visited": "false", "followers":1000, "following":1000 ,"image":'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, "classes": 'center-center', },
+        { "group": 'nodes', "data": { "id": 'n11', "label": 'n11', "visited": "false", "followers":100, "following":100 ,"image":'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, "classes": 'center-center', },
+        { "group": 'nodes', "data": { "id": 'n12', "label": 'n12', "visited": "false", "followers":100, "following":100 ,"image":'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, "classes": 'center-center', }
+    ]
+
+    newEdges = [
+        { "group": 'edges', "data": { "id": 'e11', "source": 'n9', "target": 'n10', "weight": 300, "visited": "false" } },
+        { "group": 'edges', "data": { "id": 'e12', "source": 'n9', "target": 'n11', "weight": 400, "visited": "false" } },
+        { "group": 'edges', "data": { "id": 'e13', "source": 'n9', "target": 'n12', "weight": 700, "visited": "false" } }
+    ]
+
     #get nodes from back end
-    return json.dumps(nodes + edges)
+    return json.dumps(newNodes + newEdges)
