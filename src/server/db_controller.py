@@ -3,6 +3,8 @@ from typing import Dict
 import mongoengine
 import datetime
 import json
+from pymongo import MongoClient
+import time
 from hashlib import *
 from server.models import *
 
@@ -14,7 +16,31 @@ def get_account(twitter_handle:str):
     except mongoengine.errors.DoesNotExist as e:
         print(e)
         return None
-        
+
+#return account if it exists else return None
+def get_account_pymongo(twitter_handle:str):
+    with MongoClient('localhost', 27017) as client:
+        db = client['TwitterBotDB']
+        collection = db['account']
+        x = collection.find({"twitter_handle" : twitter_handle})
+        results = []
+        for result in x:
+            results.append(result)
+    
+    return results[0]
+
+def get_account_by_id_pymongo(id_:str):
+    with MongoClient('localhost', 27017) as client:
+        db = client['TwitterBotDB']
+        collection = db['account']
+        x = collection.find({"_id" : id_})
+        results = []
+        for result in x:
+            results.append(result)
+    
+    return results[0]
+
+
 def get_max_id(val,username):
     acc = get_account(username)
     if acc != None:

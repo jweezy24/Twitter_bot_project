@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+import time
 bear = os.environ["BEARER"]
 
 def get_tweet_context(ids):
@@ -25,7 +26,12 @@ def get_tweet_context(ids):
 
     if r and "data" in r.json() and "context_annotations" in r.json()["data"]:
         return r.json()["data"]
+    elif "errors" in r.json():
+        print(r)
+        time.sleep(900)
+        return get_tweet_context(ids)
     else:
+        print(r)
         return None
 
 def get_followers_REST(user):
@@ -39,6 +45,10 @@ def get_followers_REST(user):
     if r1 and "data" in r1.json():
         for entry in r1.json()["data"]:
             names.append(entry["username"])
+    elif "errors" in r.json():
+        print(r)
+        time.sleep(900)
+        return get_followers_REST(user)
 
     return names
 
@@ -52,6 +62,10 @@ def get_following_REST(user):
     if r1 and "data" in r1.json():
         for entry in r1.json()["data"]:
             names.append(entry["username"])
+    elif "errors" in r.json():
+        print(r)
+        time.sleep(900)
+        return get_following_REST(user)
 
     return names
 

@@ -3,6 +3,7 @@ import nltk.tokenize as nt
 from nltk.sentiment import SentimentIntensityAnalyzer
 from nltk.corpus import stopwords
 import nltk
+from nltk.tokenize import ToktokTokenizer
 import multiprocessing as mp
 from functools import partial
 from tiny_db_calls import *
@@ -28,20 +29,22 @@ input:
 output:
     out = dictionary of words with the word's type and occurances.
 '''
-def filter_out_words(data, mongo=False, debug=False, total=300):
+def filter_out_words(data, mongo=False, debug=False, total=100):
     out = {}
     context = {}
     topics = {}
     c1 = 0
     c2 = 0
+    toktok = ToktokTokenizer()
     for row in data:
-        if not mongo:
+        
+        if type(row) == type({}):
             text = row["text"]
         else:
             text = row.text
         polarity = "pos" if determine_sentiment_of_text(text) else "neg"
         ss=nt.sent_tokenize(text)
-        tokenized_sent=[nt.word_tokenize(sent) for sent in ss]
+        tokenized_sent=[toktok.tokenize(sent) for sent in ss]
         pos_sentences=[nltk.pos_tag(sent) for sent in tokenized_sent]
         if type(row) == type({}):
             if "context_annotations" in row.keys():
@@ -87,27 +90,26 @@ def filter_out_words(data, mongo=False, debug=False, total=300):
             c2+=1
         
             
-        if c1 < (int(total/2) + int(total/4)):
-            for sentence in pos_sentences:
-                for word,w_type in sentence:
-                    if w_type in types_of_words_to_filter and len(word) > 1 and word_check(word) and "/" not in word:
-                        ele = (word.lower(), w_type)
-                        if ele in out:
-                            if polarity == "neg":
-                                out[ele] = out[ele] - 1
-                            if polarity == "pos":
-                                out[ele] = out[ele] + 1
-                        else:
-                            if polarity == "neg":
-                                out[ele] = -1
-                            if polarity == "pos":
-                                out[ele] = 1
-            c1+=1
+        
+        for sentence in pos_sentences:
+            for word,w_type in sentence:
+                if w_type in types_of_words_to_filter and len(word) > 1 and word_check(word) and "/" not in word:
+                    ele = (word.lower(), w_type)
+                    if ele in out:
+                        if polarity == "neg":
+                            out[ele] = out[ele] - 1
+                        if polarity == "pos":
+                            out[ele] = out[ele] + 1
+                    else:
+                        if polarity == "neg":
+                            out[ele] = -1
+                        if polarity == "pos":
+                            out[ele] = 1
+        c1+=1
         
         if c1+c2 >= total:
             break
 
-    print(context)
     return out,context,topics
 
 '''
@@ -186,25 +188,22 @@ def rank_context_dictionary(data, total=100):
     lst_neg = []
     if len(data.keys()) < total:
         total = len(data.keys())
+
     for i in range(0,total):
         local_max = None
-        context = ''
+        local_min = None
+        context_pos = ''
+        context_neg = ''
         for key in data.keys():
             amount = data[key]
             if (local_max == None or amount > local_max ) and (key,amount) not in lst:
                 local_max = amount
-                context = key
-        lst.append((context,local_max))
-
-    for i in range(0,total):
-        local_min = None
-        context = ''
-        for key in data.keys():
-            amount = data[key]
+                context_pos = key
             if (local_min == None or amount < local_min ) and (key,amount) not in lst_neg:
                 local_min = amount
-                context = key
-        lst_neg.append((context,local_min))
+                context_neg = key
+        lst.append((context_pos,local_max))
+        lst_neg.append((context_neg,local_min))
     
     return (lst,lst_neg)
 
@@ -247,15 +246,23 @@ input:
 output:
     list of favorites where the id with context is prioritized.
 '''
-def combine_favorites_with_context(user, Mongo=True):
+def combine_favorites_with_context(user, Mongo=True, u=None, total=200):
     #This method will be another sorting algorithm
 
     #Grab Mongo data or use local json caches
     #initalization of two lists
     if Mongo:
-        u = get_account(user)
-        favs = u.favorite_tweets
-        favs_context = u.favorite_context
+        if not u:
+            u = get_account(user)
+            favs = u.favorite_tweets
+            favs_context = u.favorite_context
+        else:
+            if type(u) == type({}):
+                favs = u["favorite_tweets"]
+                favs_context = u["favorite_context"]
+            else:
+                favs = u.favorite_tweets
+                favs_context = u.favorite_context
     else:
         favs = get_all_favorites(user, table="favorite_tbl")
         favs_context = get_all_favorites(user, table="favorites_context")
@@ -275,18 +282,25 @@ def combine_favorites_with_context(user, Mongo=True):
 
     favs_tmp = []
     favs_c_tmp = []
-    
+    count = 0
+
     for tweet in favs:
-        tmp = int(tweet["id"])
+        tmp = int(tweet["_id"])
         favs_ids.append(tmp)
         favs_tmp.append(tmp)
+        count+=1
+        if count >= total:
+            break
 
+    count = 0
     for tweet in favs_context:
         #The API we built has ids as strings rather than integers
-        tmp = int(tweet["id"])
+        tmp = int(tweet["_id"])
         favs_context_ids.append(tmp)
         favs_c_tmp.append(tmp)
-
+        count+=1
+        if count >= total:
+            break
     #Sort the lists we gathered
     favs_ids.sort()
     favs_context_ids.sort()
@@ -364,7 +378,7 @@ input:
 output:
     list of tweets where the id with context is prioritized.
 '''
-def combine_tweets_with_context(user, Mongo=True):
+def combine_tweets_with_context(user, Mongo=True, u=None, total=200):
     #This method will be another sorting algorithm
 
     #intialization of two lists that we would like to merge.
@@ -373,9 +387,17 @@ def combine_tweets_with_context(user, Mongo=True):
         tweets_context = get_all_table_entries(user, table="tweets_context")
     else:
         #grab Mongodb data
-        u = get_account(user)
-        all_tweets = u.tweets
-        tweets_context = u.tweets_context
+        if not u:
+            u = get_account(user)
+            all_tweets = u.tweets
+            tweets_context = u.tweets_context
+        else:
+            if type(u) == type({}):
+                all_tweets = u["tweets"]
+                tweets_context = u["tweets_context"]    
+            else:
+                all_tweets = u.tweets
+                tweets_context = u.tweets_context
 
     ''' MERGING ALGORITHM DESCRIPTION '''
     #We want to merge by tweet id.
@@ -392,16 +414,26 @@ def combine_tweets_with_context(user, Mongo=True):
     tweet_tmp = []
     tweet_context_tmp = []
     
+    count = 0
     for tweet in all_tweets:
-        tmp = int(tweet["id"])
+        tmp = int(tweet["_id"])
         tweet_ids.append(tmp)
         tweet_tmp.append(tmp)
+        count+=1
+        if count >= total:
+            break
     
+
+    count = 0
     for tweet in tweets_context:
         #The API we built has ids as strings rather than integers
-        tmp = int(tweet["id"])
+        tmp = int(tweet["_id"])
         tweet_context_ids.append(tmp)
         tweet_context_tmp.append(tmp)
+        count+=1
+        if count >= total:
+            break
+
 
     #Sort the lists we gathered
     tweet_ids.sort()
@@ -495,12 +527,7 @@ def distance_algorithm_calculation(root_user):
     These users are connected the the main user by either following them or the root_user follows them.
     '''
     #Inits of the followers and following
-    followers = [i["id"] for i in get_all_table_entries(root_user, "followers")]
-    following = [i["id"] for i in get_all_table_entries(root_user, "following")]
-
-    #List of users we want to gather their data for
-
-    to_check = followers + following
+    u = get_account_pymongo(root_user)
 
     
 
@@ -510,46 +537,44 @@ def distance_algorithm_calculation(root_user):
     #         if user in followers or user in following:
     #             to_check.append(user)
 
-    
-    base_favorites = combine_favorites_with_context(root_user)
-    base_tweets = combine_tweets_with_context(root_user)
-    base_all_tweets = base_favorites+base_tweets
+
     
     #We want to user this dictionary data structure to cache all text assoicated with a user
     data_cache = {}
-
-    for user in to_check:
-        u = get_account(user)
-        if u is not None:
-            data_cache.update({user: u})
+    for user in u["followers"]:
+        tmp = get_account_by_id_pymongo(user["follower"])
+        data_cache.update({tmp["twitter_handle"]: tmp})
+    for user in u["following"]:
+        tmp = get_account_by_id_pymongo(user["following"])
+        data_cache.update({tmp["twitter_handle"]: tmp})
     
+
+    base_favorites = combine_favorites_with_context(root_user,u=u)
+    base_tweets = combine_tweets_with_context(root_user,u=u)
+    base_all_tweets = base_favorites+base_tweets
+
+
     base_words, base_contexts, base_topics = filter_out_words(base_all_tweets)
     base_ranked_words_pos,base_ranked_words_neg = rank_words_dictionary(base_words)
     base_ranked_words = base_ranked_words_pos + base_ranked_words_neg
     base_ranked_context_pos, base_ranked_context_neg = rank_context_dictionary(base_contexts)
     base_ranked_context = base_ranked_context_pos + base_ranked_context_neg
     base_ranked_topics_pos,base_ranked_topics_neg = rank_context_dictionary(base_topics)
-    base_ranked_topics = base_ranked_topics_pos,base_ranked_topics_neg
+    base_ranked_topics = base_ranked_topics_pos+base_ranked_topics_neg
 
-    words_t = []
-    weight_t = []
+    
     words_w = [ i[0] for i in base_ranked_words]
     words_c = [ i[0] for i in base_ranked_context]
-    if len(base_ranked_topics[0]) > 0:
-        words_t = [ i[0] for i in base_ranked_topics]
-    else:
-        words_t = []
+    words_t = [ i[0] for i in base_ranked_topics]
     weight_w = [ i[2] for i in base_ranked_words]
     weight_c = [ i[1] for i in base_ranked_context]
-    if len(base_ranked_topics[1]) > 0:
-        weight_t = [ i[1] for i in base_ranked_topics]
-    else:
-        weight_t = []
+    weight_t = [ i[1] for i in base_ranked_topics]
+
     weighted_users = []
 
     manager = mp.Manager()
     return_dict = manager.dict()
-    cutoff = 5 ##
+    cutoff = 6 ##
     processes = []
     count = 0
     for key in data_cache.keys():
@@ -558,6 +583,7 @@ def distance_algorithm_calculation(root_user):
         processes.append(val)
         count+=1
         if cutoff < count:
+            print("Joining Threads")
             for process in processes:
                 process.join()
             count = 0
@@ -570,33 +596,34 @@ def distance_algorithm_calculation(root_user):
 
 
 def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
-    tweets = combine_tweets_with_context(key)
-    favorites = combine_favorites_with_context(key)
+    tweets = combine_tweets_with_context(key,u=data_cache[key])
+    favorites = combine_favorites_with_context(key,u=data_cache[key])
     tweets = tweets+favorites
     words, contexts, topics = filter_out_words(tweets, mongo=True, debug=True)
     user = key
     x = 0
     y = 0
     give_weight = False
-    for key in words.keys():
-        word,tp = key
-        wgt = words[key]
+    print(topics)
+    for k in words.keys():
+        word,tp = k
+        wgt = words[k]
         
         wgt = get_weight_of_word(base_rw[0], base_rw[1], word, wgt)
         x += wgt
         give_weight = True
     
-    for key in contexts.keys():
-        word = key
-        wgt = contexts[key]
+    for k in contexts.keys():
+        word = k
+        wgt = contexts[k]
 
         wgt = get_weight_of_word(base_rc[0], base_rc[1], word, wgt)  
         y += wgt
         give_weight = True
 
-    for keys in topics.keys():
-        word = key
-        wgt = topics[key]
+    for k in topics.keys():
+        word = k
+        wgt = topics[k]
 
         wgt = get_weight_of_word(base_rt[0], base_rt[1], word, wgt)
         y += wgt
@@ -633,5 +660,13 @@ def after_collation_weights(x,b,b2):
     
     return x
 
+
+def cache_user(user, cache):
+    u = get_account(user)
+    if u != None:
+        cache.update({user:u})
+
+
 if __name__ == "__main__":
+    #get_account_pymongo('jack_west24')
     print(distance_algorithm_calculation('jack_west24'))

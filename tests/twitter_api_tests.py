@@ -60,6 +60,8 @@ class TestAPICalls(unittest.TestCase):
     def test_get_followers_REST(self):
         get_followers_REST('jack_west24')
 
+    def test_get_rate_limit(self):
+        print(get_rate_limit())
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()
@@ -72,7 +74,8 @@ if __name__ == "__main__":
     #suite.addTest(TestAPICalls('test_retrieve_all_tweets'))
     #suite.addTest(TestAPICalls('test_get_context'))
     #suite.addTest(TestAPICalls('test_twitter_acc'))
-    suite.addTest(TestAPICalls('test_save_all_tweets_context'))
+    #suite.addTest(TestAPICalls('test_save_all_tweets_context'))
+    suite.addTest(TestAPICalls('test_get_rate_limit'))
     #suite.addTest(TestAPICalls('test_get_followers_REST'))
     
     unittest.TextTestRunner().run(suite)

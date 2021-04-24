@@ -58,7 +58,7 @@ if __name__ == "__main__":
     #unittest.main()
 
     suite = unittest.TestSuite()
-    suite.addTest(TestLanguageFunctions("test_sentiment_calculation"))
+    #suite.addTest(TestLanguageFunctions("test_sentiment_calculation"))
     #suite.addTest(TestLanguageFunctions("test_word_filter"))
     if "MONGO" not in os.environ.keys():
         suite.addTest(TestLanguageFunctions("test_distance_algorithm_calculation"))
