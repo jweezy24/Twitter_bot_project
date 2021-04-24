@@ -40,6 +40,14 @@ def get_account_by_id_pymongo(id_:str):
     
     return results[0]
 
+def increment_counter(user):
+    with MongoClient('localhost', 27017) as client:
+        db = client['TwitterBotDB']
+        collection = db['account']
+        db.collection.update(
+            { "twitter_handle": user },
+            { "$inc": { "requested": -2}})
+
 
 def get_max_id(val,username):
     acc = get_account(username)
@@ -98,12 +106,12 @@ def insert_account(data:dict, tinydb=False):
             clear_account(account)
     #insert following connections after creating them if account already has connections we create a search to store the old search
     if "following" in data:
-        for connection in data['following']:
+        for connection in data['following'].keys():
             if not tinydb:
                 account.following.append(generate_following_connection(connection))
             else:
                 c = FollowingConnections()
-                user_ = connection
+                user_ = data['following'][connection]["id"]
                 acc_info = {}
                 acc_info.update({"twitter_handle": user_})
                 id_ = sha256(user_.encode("utf-8")).hexdigest()
@@ -113,7 +121,7 @@ def insert_account(data:dict, tinydb=False):
                 acc = get_account(user_)
                 c.following = acc
                 c.distance = 0
-                print(c)
+                print(c.following.twitter_handle)
                 account.following.append(c)
     
     if "followers" in data:

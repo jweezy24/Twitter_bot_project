@@ -7,14 +7,20 @@ from server.db_controller import *
 
 
 @app.route("/")
-@app.route("/home")
-def home():#for testing
-    account = {"twitter_handle":"test", "name" :"John Doe"}
-    insert_account(account)
-    for accounts in Account.objects:
-        print(account)
-    return None
+@app.route("/user/<thandle>")
+def get_twitter_handle():#for testing
+    u = get_account_pymongo(t_handle)
+    if u == None:
+        return None
+    else:
+        return u
+    
 
-
-
+@app.route("/map/<thandle>")
+def get_user_map():#for testing
+    u = distance_algorithm_calculation(t_handle)
+    if u == None:
+        return None
+    else:
+        return u
     

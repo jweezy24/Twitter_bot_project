@@ -69,6 +69,7 @@ class Account(me.Document):
     tweets_context     = me.EmbeddedDocumentListField(Context)
     favorite_tweets    = me.EmbeddedDocumentListField(Tweet)
     favorite_context   = me.EmbeddedDocumentListField(Context)
+    requested          = me.IntField(default=0)
 
 
 

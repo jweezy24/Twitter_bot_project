@@ -87,7 +87,6 @@ def filter_out_words(data, mongo=False, debug=False, total=100):
                         context[item.entity.description] = 1
                     elif polarity == "neg":
                         context[item.entity.description] = -1
-            c2+=1
         
             
         
@@ -107,7 +106,7 @@ def filter_out_words(data, mongo=False, debug=False, total=100):
                             out[ele] = 1
         c1+=1
         
-        if c1+c2 >= total:
+        if c1 >= total:
             break
 
     return out,context,topics
@@ -597,6 +596,8 @@ def distance_algorithm_calculation(root_user):
 
 def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
     tweets = combine_tweets_with_context(key,u=data_cache[key])
+    profile_url = data_cache[key][]
+    
     favorites = combine_favorites_with_context(key,u=data_cache[key])
     tweets = tweets+favorites
     words, contexts, topics = filter_out_words(tweets, mongo=True, debug=True)

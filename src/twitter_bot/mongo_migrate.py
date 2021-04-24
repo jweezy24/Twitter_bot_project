@@ -26,12 +26,12 @@ def translate_to_mongo():
 
     for user in users:
         print(user)
-        with open(user,"r") as f:
+        with open("src/data/jack_west24.json","r") as f:
             data = str(f.read())
             if len(data) > 0:
                 data = json.loads(data)
                 name = (user.split("/")[-1]).split(".")[0]
-                
+                name = "jack_west24"
                 data.update({"twitter_handle": name})
                 id_ = sha256(name.encode("utf-8")).hexdigest()
                 data.update({"id": id_})
