@@ -19,8 +19,8 @@ def get_twitter_handle(thandle):#for testing
         increment_counter(u)
         return {
             'id': u['twitter_handle'],
-            'followers' : len(u['followers']),
-            'following' : len(u['followers']),
+            'followers' : u['total_followers'],
+            'following' : u['total_following'],
             'image' : u['profile_image_url'] 
         }
     
