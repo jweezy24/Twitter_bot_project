@@ -51,12 +51,20 @@ def get_top_requested():
         db = client['TwitterBotDB']
         collection = db['account']
         x = collection.find()
-        
-        for result in x:
-            results.append(result)
+        requested = []
+        toplist = {}
+        for thing in x:
+            requested.append(x[thing]['requested'])
 
-    if len(results) > 0:
-        return results[0]
+        requested.sort(reversed=True)
+
+        for num in range(0,49):
+            for thing in x:
+                if x[thing]['requested'] == requested[num]:
+                    toplist[num] = x[thing]
+
+    if len(toplist) > 0:
+        return toplist
     else:
         return None
 
