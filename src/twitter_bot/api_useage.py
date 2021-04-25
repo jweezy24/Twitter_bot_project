@@ -485,7 +485,7 @@ def init_user(user, update=False):
 def build_user_web(user, mongo=False):
     print(f"Creating user web for {user}")
     u = get_account(user)
-    init_user(user,update=True)
+    init_user(user)
     get_followers(user, mongo=mongo)
     followers = u.followers 
     get_following(user, mongo=mongo)

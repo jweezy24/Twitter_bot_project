@@ -111,41 +111,51 @@ def insert_account(data:dict, tinydb=False):
             clear_account(account)
     #insert following connections after creating them if account already has connections we create a search to store the old search
     if "following" in data:
-        for connection in data['following'].keys():
-            if not tinydb:
-                account.following.append(generate_following_connection(connection))
-            else:
-                c = FollowingConnections()
-                user_ = data['following'][connection]["id"]
-                acc_info = {}
-                acc_info.update({"twitter_handle": user_})
-                id_ = sha256(user_.encode("utf-8")).hexdigest()
-                acc_info.update({"id": id_})
-                insert_account(acc_info)
+        if type(data["following"]) == type({}): 
+            for connection in data['following'].keys():
+                if not tinydb:
+                    account.following.append(generate_following_connection(connection))
+                else:
+                    c = FollowingConnections()
+                    user_ = data['following'][connection]["id"]
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user_})
+                    id_ = sha256(user_.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
 
-                acc = get_account(user_)
-                c.following = acc
-                c.distance = 0
-                print(c.following.twitter_handle)
-                account.following.append(c)
+                    acc = get_account(user_)
+                    c.following = acc
+                    c.distance = 0
+                    print(c.following.twitter_handle)
+                    account.following.append(c)
+        else:
+            for connection in data['following']:
+                if not tinydb:
+                    account.following.append(generate_following_connection(connection))
     
     if "followers" in data:
-        for connection in data['followers']:
-            if not tinydb:
-                account.followers.append(generate_follower_connection(connection))
-            else:
-                c = FollowerConnections()
-                user_ = connection
-                acc_info = {}
-                acc_info.update({"twitter_handle": user_})
-                id_ = sha256(user_.encode("utf-8")).hexdigest()
-                acc_info.update({"id": id_})
-                insert_account(acc_info)
+        if type(data["followers"]) == type({}): 
+            for connection in data['followers'].keys():
+                if not tinydb:
+                    account.followers.append(generate_follower_connection(connection))
+                else:
+                    c = FollowingConnections()
+                    user_ = data['following'][connection]["id"]
+                    acc_info = {}
+                    acc_info.update({"twitter_handle": user_})
+                    id_ = sha256(user_.encode("utf-8")).hexdigest()
+                    acc_info.update({"id": id_})
+                    insert_account(acc_info)
 
-                acc = get_account(user_)
-                c.follower = acc
-                c.distance = 0
-                account.followers.append(c)
+                    acc = get_account(user_)
+                    c.follower = acc
+                    c.distance = 0
+                    account.followers.append(c)
+        else:
+            for connection in data['followers']:
+                if not tinydb:
+                    account.followers.append(generate_follower_connection(connection))
 
     if "top_words_positive" in data:
         for word in data['top_words_positive']:
