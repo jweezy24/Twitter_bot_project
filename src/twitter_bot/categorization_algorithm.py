@@ -542,13 +542,14 @@ def distance_algorithm_calculation(root_user):
     
     #We want to user this dictionary data structure to cache all text assoicated with a user
     data_cache = {}
+    print(u)
     for user in u["followers"]:
         tmp = get_account_by_id_pymongo(user["follower"])
-        if "twitter_handle" in tmp :
+        if "twitter_handle" in tmp and "total_followers" in tmp and "total_following" in tmp and "profile_image_url" in tmp:
             data_cache.update({tmp["twitter_handle"]: tmp})
     for user in u["following"]:
         tmp = get_account_by_id_pymongo(user["following"])
-        if "twitter_handle" in tmp:
+        if "twitter_handle" in tmp and "total_followers" in tmp and "total_following" in tmp and "profile_image_url" in tmp:
             data_cache.update({tmp["twitter_handle"]: tmp})
     
     base_favorites = combine_favorites_with_context(root_user,u=u)
@@ -637,9 +638,14 @@ def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
     x = after_collation_weights(x,base_rw,words)
     y = after_collation_weights(y,base_rc,contexts)
     y = after_collation_weights(y,base_rt,topics)
-
+    print(data_cache[key].keys())
     if give_weight:
-        returns.update({user:(user,x, y)})
+        returns.update({user: {"username":user, 
+        "x" : x, 
+        "y":y, 
+        "followers": data_cache[key]["total_followers"],
+        "following": data_cache[key]["total_following"],
+        "profile_url": data_cache[key]["profile_image_url"]}})
         
 
 def get_weight_of_word(words, weights, word, weight):

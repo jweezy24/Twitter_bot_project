@@ -442,18 +442,54 @@ def is_private(user):
     u = api2.get_user(user)
     return u.protected
 
+def init_user(user, update=False):
+    acc = get_account(user)
+    if acc == None:
+        acc_info = {}
+        acc_info.update({"twitter_handle": user})
+        id_ = sha256(user.encode("utf-8")).hexdigest()
+        acc_info.update({"id": id_})
+        twitter_followers = get_followers_REST(user)
+        twitter_following = get_following_REST(user)
+        profile_pic = get_profile_picture(user)
+        acc_info.update({"total_followers": len(twitter_followers)})
+        acc_info.update({"total_following": len(twitter_following)})
+        acc_info.update({"profile_image_url": profile_pic})
+        insert_account(acc_info)
+        print(f"added {user}")
+
+    elif update and acc != None:
+        twitter_followers = get_followers_REST(user)
+        twitter_following = get_following_REST(user)
+        profile_pic = get_profile_picture(user)
+        acc.total_followers = len(twitter_followers)
+        print( len(twitter_followers))
+        print( twitter_followers)
+        acc.total_following = len(twitter_following)
+        acc.profile_image_url = profile_pic
+        acc.save()
+        print(f"updated {user}")
+    
+    elif "total_followers" not in dir(acc) or "total_following" not in dir(acc) or "profile_image_url" not in dir(acc):
+        twitter_followers = get_followers_REST(user)
+        twitter_following = get_following_REST(user)
+        profile_pic = get_profile_picture(user)
+        acc.total_followers = len(twitter_followers)
+        print( len(twitter_followers))
+        print( twitter_followers)
+        acc.total_following = len(twitter_following)
+        acc.profile_image_url = profile_pic
+        acc.save()
+
 
 def build_user_web(user, mongo=False):
     print(f"Creating user web for {user}")
-    followers = get_all_table_entries("followers")
-    following = get_all_table_entries("following")
-
-    if not followers:
-        get_followers(user, mongo=mongo)
-        followers = get_all_table_entries(user, "followers")
-    if not following:
-        get_following(user, mongo=mongo)
-        following = get_all_table_entries(user, "following")
+    u = get_account(user)
+    init_user(user,update=True)
+    get_followers(user, mongo=mongo)
+    followers = u.followers 
+    get_following(user, mongo=mongo)
+    following = u.following
 
     print(f"CHECKING {user}")
     retrieve_all_tweets(user,use_mongo=mongo)
@@ -469,8 +505,9 @@ def build_user_web(user, mongo=False):
     print(f"{user} is Followed by {followers}")
 
     for people in followers:
-        people = people["id"]
+        people = people.follower.twitter_handle
         if not is_private(people):
+            init_user(people)
             print(f"CHECKING {people}")
             retrieve_all_tweets(people,use_mongo=mongo)
             print(f"Got Tweets for {people}")
@@ -484,8 +521,9 @@ def build_user_web(user, mongo=False):
             print("Private user.")
 
     for people in following:
-        people = people["id"]
+        people = people.following.twitter_handle
         if not is_private(people):
+            init_user(people)
             print(f"CHECKING {people}")
             retrieve_all_tweets(people,use_mongo=mongo)
             print(f"Got Tweets for {people}")

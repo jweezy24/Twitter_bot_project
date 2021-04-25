@@ -62,6 +62,8 @@ class Account(me.Document):
     group_type         = me.ReferenceField(Group)
     profile_image_url  = me.URLField()
     following          = me.EmbeddedDocumentListField(FollowingConnections)
+    total_following    = me.IntField(default=0)
+    total_followers    = me.IntField(default=0)
     followers          = me.EmbeddedDocumentListField(FollowerConnections)
     top_words_positive = me.EmbeddedDocumentListField(Top_Word)
     top_words_negative = me.EmbeddedDocumentListField(Top_Word)
