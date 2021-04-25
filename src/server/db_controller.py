@@ -27,7 +27,10 @@ def get_account_pymongo(twitter_handle:str):
         for result in x:
             results.append(result)
     
-    return results[0]
+    if len(results) > 0:
+        return results[0]
+    else:
+        return None
 
 def get_account_by_id_pymongo(id_:str):
     with MongoClient('localhost', 27017) as client:
@@ -37,8 +40,10 @@ def get_account_by_id_pymongo(id_:str):
         results = []
         for result in x:
             results.append(result)
-    
-    return results[0]
+    if len(results) > 0:
+        return results[0]
+    else:
+        return None
 
 def increment_counter(user):
     with MongoClient('localhost', 27017) as client:

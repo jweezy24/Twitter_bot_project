@@ -527,6 +527,8 @@ def distance_algorithm_calculation(root_user):
     '''
     #Inits of the followers and following
     u = get_account_pymongo(root_user)
+    if u == None:
+        return "None"
 
     
 
@@ -542,12 +544,13 @@ def distance_algorithm_calculation(root_user):
     data_cache = {}
     for user in u["followers"]:
         tmp = get_account_by_id_pymongo(user["follower"])
-        data_cache.update({tmp["twitter_handle"]: tmp})
+        if "twitter_handle" in tmp :
+            data_cache.update({tmp["twitter_handle"]: tmp})
     for user in u["following"]:
         tmp = get_account_by_id_pymongo(user["following"])
-        data_cache.update({tmp["twitter_handle"]: tmp})
+        if "twitter_handle" in tmp:
+            data_cache.update({tmp["twitter_handle"]: tmp})
     
-
     base_favorites = combine_favorites_with_context(root_user,u=u)
     base_tweets = combine_tweets_with_context(root_user,u=u)
     base_all_tweets = base_favorites+base_tweets
@@ -577,15 +580,17 @@ def distance_algorithm_calculation(root_user):
     processes = []
     count = 0
     for key in data_cache.keys():
-        val = mp.Process(target=calculate_weight, args=(key, data_cache,(words_w,weight_w), (words_c,weight_c),(words_t,weight_t),return_dict,) )
-        val.start()
-        processes.append(val)
-        count+=1
-        if cutoff < count:
-            print("Joining Threads")
-            for process in processes:
-                process.join()
-            count = 0
+        if len(data_cache[key]["tweets"]) > 0:
+            val = mp.Process(target=calculate_weight, args=(key, data_cache,(words_w,weight_w), (words_c,weight_c),(words_t,weight_t),return_dict,) )
+            val.start()
+            processes.append(val)
+            count+=1
+            if cutoff < count:
+                print("Joining Threads")
+                for process in processes:
+                    process.join()
+                count = 0
+
     for process in processes:
         process.join()
     
@@ -596,7 +601,7 @@ def distance_algorithm_calculation(root_user):
 
 def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
     tweets = combine_tweets_with_context(key,u=data_cache[key])
-    profile_url = data_cache[key][]
+    # profile_url = data_cache[key][]
     
     favorites = combine_favorites_with_context(key,u=data_cache[key])
     tweets = tweets+favorites
@@ -605,7 +610,6 @@ def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
     x = 0
     y = 0
     give_weight = False
-    print(topics)
     for k in words.keys():
         word,tp = k
         wgt = words[k]
