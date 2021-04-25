@@ -35,7 +35,7 @@ def get_user_map(thandle):#for testing
 
         
 @app.route("/top")
-def get_user_map():#for testing
+def get_top_requests():#for testing
     #u_list = get_top_requested()
     u == None
     if u == None:
