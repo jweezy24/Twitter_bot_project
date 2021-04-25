@@ -28,53 +28,56 @@ var scale = 1;
 //     //{ group: 'edges', data: { id: 'e11', source: 'n4', target: 'n8', weight: 200, "visited": false } }
 // ]
 //temporary also in future it will be array of nodes and array of edges
+var elements = [...nodes.concat(edges)]
 var addedElements = []
 var addedNodes = []
 var addedEdges = []
-var ele = [...nodes.concat(edges)]
+
 var cy;
 var previousTapStamp;
 var doubleClickDelayMs = 350;
 $(document).ready(function () {
+    console.log(elements)
     cy = cytoscape({
         container: $("#cy"),
 
-        elements: ele,
+        elements: elements,
         layout: {
             name: 'cola',
             directed: false
         },
-        style: [
+        // style: [
 
-            {
-                "selector": "node",
-                "style": {
-                    'background-image': "data(image)",
-                    'height': 40,
-                    'width': 40,
-                    'background-fit': 'cover',
-                    'border-color': '#000',
-                    'border-width': 3,
-                    'border-opacity': 0.5
-                }
+        //     {
+        //         "selector": "node",
+        //         "style": {
+        //             'background-image': "data(image)",
+        //             'height': 40,
+        //             'width': 40,
+        //             'background-fit': 'cover',
+        //             'border-color': '#000',
+        //             'border-width': 3,
+        //             'border-opacity': 0.5
+        //         }
 
-            },
-            {
-                "selector": "node[label]",
-                "style": {
-                    "label": "data(label)",
+        //     },
+        //     {
+        //         "selector": "node[label]",
+        //         "style": {
+        //             "label": "data(label)",
 
-                }
-            },
-            {
-                "selector": ".center-center",
-                "style": {
-                    "text-valign": "center",
-                    "text-halign": "center"
-                }
-            },
-        ]
+        //         }
+        //     },
+        //     {
+        //         "selector": ".center-center",
+        //         "style": {
+        //             "text-valign": "center",
+        //             "text-halign": "center"
+        //         }
+        //     },
+        // ]
     });
+
     var layout = cy.layout({ name: 'cola' }).run();
     layout.on('layoutstop', function () {
         //temporary location
@@ -85,12 +88,14 @@ $(document).ready(function () {
                 cy.$(`#${element.data.id}`).ungrabify();
             }
         });
+        setColaLayout();
+        setColaLayout();
     });
     //var cy = $('#cy').cytoscape('get');
 
     // });
-    setColaLayout();
-    setColaLayout();
+    // setColaLayout();
+    // setColaLayout();
     //based of https://codepen.io/rbogard/details/jOEyWrL
 
     cy.ready(function () {
