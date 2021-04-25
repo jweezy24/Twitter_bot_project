@@ -45,7 +45,7 @@ def get_account_by_id_pymongo(id_:str):
     else:
         return None
 
-def get_top_requested(){
+def get_top_requested():
      with MongoClient('localhost', 27017) as client:
         db = client['TwitterBotDB']
         collection = db['account']
@@ -58,7 +58,6 @@ def get_top_requested(){
         return results[0]
     else:
         return None
-}
 
 def increment_counter(user):
     with MongoClient('localhost', 27017) as client:
