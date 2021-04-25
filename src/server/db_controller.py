@@ -19,11 +19,11 @@ def get_account(twitter_handle:str):
 
 #return account if it exists else return None
 def get_account_pymongo(twitter_handle:str):
+    results = []
     with MongoClient('localhost', 27017) as client:
         db = client['TwitterBotDB']
         collection = db['account']
         x = collection.find({"twitter_handle" : twitter_handle})
-        results = []
         for result in x:
             results.append(result)
     
@@ -33,11 +33,11 @@ def get_account_pymongo(twitter_handle:str):
         return None
 
 def get_account_by_id_pymongo(id_:str):
+    results = []
     with MongoClient('localhost', 27017) as client:
         db = client['TwitterBotDB']
         collection = db['account']
         x = collection.find({"_id" : id_})
-        results = []
         for result in x:
             results.append(result)
     if len(results) > 0:
@@ -46,14 +46,15 @@ def get_account_by_id_pymongo(id_:str):
         return None
 
 def get_top_requested():
-     with MongoClient('localhost', 27017) as client:
+    results = []
+    with MongoClient('localhost', 27017) as client:
         db = client['TwitterBotDB']
         collection = db['account']
         x = collection.find()
-        results = []
+        
         for result in x:
             results.append(result)
-    
+
     if len(results) > 0:
         return results[0]
     else:
