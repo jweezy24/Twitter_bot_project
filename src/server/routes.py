@@ -16,12 +16,28 @@ def get_twitter_handle(thandle):#for testing
     if u == None:
         return "None"
     else:
-        return u
+        increment_counter(u)
+        return {
+            'id': u['twitter_handle'],
+            'followers' : len(u['followers']),
+            'following' : len(u['followers']),
+            'image' u['profile_image_url']: 
+        }s
     
 
 @app.route("/map/<thandle>")
 def get_user_map(thandle):#for testing
     u = distance_algorithm_calculation(thandle)
+    if u == None:
+        return "None"
+    else:
+        return {"results":u}
+
+        
+@app.route("/top")
+def get_user_map():#for testing
+    #u_list = get_top_requested()
+    u == None
     if u == None:
         return "None"
     else:
