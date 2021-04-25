@@ -1,4 +1,5 @@
 from flask import Flask, render_template, url_for, flash, redirect, request
+import requests
 from flaskServer import app, db
 import json
 
@@ -47,7 +48,11 @@ def graph():
     print(twitterHandle)
     #data = twitterHandle
     #get nodes from back end
+    user = requests.get(f"http://67.162.86.214:5000/user/{twitterHandle}")
 
+    connections = requests.get(f"http://67.162.86.214:5000/map/{twitterHandle}")
+
+    #
     
     #return data and load the page with the graph
     return render_template("graph.html", nodes = nodes, edges=edges)
@@ -86,3 +91,7 @@ def graphAdditionalNodes():
 
     #get nodes from back end
     return json.dumps(newNodes + newEdges)
+
+
+def formatJson(data):
+    return data
