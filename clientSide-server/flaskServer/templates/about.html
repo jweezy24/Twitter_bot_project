@@ -4,5 +4,26 @@
     <div class="row justify-content-md-center ">
         <h1>About</h1>
     </div>
+    <div class="row justify-content-md-center ">
+        <h2>Twitter Categorization Bot</h2>
+    <body>
+        <p>Bot is designed to create a representation of a user's Twitter Universe.
+            <br>We use the Twitter API to gather information from the root user's Twitter account.
+            <br>
+            <br>Particularly, we are pulling a user's TWEETS, FAVORITES, FOLLOWERS, and ASSOCIATED TOPICS
+            <br>
+            <br>Our data is stored in a remote MongoDB database.
+            <br>
+            <br>We use the Python NLTK Library for parsing tweets and categorization.
+            <br>
+            <br>The Categorization Algorithm takes in saved data and compiles into a hash table.
+            <br>
+            <br>We then rank words, contexts, and topics associated with the root user and subsequent followers.
+            <br>Our distance algorithm takes compares rankings to determine proper node positioning.
+            <br>
+            <br>Cytoscape is used to create the visual representation.
+        </p>
+    </body>
+    </div>
 </div>
 {% endblock content %}
