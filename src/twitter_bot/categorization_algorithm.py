@@ -543,14 +543,39 @@ def distance_algorithm_calculation(root_user):
     #We want to user this dictionary data structure to cache all text assoicated with a user
     data_cache = {}
     print(u)
-    for user in u["followers"]:
-        tmp = get_account_by_id_pymongo(user["follower"])
-        if "twitter_handle" in tmp and "total_followers" in tmp and "total_following" in tmp and "profile_image_url" in tmp:
-            data_cache.update({tmp["twitter_handle"]: tmp})
-    for user in u["following"]:
-        tmp = get_account_by_id_pymongo(user["following"])
-        if "twitter_handle" in tmp and "total_followers" in tmp and "total_following" in tmp and "profile_image_url" in tmp:
-            data_cache.update({tmp["twitter_handle"]: tmp})
+    if "followers" in u.keys():
+        for user in u["followers"]:
+            tmp = get_account_by_id_pymongo(user["follower"])
+            if "twitter_handle" in tmp and "total_followers" in tmp and "total_following" in tmp and "profile_image_url" in tmp:
+                data_cache.update({tmp["twitter_handle"]: tmp})
+            else:
+                if "twitter_handle" not in tmp:
+                    continue
+                if "total_followers" not in tmp:
+                    tmp.update({"total_followers": 0})
+                if "total_following" not in tmp:
+                    tmp.update({"total_following": 0})
+                if "profile_image_url" not in tmp:
+                    tmp.update({"profile_image_url": "https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg"})
+                
+                data_cache.update({tmp["twitter_handle"]: tmp})
+
+    if "following" in u.keys():
+        for user in u["following"]:
+            tmp = get_account_by_id_pymongo(user["following"])
+            if "twitter_handle" in tmp and "total_followers" in tmp and "total_following" in tmp and "profile_image_url" in tmp:
+                data_cache.update({tmp["twitter_handle"]: tmp})
+            else:
+                if "twitter_handle" not in tmp:
+                    continue
+                if "total_followers" not in tmp:
+                    tmp.update({"total_followers": 0})
+                if "total_following" not in tmp:
+                    tmp.update({"total_following": 0})  
+                if "profile_image_url" not in tmp:
+                    tmp.update({"profile_image_url": "https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg"})
+               
+                data_cache.update({tmp["twitter_handle"]: tmp})
     
     base_favorites = combine_favorites_with_context(root_user,u=u)
     base_tweets = combine_tweets_with_context(root_user,u=u)
@@ -638,7 +663,7 @@ def calculate_weight(key, data_cache,base_rw,base_rc,base_rt,returns):
     x = after_collation_weights(x,base_rw,words)
     y = after_collation_weights(y,base_rc,contexts)
     y = after_collation_weights(y,base_rt,topics)
-    print(data_cache[key].keys())
+    
     if give_weight:
         returns.update({user: {"username":user, 
         "x" : x, 

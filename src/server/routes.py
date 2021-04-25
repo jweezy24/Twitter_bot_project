@@ -16,12 +16,14 @@ def get_twitter_handle(thandle):#for testing
     if u == None:
         return "None"
     else:
-        increment_counter(u)
+        increment_counter(thandle)
+        u = get_account_pymongo(thandle)
+        print(u)   
         return {
             'id': u['twitter_handle'],
             'followers' : u['total_followers'],
             'following' : u['total_following'],
-            'image' : u['profile_image_url'] 
+            'image' : u['profile_image_url'], 
         }
     
 
@@ -36,10 +38,9 @@ def get_user_map(thandle):#for testing
         
 @app.route("/top")
 def get_top_requests():#for testing
-    #u_list = get_top_requested()
-    u == None
-    if u == None:
+    u_list = get_top_requested()
+    if u_list == None:
         return "None"
     else:
-        return {"results":u}
+        return {"results":u_list}
     

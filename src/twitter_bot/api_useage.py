@@ -507,7 +507,7 @@ def build_user_web(user, mongo=False):
     for people in followers:
         people = people.follower.twitter_handle
         if not is_private(people):
-            init_user(people)
+            init_user(people, update=True)
             print(f"CHECKING {people}")
             retrieve_all_tweets(people,use_mongo=mongo)
             print(f"Got Tweets for {people}")
@@ -523,7 +523,7 @@ def build_user_web(user, mongo=False):
     for people in following:
         people = people.following.twitter_handle
         if not is_private(people):
-            init_user(people)
+            init_user(people, update=True)
             print(f"CHECKING {people}")
             retrieve_all_tweets(people,use_mongo=mongo)
             print(f"Got Tweets for {people}")
@@ -539,10 +539,10 @@ def build_user_web(user, mongo=False):
 
 if __name__ == "__main__":
     # Below average twitter account in size
-    build_user_web('jack_west24',mongo=True)
+    # build_user_web('jack_west24',mongo=True)
     # Normal twitter account with consistant activity
     build_user_web('alittl3ton13', mongo=True)
     # Very little activity and size
-    build_user_web('allyssa_fogarty', mongo=True)
+    build_user_web('gubaladavid', mongo=True)
     # Large activity and size
     build_user_web('theneedledrop', mongo=True)

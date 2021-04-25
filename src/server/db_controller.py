@@ -54,14 +54,20 @@ def get_top_requested():
         requested = []
         toplist = {}
         for thing in x:
-            requested.append(x[thing]['requested'])
+            if 'requested' in thing.keys():
+                requested.append(thing['requested'])
 
-        requested.sort(reversed=True)
+        requested.sort(reverse=True)
 
         for num in range(0,49):
             for thing in x:
-                if x[thing]['requested'] == requested[num]:
-                    toplist[num] = x[thing]
+                if thing['requested'] == requested[num]:
+                    toplist[num] = {
+            'id': thing['twitter_handle'],
+            'followers' : thing['total_followers'],
+            'following' : thing['total_following'],
+            'image' : thing['profile_image_url'] 
+        }
 
     if len(toplist) > 0:
         return toplist
@@ -72,9 +78,17 @@ def increment_counter(user):
     with MongoClient('localhost', 27017) as client:
         db = client['TwitterBotDB']
         collection = db['account']
-        db.collection.update(
-            { "twitter_handle": user },
-            { "$inc": { "requested": -2}})
+        x = collection.find({"twitter_handle" : user})
+        for result in x:
+            if "reqeusted" not in result.keys():
+                collection.update_one({ "twitter_handle": user }, { "$set": { "requested": 1}})
+            else: 
+
+                collection.update_one( {"twitter_handle": user },{ "$set": { "requested": result["requested"]+1}})
+        
+        x = collection.find({"twitter_handle" : user})
+        for result in x:
+            collection.save(result)
 
 
 def get_max_id(val,username):
