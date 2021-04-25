@@ -21,8 +21,8 @@ def get_twitter_handle(thandle):#for testing
             'id': u['twitter_handle'],
             'followers' : len(u['followers']),
             'following' : len(u['followers']),
-            'image' u['profile_image_url']: 
-        }s
+            'image' : u['profile_image_url'] 
+        }
     
 
 @app.route("/map/<thandle>")
