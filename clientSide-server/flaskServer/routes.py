@@ -67,13 +67,22 @@ def topSearches():
     #get searches from back end server
     try:
         users = requests.get("http://67.162.86.214:5000/top")
-        data = users.json()
-        print(users)
+        
+        if users.content != b'None':
+            data = users.json()
+            dataArray = data['results']
+            return render_template("topSearches.html", accounts = dataArray)
+        else:
+            print("oops! No Data Retrieved")
+            flash('oops! No Data Retrieved')
+            return render_template(home_Page)
+       
+        
     except requests.exceptions.ConnectionError:
         print("oops! Backend-server is down")
         flash('oops! Backend-server is down')
         return render_template(home_Page)
-    return render_template("topSearches.html", accounts = data)
+    
 
 # @app.route("/topSearches/update",methods = ['POST'])
 # def updateSearches():

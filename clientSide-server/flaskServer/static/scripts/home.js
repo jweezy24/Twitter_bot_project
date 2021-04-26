@@ -5,17 +5,17 @@ function getData(e) {
     var handle = $("#TwitterHandleInput").val().trim()
     var ele = checkLocalStorage(handle);
     if (ele == null) {
-        $.get(`/graph?TwitterHandleInput=${ handle }` , function(data, status) {
+        $.get(`/graph?TwitterHandleInput=${handle}`, function (data, status) {
             console.log(data, status);
-            
+
         })
     }
     else {
-        window.location.href ="/graph?TwitterHandleInput="+handle;
+        window.location.href = "/graph?TwitterHandleInput=" + handle;
     }
-    
+
 }
-    
+
 // function checkLocalStorage(twitter_handle) {
 //     if (localStorage.getItem(twitter_handle) == null) {
 //         elements[0].data.time = new Date();
@@ -40,8 +40,8 @@ function checkLocalStorage(twitter_handle) {
     else {
         var ele = localStorage.getItem(twitter_handle);
 
-        console.log((new Date().getTime() - ele[0].data.time.getTime())/ (1000 * 3600 * 24) >=1);
-        if ((new Date().getTime() - ele[0].data.time.getTime())/ (1000 * 3600 * 24) >=1 ) {
+        console.log((new Date().getTime() - ele[0].data.time.getTime()) / (1000 * 3600 * 24) >= 1);
+        if ((new Date().getTime() - ele[0].data.time.getTime()) / (1000 * 3600 * 24) >= 1) {
             return ele;
         }
     }

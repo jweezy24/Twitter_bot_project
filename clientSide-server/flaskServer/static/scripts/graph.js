@@ -43,14 +43,13 @@ var doubleClickDelayMs = 350;
 function checkLocalStorage(twitter_handle) {
     if (localStorage.getItem(twitter_handle) == null) {
         elements[0].data.time = new Date();
-        //console.log(elements);
         localStorage.setItem(twitter_handle, JSON.stringify(elements));
     }
     else {
         var ele = localStorage.getItem(twitter_handle);
 
-        console.log((new Date().getTime() - ele[0].data.time.getTime())/ (1000 * 3600 * 24) >=1);
-        if ((new Date().getTime() - ele[0].data.time.getTime())/ (1000 * 3600 * 24) >=1 ) {
+        //console.log((new Date().getTime() - ele[0].data.time.getTime())/ (1000 * 3600 * 24) >=1);
+        if ((new Date().getTime() - ele[0].data.time.getTime()) / (1000 * 3600 * 24) >= 1) {
             elements = ele;
         }
     }
@@ -59,7 +58,6 @@ function checkLocalStorage(twitter_handle) {
 
 
 $(document).ready(function () {
-    console.log(elements)
 
     cy = cytoscape({
         container: $("#cy"),
@@ -94,7 +92,7 @@ $(document).ready(function () {
             {
                 "selector": "edge",
                 "style": {
-                    
+
                     'line-color': "data(color)"
                 }
             },
@@ -121,17 +119,14 @@ $(document).ready(function () {
         setColaLayout();
         setColaLayout();
         setColaLayout();
-            
+
     });
     //var cy = $('#cy').cytoscape('get');
 
-    // });
-    // setColaLayout();
-    // setColaLayout();
-    //based of https://codepen.io/rbogard/details/jOEyWrL
+
 
     cy.ready(function () {
-        //    tippy.setDefaultProps({followCursor: 'true'});
+
 
         cy.elements().forEach(function (element) {
             //console.log(element)
@@ -141,18 +136,18 @@ $(document).ready(function () {
         cy.elements().on('tap', function (event) {
             var currentTapStamp = event.timeStamp;
             var msFromLastTap = currentTapStamp - previousTapStamp;
-            console.log()
+
             if (event.target.isNode()) {
                 var node = event.target;
-                console.log('tapped ' + node.id());
+
 
                 cy.fit(node);
                 cy.zoom({ level: 1.5, position: { x: node.position('x'), y: node.position('y') } })
                 if (msFromLastTap < doubleClickDelayMs) {
                     if (node.selected()) {
-                        console.log('selected ' + node.id());
+
                         //GetMoreNodes(node.id());
-                        window.location.href ="/graph?TwitterHandleInput="+node.id();
+                        window.location.href = "/graph?TwitterHandleInput=" + node.id();
                         startTime = 0;
                         event.target.tippy.hide();
                     }
@@ -186,7 +181,7 @@ function elapsed() {
     timeDiff /= 1000;
 
     // get seconds 
-    console.log(timeDiff);
+
     //var seconds = Math.round(timeDiff);
     return timeDiff
 }
@@ -215,16 +210,16 @@ function makePopper(ele) {
                     var followers = 'Followers: ' + ele.data('followers');
                 }
                 var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
-                //var description = '<i>' + ele.data('description') + '</i>';
+
                 content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp' + followers;//+ '<p><br>' + description + '</p>'
             }
             else {
                 var distance = ele.data('weight');
-                content.innerHTML = distance*scale;
+                content.innerHTML = distance * scale;
             }
 
 
-            //image + '&nbsp' + twitterLink + '<br> &nbsp' + following +'<br> &nbsp'+ followers+'<p><br>' + description + '</p>';
+
 
 
             return content;
@@ -266,26 +261,23 @@ function GetMoreNodes(id) {
             setColaLayout();
             setColaLayout();
             items.forEach(function (element) {
-                //console.log(element)
+
                 makePopper(element);
             });
             items.on('tap', function (event) {
                 var currentTapStamp = event.timeStamp;
                 var msFromLastTap = currentTapStamp - previousTapStamp;
 
-                console.log()
                 if (event.target.isNode()) {
                     var node = event.target;
-                    console.log('tapped ' + node.id());
                     cy.fit(node);
                     cy.zoom({ level: 1.5, position: { x: node.position('x'), y: node.position('y') } })
 
                     if (msFromLastTap < doubleClickDelayMs) {
                         if (node.selected()) {
-                            console.log('selected ' + node.id());
                             //GetMoreNodes(node.id());
-                            
-                            window.location.href ="/graph?TwitterHandleInput="+node.id();
+
+                            window.location.href = "/graph?TwitterHandleInput=" + node.id();
                             startTime = 0;
                             event.target.tippy.hide();
                         }
@@ -305,7 +297,6 @@ function GetMoreNodes(id) {
                 });
 
             });
-            console.log(objects);
         }
     })
 }
@@ -329,49 +320,27 @@ function setGridLayout() {
     //stoggleNodeLock(false);
     var layout = cy.layout({ name: 'grid' }).run();
     layout.on('layoutstop', function () {
-        //temporary location
-        //setEdgeDistancesQueue();
         setEdgeDistances(edges);
-        // toggleNodeLock(true);
-
     });
 }
 function setColaLayout() {
-    //toggleNodeLock(false);
+
     var layout = cy.layout({ name: 'cola' }).run();
     layout.on('layoutstop', function () {
-        //temporary location
-        //setEdgeDistancesQueue();
-        //console.log(edges)
         setEdgeDistances(edges);
-
-        // toggleNodeLock(true);
-
     });
 }
 
 function setColaLayoutWeightless() {
-    //toggleNodeLock(false);
+
     var layout = cy.layout({ name: 'cola' }).run();
-    layout.on('layoutstop', function () {
-        //temporary location
-        //setEdgeDistancesQueue();
-        //console.log(edges)
-        //setEdgeDistances(edges);
 
-        // toggleNodeLock(true);
-
-    });
 }
 function setEulerLayout() {
     //toggleNodeLock(false);
     var layout = cy.layout({ name: 'euler' }).run();
     layout.on('layoutstop', function () {
-        //temporary location
-        //setEdgeDistancesQueue();
         setEdgeDistances(edges);
-        //toggleNodeLock(true);
-
     });
 }
 
@@ -391,15 +360,14 @@ function setEdgeDistances(edges) {
         var dist = getDistance(el1.position(), el2.position())
         if (dist != edges[i].data.weight * scale) {
             //var difference = dist - elements[i].data.weight*scale;
-            //console.log(difference);
+
             var angle = getAngle(el1.position(), el2.position());
-            //console.log(el1.id(), angle, el2.id())
+
             var x = edges[i].data.weight * scale * Math.cos(degrees_to_radians(angle - 90));
-            //console.log(x);
+
             var y = edges[i].data.weight * scale * Math.sin(degrees_to_radians(angle - 90));
             el2.position({ x: x + el1.position('x'), y: y + el1.position('y') });
-            //console.log(el1.id(), getAngle(el1.position(), el2.position()), el2.id())
-            //console.log(el1.position(), el2.position());
+
             el1.data('visited', true);
 
         }
@@ -421,7 +389,7 @@ function setEdgeDistancesQueue() {
         connectedEdges.forEach((edge) => {
             //var source = cy.$(`#${edge.data('source')}`);
             var target = edge.target();
-            console.log(node.id(), target.id());
+
             if (target.data('visited') == true || target.id() == node.id()) {
                 return;
             }
@@ -435,15 +403,14 @@ function setEdgeDistancesQueue() {
                 var dist = getDistance(node.position(), target.position())
                 if (dist != edge.data('weight') * scale) {
                     //var difference = dist - elements[i].data.weight*scale;
-                    //console.log(difference);
+
                     var angle = getAngle(node.position(), target.position());
-                    console.log(node.id(), angle, target.id())
+
                     var x = edge.data('weight') * scale * Math.cos(degrees_to_radians(angle - 90));
-                    console.log(x);
+
                     var y = edge.data('weight') * scale * Math.sin(degrees_to_radians(angle - 90));
                     target.position({ x: x + node.position('x'), y: y + node.position('y') });
-                    //console.log(node.id(),getAngle(node.position(), target.position()),target.id())
-                    console.log(node.position(), target.position());
+
                     target.data('visited', true);
 
                 }

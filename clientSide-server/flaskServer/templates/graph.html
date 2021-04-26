@@ -11,7 +11,7 @@
 
 <script>var nodes = JSON.parse('{{nodes | tojson}}');
     var edges = JSON.parse('{{edges | tojson}}');
-    </script>
+</script>
 
 <!-- For loading external data files -->
 <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise,fetch"></script>
@@ -20,29 +20,30 @@
         <div class="col-md-2 col-xs-12 text-center">
             <h1>Graph</h1>
         </div>
-        
+
     </div>
     <div class="row justify-content-center">
         <div class="col-2  col-xs-2 row justify-content-center">
             <div class="btn-group" role="group" aria-label="Basic example" style="padding-bottom: 10px;">
                 <button type="button" class="btn btn-secondary" onclick="setColaLayout();">Cola</button>
-                <button type="button" class="btn btn-secondary" onclick="setColaLayoutWeightless();">WeightLess Cola</button>
+                <button type="button" class="btn btn-secondary" onclick="setColaLayoutWeightless();">WeightLess
+                    Cola</button>
                 <button type="button" class="btn btn-secondary" onclick="setEulerLayout();">Euler</button>
                 <button type="button" class="btn btn-secondary" onclick="setGridLayout();">Grid</button>
-              </div>
+            </div>
         </div>
-        
-    </div>
- 
-</div>
-    <div class="graph" id="cy">
 
     </div>
-    <script src="../static/scripts/graph.js"></script>     
-                <!-- <h1 class="display-4">Fluid jumbotron</h1> -->
-                <!-- <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p> -->
-                
-            
-    
+
+</div>
+<div class="graph" id="cy">
+
+</div>
+<script src="../static/scripts/graph.js"></script>
+<!-- <h1 class="display-4">Fluid jumbotron</h1> -->
+<!-- <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p> -->
+
+
+
 
 {% endblock content %}

@@ -1,21 +1,14 @@
-
-
 #cy {
-    width: 95vw;
-    height: 85vh;
-    display: block;
-    margin: auto;
-    border-radius: 25px;
-      
-      
-      
-      background-opacity:0;
-      
-    
-  }
+  width: 95vw;
+  height: 85vh;
+  display: block;
+  margin: auto;
+  border-radius: 25px;
+  background-opacity:0;
 
+}
 .container .jumbotron {
   background-opacity:0!important;
-    border-radius: 25px !important;
+  border-radius: 25px !important;
 }
 
