@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, flash, redirect, request
 
-from flaskServer import app, db
+from flaskServer import app
 import requests
 import json
 import math
