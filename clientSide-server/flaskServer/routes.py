@@ -108,15 +108,15 @@ def formatJsonEdgeData(source:str,jsonData:dict):
         if weight <=10:
             weight /=1000 
             weight += .2
-            color = "#5E88FC"
+            color = "#A3CE65"
         elif weight <=100:
             weight /= 1000
             weight +=.5
-            color = "#74DBEF"
+            color = "#5982DE"
         else:
             weight /= 1000
             weight +=1
-            color = "AFFFFF"
+            color = "#705DC2"
         dictionary = {"group": "edges", "data":
             { "id": str(edgeId), "source": source, "target": item["username"], "weight": weight,"color": color, "visited": "false" } 
             

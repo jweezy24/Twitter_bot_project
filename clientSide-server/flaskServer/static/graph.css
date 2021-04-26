@@ -1,16 +1,17 @@
 
 
 #cy {
-    width: 100%;
-    height: 1000px;
+    width: 100vw;
+    height: 90vh;
     display: block;
     
     border-radius: 25px;
       
       
-      float: left;
+      
       background-opacity:0;
-      position: absolute;
+      top: 0;
+      left: 0;
     
   }
 

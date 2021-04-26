@@ -29,6 +29,7 @@ var scale = 500;
 // ]
 //temporary also in future it will be array of nodes and array of edges
 var elements = [...nodes.concat(edges)]
+
 var addedElements = []
 var addedNodes = []
 var addedEdges = []
@@ -36,6 +37,26 @@ var addedEdges = []
 var cy;
 var previousTapStamp;
 var doubleClickDelayMs = 350;
+
+//checkLocalStorage(elements[0].data.id)
+
+function checkLocalStorage(twitter_handle) {
+    if (localStorage.getItem(twitter_handle) == null) {
+        elements[0].data.time = new Date();
+        //console.log(elements);
+        localStorage.setItem(twitter_handle, JSON.stringify(elements));
+    }
+    else {
+        var ele = localStorage.getItem(twitter_handle);
+
+        console.log((new Date().getTime() - ele[0].data.time.getTime())/ (1000 * 3600 * 24) >=1);
+        if ((new Date().getTime() - ele[0].data.time.getTime())/ (1000 * 3600 * 24) >=1 ) {
+            elements = ele;
+        }
+    }
+}
+
+
 
 $(document).ready(function () {
     console.log(elements)
@@ -130,7 +151,8 @@ $(document).ready(function () {
                 if (msFromLastTap < doubleClickDelayMs) {
                     if (node.selected()) {
                         console.log('selected ' + node.id());
-                        GetMoreNodes(node.id());
+                        //GetMoreNodes(node.id());
+                        window.location.href ="/graph?TwitterHandleInput="+node.id();
                         startTime = 0;
                         event.target.tippy.hide();
                     }
@@ -261,7 +283,9 @@ function GetMoreNodes(id) {
                     if (msFromLastTap < doubleClickDelayMs) {
                         if (node.selected()) {
                             console.log('selected ' + node.id());
-                            GetMoreNodes(node.id());
+                            //GetMoreNodes(node.id());
+                            
+                            window.location.href ="/graph?TwitterHandleInput="+node.id();
                             startTime = 0;
                             event.target.tippy.hide();
                         }
