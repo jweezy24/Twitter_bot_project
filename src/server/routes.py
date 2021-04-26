@@ -9,7 +9,18 @@ sys.path.append("./src/twitter_bot/")
 from categorization_algorithm import *
 
 
-@app.route("/")
+
+@app.route("/")      
+@app.route("/top")
+def get_top_requests():#for testing
+    u_list = get_top_requested()
+    if u_list == None:
+        return "None"
+    else:
+        return {"results":u_list}
+    
+
+
 @app.route("/user/<thandle>")
 def get_twitter_handle(thandle):#for testing
     u = get_account_pymongo(thandle)
@@ -18,12 +29,12 @@ def get_twitter_handle(thandle):#for testing
     else:
         increment_counter(thandle)
         u = get_account_pymongo(thandle)
-        print(u)   
         return {
             'id': u['twitter_handle'],
             'followers' : u['total_followers'],
             'following' : u['total_following'],
             'image' : u['profile_image_url'], 
+            'requested' : u['requested']
         }
     
 
@@ -34,13 +45,3 @@ def get_user_map(thandle):#for testing
         return "None"
     else:
         return {"results":u}
-
-        
-@app.route("/top")
-def get_top_requests():#for testing
-    u_list = get_top_requested()
-    if u_list == None:
-        return "None"
-    else:
-        return {"results":u_list}
-    

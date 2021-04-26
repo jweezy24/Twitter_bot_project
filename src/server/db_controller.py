@@ -75,20 +75,12 @@ def get_top_requested():
         return None
 
 def increment_counter(user):
-    with MongoClient('localhost', 27017) as client:
-        db = client['TwitterBotDB']
-        collection = db['account']
-        x = collection.find({"twitter_handle" : user})
-        for result in x:
-            if "reqeusted" not in result.keys():
-                collection.update_one({ "twitter_handle": user }, { "$set": { "requested": 1}})
-            else: 
-
-                collection.update_one( {"twitter_handle": user },{ "$set": { "requested": result["requested"]+1}})
-        
-        x = collection.find({"twitter_handle" : user})
-        for result in x:
-            collection.save(result)
+    u = get_account(user)
+    if u == None:
+        return None
+    else:
+        u.requested = u.requested+1
+        u.save()
 
 
 def get_max_id(val,username):
