@@ -30,7 +30,7 @@ class TestModels(unittest.TestCase):
     
     
     def test_account(self):
-        user =  Account(twitter_handle= "John21")
+        user =  Account(id = 1, twitter_handle= "John21")
         user.name = "John Doe"
         user.save()
 
@@ -62,7 +62,7 @@ class TestModels(unittest.TestCase):
 
         group1.save()
 
-        account =  Account(twitter_handle= "John3")
+        account =  Account(id = 2,twitter_handle= "John3")
         account.name = "John"
         account.group_type = group1
         
@@ -76,35 +76,60 @@ class TestModels(unittest.TestCase):
 
     def test_FollowingConnections(self):
         #create account
-        account = Account(twitter_handle= "Steve3")
+        account = Account(id = 3, twitter_handle= "Steve3")
         account.name = 'Steve'
         account.save()
 
         #create second account
-        account2 = Account(twitter_handle= "Jane3")
+        account2 = Account(id = 4, twitter_handle= "Jane3")
         account2.name = 'Jane'
         account2.save()
         
         #create connection for account to account2
         following = FollowingConnections(following = account2)
         following.distance = 10
-
+        
         #append connection to account connections list
-        account.connections.append(following)
-
+        account.following.append(following)
+        account.save()
         #query account
         query_account = Account.objects(twitter_handle = 'Steve3').get()
 
-        assert query_account
+        assert query_account.following[0].distance == 10
+        assert query_account.following[0].following == account2
 
-    def test_Search(self):
+    def test_FollowerConnections(self):
         #create account
-        account = Account(twitter_handle= "Steve1")
+        account = Account(id = 3, twitter_handle= "Steve3")
         account.name = 'Steve'
         account.save()
 
         #create second account
-        account2 = Account(twitter_handle= "Jane2")
+        account2 = Account(id = 4, twitter_handle= "Jane3")
+        account2.name = 'Jane'
+        account2.save()
+        
+        #create connection for account to account2
+        follower = FollowerConnections(follower = account2)
+        follower.distance = 10
+        
+        #append connection to account connections list
+        account.followers.append(follower)
+        account.save()
+        #query account
+        query_account = Account.objects(twitter_handle = 'Steve3').get()
+
+        assert query_account.followers[0].distance == 10
+        assert query_account.followers[0].follower == account2
+
+    def test_Search(self):
+        #create account
+        account = Account(id = 5,twitter_handle= "Steve1")
+        account.name = 'Steve'
+        account.save()
+
+        #create second account
+        account2 = Account(id = 6, twitter_handle= "Jane2")
         account2.name = 'Jane'
         account2.save()
         
@@ -114,7 +139,7 @@ class TestModels(unittest.TestCase):
 
         #create search
         search = Search(search_handle = account)
-        search.connections.append(following)
+        search.following.append(following)
         search.save()
         
         #query account
@@ -124,5 +149,84 @@ class TestModels(unittest.TestCase):
 
         #test
         assert query_search.search_handle == account
-        assert query_search.connections[0].distance == 10
+        assert query_search.following[0].distance == 10
+        
+
+    def test_top_words(self):
+        account = Account(id = 7,twitter_handle= "Steve2")
+        account.name = 'Steve'
+        
+        pos = Top_Words()
+        pos.word = "test"
+        pos.value = 5
+
+        neg = Top_Words()
+        neg.word = "twitter"
+        neg.value = 20
+
+        account.top_words_positive.append(pos)
+        account.top_words_negative.append(neg)
+
+        account.save()
+
+        #query account
+        query_account = Account.objects(twitter_handle = "Steve2").get()
+
+        #test
+        assert query_account.top_words_positive[0].word == pos.word
+        assert query_account.top_words_positive[0].value == 5
+        assert query_account.top_words_negative[0].word == neg.word
+        assert query_account.top_words_negative[0].value == 20
+
+    #test tweets/favorite tweets embedded document 
+    def test_tweets(self):
+        account = Account(id = 8,twitter_handle= "Steve4")
+        account.name = 'Steve'
+        
+        tweet = Tweet(id = 1)
+        tweet.text = "Whats up"
+
+        account.tweets.append(tweet)
+        
+
+        account.save()
+
+        #query account
+        query_account = Account.objects(twitter_handle = "Steve4").get()
+
+        #test
+        assert query_account.tweets[0] == tweet
+        
+    def test_context(self):
+        account = Account(id = 9,twitter_handle= "Steve5")
+        account.name = 'Steve'
+        
+        context = Context(id = 1)
+        context.text = "test"
+
+        domain = Domain(id = 1)
+        domain.name = "test2"
+        domain.description = "testing"
+
+        entity = Entity(id = 1)
+        entity.name = "test2"
+        entity.description = "testing"
+
+        contextAnnotation = Context_Annotation()
+        contextAnnotation.domain = domain
+        contextAnnotation.entity = entity
+
+        context.context_annotations.append(contextAnnotation)
+
+        account.tweets_context.append(context)
+        
+
+        account.save()
+
+        #query account
+        query_account = Account.objects(twitter_handle = "Steve5").get()
+
+        #test
+        assert query_account.tweets_context[0] == context
+        assert query_account.tweets_context[0].context_annotations[0] == contextAnnotation
         

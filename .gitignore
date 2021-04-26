@@ -131,7 +131,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#vscode
 .vscode/
-/node_modules
+#this is for intellisense for javascript 
+#except my vscode hates me so it doesnt work anyways but I am determined to get my intellisense
 package.json
-package-lock.json
+#.vscode/

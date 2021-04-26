@@ -1,4 +1,5 @@
 from re import search
+from typing import Dict
 import mongoengine
 import datetime
 from server.models import *
@@ -15,7 +16,7 @@ def insert_account(data:dict):
     
     account = get_account(data['twitter_handle'])
     if account is None:
-        account = Account(twitter_handle=data['twitter_handle'])
+        account = Account(id = data['id'],twitter_handle=data['twitter_handle'])
     
     account.name = data['name']
     account.update_date = datetime.datetime.utcnow()
@@ -28,13 +29,18 @@ def insert_account(data:dict):
         else:
             insert_group({'name':data['group_type']})
             account.group_type = get_group(data['group_type'])
-    #insert connections after creating them if account already has connections we create a search to store the old search
-    if "connections" in data:
-        if len(account.connections) > 0: 
+    if "following" in data or "followers" in data:
+        if len(account.following) > 0 or len(account.followers) > 0: 
             create_search(account)
-        account.connections.clear()
-        for connection in data['connections']:
-            account.connections.append(generate_following_connection(connection))
+            account.following.clear()
+            account.followers.clear()
+    #insert following connections after creating them if account already has connections we create a search to store the old search
+    if "following" in data:
+        for connection in data['following']:
+            account.following.append(generate_following_connection(connection))
+    if "followers" in data:
+        for connection in data['followers']:
+            account.followers.append(generate_follower_connection(connection))
     
     account.save()
         
@@ -77,15 +83,30 @@ def generate_following_connection(data:dict):
     connection.distance = data['distance']
     return connection
 
+#used by insert account to create the following connections if it doesnt exist it inserts the account this is recursive
+def generate_follower_connection(data:dict):
+    connection = FollowerConnections()
+    follower = get_account(data['follower']['twitter_handle'])
+    if follower is not None:
+        connection.follower = follower
+    else:
+        follower = insert_account(data['follower'])
+        connection.follower = follower
+    connection.distance = data['distance']
+    return connection
+
 def create_search(account:Account):
     search = Search(search_handle = account)
-    search.connections = account.connections
+    search.following = account.following
     search.date = account.update_date
     search.save()
 
-def find_previous_search(twitter_handle:str):
+def find_previous_searchs(twitter_handle:str):
     try:
         account = get_account(twitter_handle)
-        return Search.objects(search_handle = account).get()
+        return Search.objects(search_handle = account)
     except mongoengine.errors.DoesNotExist:
         return None
+
+def create_context_annotation(data:Dict):
+    print(data)
