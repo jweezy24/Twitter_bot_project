@@ -349,6 +349,20 @@ function setColaLayout() {
 
     });
 }
+
+function setColaLayoutWeightless() {
+    //toggleNodeLock(false);
+    var layout = cy.layout({ name: 'cola' }).run();
+    layout.on('layoutstop', function () {
+        //temporary location
+        //setEdgeDistancesQueue();
+        //console.log(edges)
+        //setEdgeDistances(edges);
+
+        // toggleNodeLock(true);
+
+    });
+}
 function setEulerLayout() {
     //toggleNodeLock(false);
     var layout = cy.layout({ name: 'euler' }).run();

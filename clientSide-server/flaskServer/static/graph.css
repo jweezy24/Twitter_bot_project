@@ -1,17 +1,16 @@
 
 
 #cy {
-    width: 100vw;
-    height: 90vh;
+    width: 95vw;
+    height: 85vh;
     display: block;
-    
+    margin: auto;
     border-radius: 25px;
       
       
       
       background-opacity:0;
-      top: 0;
-      left: 0;
+      
     
   }
 
