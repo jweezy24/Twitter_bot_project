@@ -112,6 +112,7 @@ def get_max_id(val,username):
             return m
     else:
         return -1 
+
 def insert_account(data:dict, tinydb=False):
     
     account = get_account(data['twitter_handle'])
