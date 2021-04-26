@@ -52,23 +52,29 @@ def get_top_requested():
         collection = db['account']
         x = collection.find()
         requested = []
-        toplist = {}
+        toplist = []
         for thing in x:
-            if 'requested' in thing.keys():
-                requested.append(thing['requested'])
+            if 'requested' in thing.keys() and thing['requested'] > 0:
+                requested.append(int(thing['requested']))
 
         requested.sort(reverse=True)
+        
+        x = collection.find()
+        for thing in x:
+            if 'requested' in thing.keys() and int(thing['requested']) in requested:
+                ind = requested.index(int(thing['requested']))
+                if 'profile_image_url' not in thing.keys():
+                    thing.update({"profile_image_url": 'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' })
+                
+                toplist.append( {
+                    'id': thing['twitter_handle'],
+                    'followers' : thing['total_followers'],
+                    'following' : thing['total_following'],
+                    'image' : thing['profile_image_url'],
+                    'requested' : int(thing['requested'])
+                })
 
-        for num in range(0,49):
-            for thing in x:
-                if thing['requested'] == requested[num]:
-                    toplist[num] = {
-            'id': thing['twitter_handle'],
-            'followers' : thing['total_followers'],
-            'following' : thing['total_following'],
-            'image' : thing['profile_image_url'] 
-        }
-
+    print(toplist)
     if len(toplist) > 0:
         return toplist
     else:

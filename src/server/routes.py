@@ -14,6 +14,7 @@ from categorization_algorithm import *
 @app.route("/top")
 def get_top_requests():#for testing
     u_list = get_top_requested()
+    print(u_list)
     if u_list == None:
         return "None"
     else:
