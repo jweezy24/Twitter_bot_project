@@ -1,0 +1,22 @@
+
+
+#cy {
+    width: 100vw;
+    height: 90vh;
+    display: block;
+    
+    border-radius: 25px;
+      
+      
+      
+      background-opacity:0;
+      top: 0;
+      left: 0;
+    
+  }
+
+.container .jumbotron {
+  background-opacity:0!important;
+    border-radius: 25px !important;
+}
+

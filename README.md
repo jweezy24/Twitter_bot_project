@@ -51,6 +51,7 @@ Jack West – [@GitHub](https://github.com/jweezy24) - Jwest1@luc.edu
 Andrew Littleton - [@Github](https://github.com/alittleton98) - admin@andrewlittleton.com
 
 Piotr Jackowski - [@Github](https://github.com/pjack7oo) - pjackowski@luc.edu
+Yandi Farinango - [@Github](https://github.com/yandi-farinango) - yfarinango@luc.edu
 
 [README Template](https://github.com/dbader/readme-template)
 
