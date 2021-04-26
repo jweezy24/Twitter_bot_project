@@ -1,6 +1,6 @@
 //scale that will be applied to weights
-var scale = 1;
-// var nodes = [
+var scale = 500;
+// var oldNodes = [
 //     { group: 'nodes', data: { id: 'n0', label: 'n0', visited: false, followers:100, following:1000 ,image:'https://live.staticflickr.com/1261/1413379559_412a540d29_b.jpg' }, classes: 'center-center', },
 //     { group: 'nodes', data: { id: 'n1', label: 'n1', "visited": false }, classes: 'center-center' },
 //     { group: 'nodes', data: { id: 'n3', label: 'n3', "visited": false }, classes: 'center-center' },
@@ -12,7 +12,7 @@ var scale = 1;
 //     { group: 'nodes', data: { id: 'n8', label: 'n8', "visited": false }, classes: 'center-center', },
 //     { group: 'nodes', data: { id: 'n9', label: 'n9', "visited": false }, classes: 'center-center', }
 // ]
-// var edges = [
+// var oldEdges = [
 
 //     { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1', weight: 100, "visited": false } },
 //     // { group: 'edges', data: { id: 'e1', source: 'n1', target: 'n2', weight: 100, "visited": false } },
@@ -36,8 +36,10 @@ var addedEdges = []
 var cy;
 var previousTapStamp;
 var doubleClickDelayMs = 350;
+
 $(document).ready(function () {
     console.log(elements)
+
     cy = cytoscape({
         container: $("#cy"),
 
@@ -46,36 +48,43 @@ $(document).ready(function () {
             name: 'cola',
             directed: false
         },
-        // style: [
+        style: [
 
-        //     {
-        //         "selector": "node",
-        //         "style": {
-        //             'background-image': "data(image)",
-        //             'height': 40,
-        //             'width': 40,
-        //             'background-fit': 'cover',
-        //             'border-color': '#000',
-        //             'border-width': 3,
-        //             'border-opacity': 0.5
-        //         }
+            {
+                "selector": "node",
+                "style": {
+                    'background-image': "data(image)",
+                    'height': 40,
+                    'width': 40,
+                    'background-fit': 'cover',
+                    'border-color': '#000',
+                    'border-width': 3,
+                    'border-opacity': 0.5
+                }
 
-        //     },
-        //     {
-        //         "selector": "node[label]",
-        //         "style": {
-        //             "label": "data(label)",
+            },
+            // {
+            //     "selector": "node[label]",
+            //     "style": {
+            //         "label": "data(label)",
 
-        //         }
-        //     },
-        //     {
-        //         "selector": ".center-center",
-        //         "style": {
-        //             "text-valign": "center",
-        //             "text-halign": "center"
-        //         }
-        //     },
-        // ]
+            //     }
+            // },
+            {
+                "selector": "edge",
+                "style": {
+                    
+                    'line-color': "data(color)"
+                }
+            },
+            {
+                "selector": ".center-center",
+                "style": {
+                    "text-valign": "center",
+                    "text-halign": "center"
+                }
+            },
+        ]
     });
 
     var layout = cy.layout({ name: 'cola' }).run();
@@ -83,13 +92,15 @@ $(document).ready(function () {
         //temporary location
         //setEdgeDistancesQueue();
         //setEdgeDistances();
-        ele.forEach(element => {
+        elements.forEach(element => {
             if (element.group == 'nodes') {
                 cy.$(`#${element.data.id}`).ungrabify();
             }
         });
         setColaLayout();
         setColaLayout();
+        setColaLayout();
+            
     });
     //var cy = $('#cy').cytoscape('get');
 
@@ -100,7 +111,7 @@ $(document).ready(function () {
 
     cy.ready(function () {
         //    tippy.setDefaultProps({followCursor: 'true'});
-        
+
         cy.elements().forEach(function (element) {
             //console.log(element)
             makePopper(element);
@@ -169,15 +180,25 @@ function makePopper(ele) {
 
             if (ele.isNode()) {
                 var twitterLink = '<a href="http://twitter.com/' + ele.data('id') + '">' + ele.data('id') + '</a>';
-                var following = 'Following: ' + ele.data('following');
-                var followers = 'Followers: ' + ele.data('followers');
+                if (ele.data('following') >= 1000) {
+                    var following = 'Following: ' + ele.data('following') + "+";
+                }
+                else {
+                    var following = 'Following: ' + ele.data('following');
+                }
+                if (ele.data('followers') >= 1000) {
+                    var followers = 'Followers: ' + ele.data('followers') + "+";
+                }
+                else {
+                    var followers = 'Followers: ' + ele.data('followers');
+                }
                 var image = '<img src="' + ele.data('image') + '" style="float:left;width:50px;height:50px;">';
                 //var description = '<i>' + ele.data('description') + '</i>';
                 content.innerHTML = image + '&nbsp' + twitterLink + '<br> &nbsp' + following + '<br> &nbsp' + followers;//+ '<p><br>' + description + '</p>'
             }
             else {
                 var distance = ele.data('weight');
-                content.innerHTML = distance;
+                content.innerHTML = distance*scale;
             }
 
 
@@ -228,7 +249,7 @@ function GetMoreNodes(id) {
             });
             items.on('tap', function (event) {
                 var currentTapStamp = event.timeStamp;
-            var msFromLastTap = currentTapStamp - previousTapStamp;
+                var msFromLastTap = currentTapStamp - previousTapStamp;
 
                 console.log()
                 if (event.target.isNode()) {
@@ -244,7 +265,7 @@ function GetMoreNodes(id) {
                             startTime = 0;
                             event.target.tippy.hide();
                         }
-    
+
                     }
                     previousTapStamp = currentTapStamp;
 
@@ -297,6 +318,7 @@ function setColaLayout() {
     layout.on('layoutstop', function () {
         //temporary location
         //setEdgeDistancesQueue();
+        //console.log(edges)
         setEdgeDistances(edges);
 
         // toggleNodeLock(true);
@@ -338,8 +360,8 @@ function setEdgeDistances(edges) {
             //console.log(x);
             var y = edges[i].data.weight * scale * Math.sin(degrees_to_radians(angle - 90));
             el2.position({ x: x + el1.position('x'), y: y + el1.position('y') });
-            console.log(el1.id(), getAngle(el1.position(), el2.position()), el2.id())
-            console.log(el1.position(), el2.position());
+            //console.log(el1.id(), getAngle(el1.position(), el2.position()), el2.id())
+            //console.log(el1.position(), el2.position());
             el1.data('visited', true);
 
         }

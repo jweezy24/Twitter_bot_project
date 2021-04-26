@@ -52,14 +52,14 @@ var createClickHandler = function(row) {
     var cell = row.getElementsByTagName("td")[2];
     console.log(cell.children[0].innerHTML)
     var name = cell.children[0].innerHTML.substring(1);
-    $.ajax({
-      type:"POST",
-      url:"/topSearches/update",
-      data: {"twitter_handle":name},
-      success: function() {
-        console.log("pass");
-      }
-    })
+    // $.ajax({
+    //   type:"POST",
+    //   url:"/topSearches/update",
+    //   data: {"twitter_handle":name},
+    //   success: function() {
+    //     console.log("pass");
+    //   }
+    // })
     window.location.href ="/graph?TwitterHandleInput="+name;
     //var id = cell.innerHTML;
     //alert("id:" + id);
